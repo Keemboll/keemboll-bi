@@ -226,7 +226,7 @@ def main(argv):
     if o["agent"] == "claude":
         print("   With Claude Code, prefer the marketplace (automatic updates):\n"
               "   claude plugin marketplace add keemboll/keemboll-bi ; "
-              f"claude plugin install {pname}@keemboll")
+              f"claude plugin install {pname}@keemboll-bi")
     return 0
 
 

@@ -43,10 +43,10 @@ claude plugin install powerbi-authoring@fabric-collection
 
 # Skills maison
 claude plugin marketplace add keemboll/keemboll-bi
-claude plugin install keemboll-powerbi@keemboll
+claude plugin install keemboll-powerbi@keemboll-bi
 ```
 
-Puis dans Claude Code : `/plugin` → **Marketplaces** → `keemboll` et `fabric-collection` → **Enable auto-update**. Vérifier avec `/mcp` que `plugin:powerbi-authoring:powerbi-modeling-mcp` est connecté (sinon **Reconnect**).
+Puis dans Claude Code : `/plugin` → **Marketplaces** → `keemboll-bi` et `fabric-collection` → **Enable auto-update**. Vérifier avec `/mcp` que `plugin:powerbi-authoring:powerbi-modeling-mcp` est connecté (sinon **Reconnect**).
 
 Les rapports doivent être enregistrés au format **PBIP** (Power BI Desktop → Fichier → Enregistrer sous → *Fichiers projet Power BI*).
 
@@ -181,7 +181,7 @@ Solder une dette : entrée `M-xxx` dans le journal → `D-xxx` déplacée dans �
 
 | Symptôme | Solution |
 |---|---|
-| Skills absents | `claude plugin list` ; `claude plugin update keemboll-powerbi@keemboll` ; relancer `claude` |
+| Skills absents | `claude plugin list` ; `claude plugin update keemboll-powerbi@keemboll-bi` ; relancer `claude` |
 | `powerbi-modeling-mcp` en × | `/mcp` → Reconnect ; si fréquent : `$env:MCP_TIMEOUT="60000"` avant `claude` |
 | Écriture refusée par le mode auto | Projet sous Git + `.claude/settings.local.json`, ou mode par défaut (Shift+Tab) |
 | `python` ouvre le Microsoft Store | `winget install Python.Python.3.12`, puis rouvrir le terminal |

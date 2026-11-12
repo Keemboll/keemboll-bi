@@ -2,7 +2,7 @@
 
 Ce fichier fait foi pour **tous** les agents (Claude Code, Codex, Grok, Gemini, Copilot, Cursor…). `CLAUDE.md` ne fait que l'importer.
 
-Ce dépôt (`keemboll`) contient des skills pour la gestion et le développement de projets BI avec Power BI / Fabric. Il complète `microsoft/skills-for-fabric`, qui n'est jamais modifié ici. Les skills suivent le format ouvert **Agent Skills** (un dossier, un `SKILL.md`) : ils sont publiés comme marketplace Claude Code et s'installent chez les autres agents avec `scripts/install.py`.
+Ce dépôt (`keemboll-bi`) contient des skills pour la gestion et le développement de projets BI avec Power BI / Fabric. Il complète `microsoft/skills-for-fabric`, qui n'est jamais modifié ici. Les skills suivent le format ouvert **Agent Skills** (un dossier, un `SKILL.md`) : ils sont publiés comme marketplace Claude Code et s'installent chez les autres agents avec `scripts/install.py`.
 
 ## Règles de structure
 

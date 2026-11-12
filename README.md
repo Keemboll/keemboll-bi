@@ -2,7 +2,7 @@
 
 Skills pour **gérer et développer des projets BI avec Power BI / Microsoft Fabric** à l'aide d'un agent de code : du cadrage à l'exploitation, avec les règles maison de l'équipe.
 
-- **Pour Claude Code** : une marketplace (`keemboll`) avec le plugin `keemboll-powerbi` — skills, sous-agents et guide intégré.
+- **Pour Claude Code** : une marketplace (`keemboll-bi`) avec le plugin `keemboll-powerbi` — skills, sous-agents et guide intégré.
 - **Pour les autres agents** (Codex, Grok, Gemini, Copilot, Cursor…) : les mêmes skills, au format ouvert *Agent Skills*, installés dans le projet BI par un script — voir [docs/agents.md](docs/agents.md).
 
 > Les contenus marqués **« À ADAPTER »** sont des bonnes pratiques par défaut à remplacer par les règles réelles de l'équipe.
@@ -48,17 +48,17 @@ claude plugin install powerbi-authoring@fabric-collection
 
 # 2. Nos skills
 claude plugin marketplace add keemboll/keemboll-bi
-claude plugin install keemboll-powerbi@keemboll
+claude plugin install keemboll-powerbi@keemboll-bi
 ```
 
 Test local, avant de pousser sur GitHub :
 
 ```powershell
 claude plugin marketplace add ./keemboll-bi
-claude plugin install keemboll-powerbi@keemboll
+claude plugin install keemboll-powerbi@keemboll-bi
 ```
 
-Activer la mise à jour automatique : dans Claude Code, `/plugin` → **Marketplaces** → `keemboll` → **Enable auto-update** (idem pour `fabric-collection`).
+Activer la mise à jour automatique : dans Claude Code, `/plugin` → **Marketplaces** → `keemboll-bi` → **Enable auto-update** (idem pour `fabric-collection`).
 
 ### Codex, Grok, Gemini, Copilot, Cursor et autres
 
@@ -77,7 +77,7 @@ Le script copie les skills dans le dossier que l'agent lit (`.agents/skills/`, `
 ```
 keemboll-bi/
 ├── .claude-plugin/
-│   └── marketplace.json          # catalogue des plugins (marketplace « keemboll »), liste générée
+│   └── marketplace.json          # catalogue des plugins (marketplace « keemboll-bi »), liste générée
 ├── plugins/
 │   └── keemboll-powerbi/
 │       ├── .claude-plugin/

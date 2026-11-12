@@ -117,6 +117,6 @@ Inspiré du guide « How I Build Power BI Reports with AI » (L. Reese).
 ## [1.0.0] — 2026-10-13
 
 ### Ajouté
-- Marketplace `keemboll` et plugin `keemboll-powerbi`.
+- Marketplace `keemboll-bi` et plugin `keemboll-powerbi`.
 - Skills : `powerbi-conventions`, `powerbi-data-modeling`, `powerbi-tmdl`, `powerbi-dax-library`, `powerbi-performance`, `powerbi-report-design`, `powerbi-html-visuals`.
 - Modèle de skill (`templates/skill-template/`) et script `scripts/validate.mjs`.
