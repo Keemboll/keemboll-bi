@@ -1,0 +1,44 @@
+{
+  "name": "Geo",
+  "dataColors": [
+    "#1F4E79",
+    "#2A9D8F",
+    "#E76F51",
+    "#E9C46A",
+    "#7B5EA7",
+    "#6C757D",
+    "#8AB6D6",
+    "#4C956C"
+  ],
+  "background": "#FFFFFF",
+  "foreground": "#1F2933",
+  "tableAccent": "#1F4E79",
+  "good": "#2E7D32",
+  "neutral": "#E9C46A",
+  "bad": "#C62828",
+  "maximum": "#1F4E79",
+  "center": "#8AB6D6",
+  "minimum": "#EAF2F8",
+  "textClasses": {
+    "callout": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 28,
+      "color": "#1F2933"
+    },
+    "title": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 12,
+      "color": "#1F2933"
+    },
+    "header": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 12,
+      "color": "#1F2933"
+    },
+    "label": {
+      "fontFace": "Segoe UI",
+      "fontSize": 10,
+      "color": "#52606D"
+    }
+  }
+}

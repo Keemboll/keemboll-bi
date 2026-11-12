@@ -1,0 +1,26 @@
+/// One row per order line.
+table Fact_Sales
+	lineageTag: a1
+
+	/// Amount hors taxes de la ligne.
+	column Amount
+		dataType: decimal
+		isHidden
+		formatString: #,##0.00
+		summarizeBy: sum
+		sourceColumn: Amount
+
+	column CustomerKey
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: CustomerKey
+
+	column OrderDate
+		dataType: dateTime
+		summarizeBy: none
+		sourceColumn: OrderDate
+
+	partition Fact_Sales = m
+		mode: import
+		source =
+				let Source = #table({"Amount"}, {}) in Source

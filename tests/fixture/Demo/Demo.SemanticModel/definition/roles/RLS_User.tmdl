@@ -1,0 +1,4 @@
+role RLS_User
+	modelPermission: read
+
+	tablePermission Dim_Customer = Dim_Customer[Email] = "prenom.nom@example.com"

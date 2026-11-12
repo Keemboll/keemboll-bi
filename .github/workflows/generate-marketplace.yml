@@ -1,0 +1,49 @@
+name: Générer marketplace.json
+
+# Déclenché par le webhook GitHub « push » dès qu'un plugin change :
+# incrémente la version du plugin si elle n'a pas été modifiée, puis régénère marketplace.json.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "plugins/**"
+      - "scripts/generate_marketplace.py"
+      - "scripts/bump_versions.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: generate-marketplace
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Incrémenter les versions modifiées
+        run: python scripts/bump_versions.py "${{ github.event.before }}" "${{ github.sha }}"
+      - name: Générer marketplace.json
+        run: python scripts/generate_marketplace.py
+      - name: Valider
+        run: python scripts/validate.py
+      - name: Tests
+        run: python -m unittest discover -s tests
+      - name: Commit si modifié
+        run: |
+          if git diff --quiet -- .claude-plugin plugins; then
+            echo "Versions et marketplace.json déjà à jour."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .claude-plugin/marketplace.json plugins/*/.claude-plugin/plugin.json
+          git commit -m "chore: bump de version et régénération de marketplace.json [skip ci]"
+          git push

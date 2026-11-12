@@ -1,0 +1,13 @@
+relationship r1
+	fromColumn: Fact_Sales.CustomerKey
+	toColumn: Dim_Customer.CustomerKey
+
+relationship r2
+	fromColumn: Fact_Sales.OrderDate
+	toColumn: Dim_Date.Date
+
+relationship r3
+	isActive: false
+	crossFilteringBehavior: bothDirections
+	fromColumn: Dim_Customer.'Customer Name'
+	toColumn: Dim_Date.Date

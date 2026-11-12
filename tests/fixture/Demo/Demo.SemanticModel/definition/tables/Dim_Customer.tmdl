@@ -1,0 +1,28 @@
+table Dim_Customer
+
+	column CustomerKey
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: CustomerKey
+
+	/// Trade name | shown in reports.
+	column 'Customer Name'
+		dataType: string
+		sortByColumn: CustomerKey
+		summarizeBy: none
+		sourceColumn: Name
+
+	column Region
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Region
+
+	column Email
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Email
+
+	column 'Full Name' = Dim_Customer[Customer Name] & " (" & Dim_Customer[Region] & ")"
+		dataType: string
+		summarizeBy: none

@@ -1,0 +1,4 @@
+role RLS_Region
+	modelPermission: read
+
+	tablePermission Dim_Customer = Dim_Customer[Region] = "North"

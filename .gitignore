@@ -1,0 +1,24 @@
+# OS / éditeurs
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Node
+node_modules/
+
+# Fichiers Power BI de test (ne pas versionner de données)
+*.pbix
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+
+# Secrets
+.env
+*.pem
+
+# Python
+__pycache__/
+*.pyc
+
+# Archives générées
+dist/

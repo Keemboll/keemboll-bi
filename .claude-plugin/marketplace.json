@@ -1,0 +1,19 @@
+{
+  "name": "keemboll",
+  "owner": {
+    "name": "Keemboll contributors"
+  },
+  "metadata": {
+    "description": "Skills Claude personnalisés pour Power BI / Microsoft Fabric, complémentaires de microsoft/skills-for-fabric.",
+    "version": "1.5.0"
+  },
+  "plugins": [
+    {
+      "name": "keemboll-powerbi",
+      "source": "./plugins/keemboll-powerbi",
+      "description": "Gestion et développement de projets BI avec Power BI : cadrage et pilotage, conventions, modélisation, TMDL, DAX, performance, gouvernance et sécurité, tests et recette, cycle de vie (Git, déploiement, CI), documentation, revue et audit (powerbi-lean), maquettes HTML, design de rapports et visuels HTML/SVG.",
+      "version": "1.6.0",
+      "keywords": ["powerbi", "dax", "tmdl", "semantic-model", "data-modeling", "report-design", "mockup", "review", "audit", "svg", "html", "governance", "rls", "testing", "alm", "documentation", "project", "agent-skills"]
+    }
+  ]
+}

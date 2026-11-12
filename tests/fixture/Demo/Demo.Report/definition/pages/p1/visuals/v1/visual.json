@@ -1,0 +1,1 @@
+{"visual": {"visualType": "card", "query": {"queryState": {"Values": {"projections": [{"field": {"Measure": {"Expression": {"SourceRef": {"Entity": "_Measures"}}, "Property": "Net Sales YTD"}}}, {"field": {"Column": {"Expression": {"SourceRef": {"Entity": "Dim_Customer"}}, "Property": "Customer Name"}}}]}}}}}

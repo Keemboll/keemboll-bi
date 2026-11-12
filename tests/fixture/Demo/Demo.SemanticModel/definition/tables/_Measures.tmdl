@@ -1,0 +1,24 @@
+table _Measures
+
+	/// Net sales (excluding tax).
+	measure 'Net Sales' = SUM(Fact_Sales[Amount])
+		formatString: $#,##0
+		displayFolder: 01 Sales
+
+	measure 'Net Sales YTD' =
+			// WHAT: year-to-date cumulative net sales.
+			CALCULATE(
+			    [Net Sales],
+			    DATESYTD(Dim_Date[Date])
+			)
+		formatString: $#,##0
+		displayFolder: 01 Sales
+
+	/// Number of distinct customers who ordered.
+	measure 'Customer Count' = DISTINCTCOUNT(Fact_Sales[CustomerKey])
+		formatString: #,##0
+		displayFolder: 03 Customers
+
+	measure '_Net Sales Base' = [Net Sales]
+		isHidden
+		displayFolder: 90 Technical
