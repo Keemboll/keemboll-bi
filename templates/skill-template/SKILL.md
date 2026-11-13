@@ -1,30 +1,30 @@
 ---
-name: nom-du-skill
-description: "Une ou deux phrases qui disent QUAND utiliser ce skill (situations, mots-clés FR et EN). Ex. : À utiliser dès qu'on crée ou modifie X dans Power BI. Triggers: X, Y, Z."
+name: skill-name
+description: "One or two sentences that say WHEN to use this skill (situations, keywords). E.g.: Use whenever X is created or changed in Power BI. Triggers: X, Y, Z."
 ---
 
-# Titre du skill
+# Skill title
 
-> Copier ce dossier vers `plugins/<plugin>/skills/<nom-du-skill>/`, renommer `name` (= nom du dossier), présenter le skill dans la commande `<plugin>-docs.md`, puis incrémenter la version du plugin. Écrire « l'agent », jamais le nom d'un produit : le skill doit servir à n'importe quel agent (règles : `AGENTS.md`).
+> Copy this folder to `plugins/<plugin>/skills/<skill-name>/`, set `name` (= folder name), present the skill in the `<plugin>-docs.md` command, then bump the plugin version. Write "the agent", never a product name: the skill must serve any agent. English only; state defaults as defaults (rules: `AGENTS.md`).
 
-## Quand l'utiliser
+## When to use it
 
 - Situation 1
 - Situation 2
-- Ne pas utiliser pour : … (renvoyer vers le skill adapté)
+- Do not use for: ... (point to the right skill)
 
-## Règles
+## Rules
 
-1. Règle impérative (**Toujours** / **Jamais**).
-2. …
+1. Imperative rule (**Always** / **Never**).
+2. ...
 
-## Processus
+## Process
 
-1. Étape d'analyse (lire l'existant).
-2. Proposer le plan et **attendre la validation** si la modification est destructive.
-3. Exécuter.
-4. Vérifier et résumer ce qui a changé.
+1. Analysis step (read what exists).
+2. Propose the plan and **wait for approval** if the change is destructive.
+3. Execute.
+4. Verify and summarize what changed.
 
-## Références
+## References
 
-- [references/exemple.md](references/exemple.md) — détails chargés seulement si nécessaire.
+- [references/example.md](references/example.md) — details loaded only when needed.

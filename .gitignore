@@ -1,13 +1,10 @@
-# OS / éditeurs
+# OS / editors
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
 
-# Node
-node_modules/
-
-# Fichiers Power BI de test (ne pas versionner de données)
+# Power BI test files (never commit data)
 *.pbix
 **/.pbi/localSettings.json
 **/.pbi/cache.abf
@@ -20,5 +17,5 @@ node_modules/
 __pycache__/
 *.pyc
 
-# Archives générées
+# Generated archives
 dist/
