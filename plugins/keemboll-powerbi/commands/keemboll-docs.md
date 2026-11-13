@@ -1,191 +1,221 @@
 ---
-description: Guide d'utilisation du plugin keemboll-powerbi (skills, sous-agents, script lean.py, fichiers de projet, méthode de travail, autres agents). Argument optionnel : une section.
-argument-hint: "[installation | skills | exemples | projet | agents | lean | dette | methode | securite | depannage]"
+description: User guide of the keemboll-powerbi plugin (skills, subagents, lean.py script, project files, working method, other agents). Optional argument: a section.
+argument-hint: "[installation | skills | examples | project | agents | lean | debt | method | security | troubleshooting]"
 ---
 
-Présente à l'utilisateur le guide ci-dessous, en français, **sans rien exécuter ni modifier**.
+Show the user the guide below, **without running or changing anything**. Answer in the user's language.
 
-- Si `$ARGUMENTS` est vide : affiche la section « Vue d'ensemble », puis la table des matières des sections et la façon d'en ouvrir une (`/keemboll-docs <section>`).
-- Si `$ARGUMENTS` correspond à une section (ou en est proche) : affiche uniquement cette section, en entier.
-- Si `$ARGUMENTS` est une question (« comment auditer un modèle ? ») : réponds à partir de ce guide et indique la section concernée.
-- Termine toujours par une ligne : « Version installée : » suivie du résultat de la commande `claude plugin list` pour `keemboll-powerbi` si tu peux la lire, sinon omets cette ligne.
+- If `$ARGUMENTS` is empty: show the "Overview" section, then the table of contents and how to open a section (`/keemboll-docs <section>`).
+- If `$ARGUMENTS` matches a section (or is close to one): show only that section, in full.
+- If `$ARGUMENTS` is a question ("how do I audit a model?"): answer from this guide and name the section concerned.
+- Always end with a line "Installed version:" followed by the result of `claude plugin list` for `keemboll-powerbi` if you can read it; otherwise omit that line.
 
 ---
 
-# keemboll-powerbi — guide d'utilisation
+# keemboll-powerbi — user guide
 
-## Vue d'ensemble
+## Overview
 
-`keemboll-powerbi` ajoute à Claude Code des **règles et méthodes maison** pour gérer et développer un projet BI avec Power BI, du cadrage à l'exploitation. Il complète les skills Microsoft (`fabric-skills`, `powerbi-authoring`), qui gèrent la **mécanique** (fichiers PBIP, API Fabric, connexion à Power BI Desktop). Les skills se chargent **automatiquement** selon votre demande : il suffit d'écrire ce que vous voulez en français.
+`keemboll-powerbi` gives a coding agent the **methods and working rules** to run and build a BI project with Power BI and Microsoft Fabric, from scoping to operations. It complements the Microsoft skills (`fabric-skills`, `powerbi-authoring`), which handle the **mechanics** (PBIP files, Fabric APIs, connection to Power BI Desktop). Skills load **automatically** from your request: just write what you want.
 
-| Section | Contenu |
+Every skill ships sensible defaults (naming, formats, thresholds, design tokens). If your team has its own rules, write them in a `TEAM_RULES.md` at the project root: the agent reads it first and it wins over every default (see `powerbi-conventions`).
+
+| Section | Content |
 |---|---|
-| `installation` | Prérequis et installation |
-| `skills` | Les 14 skills et quand ils s'activent |
-| `exemples` | Demandes prêtes à l'emploi |
-| `projet` | Phases d'un projet BI et fichiers à la racine du projet |
-| `agents` | Sous-agents fournis ; utilisation avec Codex, Grok, Gemini… |
-| `lean` | Le script d'analyse `lean.py` |
-| `dette` | `DEBT.md` et `CHANGES.md` |
-| `methode` | La méthode de travail recommandée |
-| `securite` | Données sensibles et garde-fous |
-| `depannage` | Problèmes fréquents |
+| `installation` | Prerequisites and installation |
+| `skills` | The 20 skills and when they load |
+| `examples` | Ready-to-use requests |
+| `project` | Phases of a BI project and files at the project root |
+| `agents` | Subagents shipped; use with Codex, Grok, Gemini... |
+| `lean` | The `lean.py` analysis script |
+| `debt` | `DEBT.md` and `CHANGES.md` |
+| `method` | The recommended way of working |
+| `security` | Sensitive data and guardrails |
+| `troubleshooting` | Common problems |
 
 ## installation
 
-Prérequis sur le poste : **Azure CLI** (`az login --allow-no-subscriptions`), **Node.js LTS** (pour le serveur MCP Microsoft), **Python 3.8+** (pour `lean.py`), **Git** (avec `git config --global credential.helper manager`), **Claude Code**.
+Prerequisites on the workstation: **Git**, **Python 3.8+** (for `lean.py`), **Claude Code**. For the Microsoft skills and their modeling MCP server: **Azure CLI** (`az login --allow-no-subscriptions`) and **Node.js LTS**.
 
 ```powershell
-# Skills Microsoft (mécanique PBIP / Fabric)
+# Microsoft skills (PBIP / Fabric mechanics) — optional but recommended
 claude plugin marketplace add microsoft/skills-for-fabric
 claude plugin install fabric-skills@fabric-collection
 claude plugin install powerbi-authoring@fabric-collection
 
-# Skills maison
+# This plugin
 claude plugin marketplace add keemboll/keemboll-bi
 claude plugin install keemboll-powerbi@keemboll-bi
 ```
 
-Puis dans Claude Code : `/plugin` → **Marketplaces** → `keemboll-bi` et `fabric-collection` → **Enable auto-update**. Vérifier avec `/mcp` que `plugin:powerbi-authoring:powerbi-modeling-mcp` est connecté (sinon **Reconnect**).
+Then in Claude Code: `/plugin` → **Marketplaces** → `keemboll-bi` and `fabric-collection` → **Enable auto-update**. Check with `/mcp` that the Microsoft modeling MCP server is connected (otherwise **Reconnect**).
 
-Les rapports doivent être enregistrés au format **PBIP** (Power BI Desktop → Fichier → Enregistrer sous → *Fichiers projet Power BI*).
+Reports must be saved in **PBIP** format (Power BI Desktop → File → Save as → *Power BI project*). A `.pbix` file: see `powerbi-migration`.
 
 ## skills
 
-**Piloter et livrer**
+**Run and deliver**
 
-| Skill | S'active quand vous… |
+| Skill | Loads when you... |
 |---|---|
-| `powerbi-project` | démarrez ou reprenez un projet, cadrez un besoin, définissez des KPI, demandez la prochaine étape ou si un livrable est terminé |
-| `powerbi-governance` | concevez ou relisez des rôles RLS / OLS, décidez qui voit quoi, préparez une publication (sensibilité, endossement, accès) |
-| `powerbi-testing` | voulez vérifier un modèle ou une mesure, prouver qu'un changement n'a rien cassé, tester la sécurité, conduire une recette |
-| `powerbi-alm` | organisez le dépôt, les branches, les environnements, une mise en production ou une intégration continue |
-| `powerbi-documentation` | documentez un modèle ou un rapport : dictionnaire de données, fiche de rapport, note de version, passation |
+| `powerbi-project` | start or take over a project, scope a need, define KPIs, ask for the next step or whether a deliverable is done |
+| `powerbi-migration` | move a PBIX to PBIP, or reports from Tableau, Qlik, Excel / Power Pivot, SSRS or another tool to Power BI |
+| `powerbi-governance` | design or review RLS / OLS roles, decide who sees what, prepare a publication (sensitivity, endorsement, access) |
+| `powerbi-testing` | want to check a model or a measure, prove a change broke nothing, test security, run an acceptance session |
+| `powerbi-alm` | organize the repository, branches, environments, a release, continuous integration or a fabric-cicd deployment |
+| `powerbi-documentation` | document a model or a report: data dictionary, report sheet, release notes, handover |
+| `powerbi-operations` | a refresh failed, data is stale, users report wrong numbers, or for a health review, a runbook, retiring unused reports |
 
-**Construire**
+**Build the model**
 
-| Skill | S'active quand vous… |
+| Skill | Loads when you... |
 |---|---|
-| `powerbi-conventions` | modifiez un modèle ou un rapport ; auditez un modèle « selon nos conventions » (nommage, descriptions, formats, processus de validation, modèle existant, confidentialité) |
-| `powerbi-data-modeling` | concevez ou refondez un modèle : schéma en étoile, grain, SCD, dimensions de rôle, table de dates |
-| `powerbi-tmdl` | lisez ou modifiez les fichiers `.tmdl` d'un projet PBIP |
-| `powerbi-dax-library` | écrivez des mesures : cumuls, N-1, ratios, classements, nouveaux clients, interrupteurs Plan / N-1 |
-| `powerbi-performance` | une page ou une mesure est lente ; vous voulez optimiser DAX, modèle ou Power Query |
-| `powerbi-mockup` | voulez une maquette HTML d'une page à partir du modèle réel, avant de construire |
-| `powerbi-report-design` | concevez ou revoyez une page : quatre questions, grille, couleurs, fonds SVG, accessibilité |
-| `powerbi-html-visuals` | voulez un visuel SVG / HTML en DAX (sparkline, barre de progression, carte KPI) |
-| `powerbi-lean` | demandez une revue, un audit, l'inventaire d'un champ, l'état de la dette ou le journal des modifications |
+| `powerbi-conventions` | change a model or a report; audit "against our conventions" (naming, descriptions, formats, approval process, existing model, confidentiality, `TEAM_RULES.md`) |
+| `powerbi-data-modeling` | design or rework a model: star schema, grain, SCD, role-playing dimensions, date table |
+| `powerbi-power-query` | write or review M code: staging, parameters, query folding, incremental refresh |
+| `powerbi-direct-lake` | choose a storage mode, or design a model on OneLake Delta tables (framing, fallback, guardrails) |
+| `powerbi-tmdl` | read or change the `.tmdl` files of a PBIP project |
+| `powerbi-dax-library` | write measures: YTD, PY, ratios, rankings, new customers, Plan / PY toggles, calendar-based time intelligence, visual calculations |
+| `powerbi-dax-udf` | package repeated DAX logic in user-defined functions (`functions.tmdl`) |
+| `powerbi-performance` | a page or a measure is slow; you want to optimize DAX, model or Power Query |
+| `powerbi-ai-readiness` | prepare a model for Copilot or Fabric data agents: descriptions, AI data schema, verified answers, AI instructions, AI test set |
 
-Les valeurs marquées « À ADAPTER » dans les skills (préfixes, couleurs, devise…) sont des choix par défaut, pas des obligations.
+**Build the report**
 
-## exemples
-
-| Objectif | Demande à écrire |
+| Skill | Loads when you... |
 |---|---|
-| Découvrir un modèle | « Liste les tables, mesures et relations du modèle de ce projet. » |
-| Auditer | « Audite le modèle selon nos conventions. » / « Lance un audit powerbi-lean. » |
-| Avant un renommage | « Où est utilisée la mesure [Nom de la mesure] ? » |
-| Corriger sans risque | « Applique les corrections sans impact visuel de l'audit (table de dates, summarizeBy, masquage). Montre-moi le plan avant. » |
-| Nouvelle mesure | « Ajoute une mesure de cumul annuel et d'évolution vs N-1 pour [Mesure]. Montre-moi le DAX avant. » |
-| Nouvelle page | « Fais une maquette HTML d'une page de suivi de [sujet] à partir du modèle. » |
-| Lenteur | « Ce visuel met 30 s à charger : diagnostique avec powerbi-performance, sans rien modifier. » |
-| Avant commit | « Fais une revue powerbi-lean de mes modifications. » |
-| Dette | « Où en est la dette du projet ? » / « Solde D-004 : la correction est faite et vérifiée. » |
-| Démarrer un projet | « Cadre un nouveau rapport de suivi de [sujet] : pose-moi les questions de la fiche de cadrage. » |
-| KPI | « Ajoute au catalogue KPI.md l'indicateur [nom] ; je te donne la définition métier. » |
-| Où en est-on ? | « Où en est ce projet et quelle est la prochaine étape ? » |
-| Sécurité | « Conçois les rôles RLS par région, montre-moi le plan et le protocole de test avant d'écrire. » |
-| Tests | « Écris les requêtes de contrôle du modèle (clés, intégrité, rapprochement) dans tests/. » |
-| Non-régression | « Je vais modifier [Mesure] : prépare le test avant / après. » |
-| Mise en production | « Passe la checklist de mise en production et dis-moi ce qui bloque. » |
-| CI | « Mets en place une intégration continue qui lance lean.py sur chaque demande de fusion. » |
-| Documentation | « Génère DATA_DICTIONARY.md et liste les mesures sans description. » |
-| Avis indépendant | « Fais auditer ce projet par powerbi-auditor pendant que je continue. » |
+| `powerbi-mockup` | want an HTML mockup of a page from the real model, before building |
+| `powerbi-report-design` | design or review a page: four questions, grid, colours, SVG backgrounds, accessibility |
+| `powerbi-html-visuals` | want an SVG / HTML visual in DAX (sparkline, progress bar, KPI card) |
+| `powerbi-lean` | ask for a review, an audit, where a field is used, the state of the debt or the change log |
 
-## projet
+## examples
 
-Le skill `powerbi-project` découpe un projet en phases ; chacune a un livrable, un skill qui fait foi et un critère de sortie :
+| Goal | Request to write |
+|---|---|
+| Discover a model | "List the tables, measures and relationships of the model in this project." |
+| Audit | "Audit the model against our conventions." / "Run a powerbi-lean audit." |
+| Before a rename | "Where is the measure [Measure name] used?" |
+| Safe fixes | "Apply the audit fixes that have no visual impact (date table, summarizeBy, hiding). Show me the plan first." |
+| New measure | "Add a year-to-date and a change vs PY measure for [Measure]. Show me the DAX first." |
+| Fiscal or retail calendar | "Set up calendar-based time intelligence for our 4-4-5 retail calendar." |
+| Repeated logic | "These five measures repeat the same YoY logic: propose a user-defined function." |
+| Power Query | "Review the M of Fact_Sales: does it fold? Set up incremental refresh." |
+| Storage mode | "Our data is in a Fabric lakehouse: Import or Direct Lake? Explain the trade-offs." |
+| New page | "Make an HTML mockup of a [subject] monitoring page from the model." |
+| Slowness | "This visual takes 30 s to load: diagnose with powerbi-performance, change nothing." |
+| Before commit | "Do a powerbi-lean review of my changes." |
+| Debt | "Where does the project's debt stand?" / "Close D-004: the fix is done and checked." |
+| Start a project | "Scope a new [subject] monitoring report: ask me the scoping brief questions." |
+| KPI | "Add the indicator [name] to KPI.md; here is the business definition." |
+| Where are we? | "Where does this project stand and what is the next step?" |
+| Migration | "Migrate this Tableau workbook to Power BI: start with the inventory." / "Convert this PBIX to a PBIP project." |
+| Security | "Design RLS roles by region, show me the plan and the test protocol before writing." |
+| Tests | "Write the model check queries (keys, integrity, reconciliation) in tests/." |
+| Non-regression | "I am about to change [Measure]: prepare the before / after test." |
+| Copilot | "Is this model ready for Copilot? Write AI_INSTRUCTIONS.md and an AI question set." |
+| Release | "Go through the release checklist and tell me what blocks." |
+| CI / deployment | "Set up CI that runs lean.py on every pull request." / "Deploy with fabric-cicd from dev to test." |
+| Documentation | "Generate DATA_DICTIONARY.md and list the measures without a description." |
+| Refresh failure | "Last night's refresh failed with this error: triage it." |
+| Health review | "Run the quarterly health review and update RUNBOOK.md." |
+| Independent opinion | "Have powerbi-auditor audit this project while I keep working." |
 
-**cadrage → modélisation → mesures → maquette → rapport → tests et recette → publication → exploitation**
+## project
 
-Fichiers à la racine du projet (à côté du `.pbip`), versionnés avec lui :
+The `powerbi-project` skill splits a project into phases; each has a deliverable, an authoritative skill and an exit criterion:
 
-| Fichier | Rôle | Skill |
+**scoping → modeling → measures → mockup → report → testing and acceptance → release → operations**
+
+Files at the project root (next to the `.pbip`), versioned with it:
+
+| File | Role | Skill |
 |---|---|---|
-| `SCOPE.md` | Public, questions métier, périmètre, sources, sécurité, critères de succès | `powerbi-project` |
-| `KPI.md` | Catalogue des indicateurs (`K-001`…) : définition métier, formule, mesure, propriétaire | `powerbi-project` |
-| `SECURITY_MODEL.md` | Qui voit quoi : matrice rôle × périmètre, validation, date de test | `powerbi-governance` |
-| `tests/` et `tests/ACCEPTANCE.md` | Requêtes DAX de contrôle (`T-001`…) et procès-verbal de recette | `powerbi-testing` |
-| `DATA_DICTIONARY.md` | Dictionnaire de données généré depuis le modèle | `powerbi-documentation` |
-| `DEBT.md`, `CHANGES.md` | Ce qui reste à corriger, ce qui a été fait | `powerbi-lean` |
+| `TEAM_RULES.md` | Optional: the team's own rules, overriding skill defaults | `powerbi-conventions` |
+| `SCOPE.md` | Audience, business questions, scope, sources, security, success criteria | `powerbi-project` |
+| `KPI.md` | KPI catalog (`K-001`...): business definition, formula, measure, owner | `powerbi-project` |
+| `MIGRATION.md` | Inventory, keep / merge / retire decisions, mapping and parity status | `powerbi-migration` |
+| `SECURITY_MODEL.md` | Who sees what: role × scope matrix, approval, test date | `powerbi-governance` |
+| `tests/` and `tests/ACCEPTANCE.md` | DAX check queries (`T-001`...) and acceptance record | `powerbi-testing` |
+| `AI_INSTRUCTIONS.md`, `tests/AI_QUESTIONS.md` | AI instructions and the question set that proves AI answer quality | `powerbi-ai-readiness` |
+| `DATA_DICTIONARY.md`, `REPORT.md`, `RELEASE_NOTES.md` | Data dictionary generated from the model, report sheet, release notes | `powerbi-documentation` |
+| `DEBT.md`, `CHANGES.md` | What remains to fix, what has been done | `powerbi-lean` |
+| `RUNBOOK.md`, `incidents/` | How the published content is run; post-incident notes (`I-001`...) | `powerbi-operations` |
 
-Aucun de ces fichiers ne contient de valeurs réelles ni de noms de personnes. Les décisions métier (définition d'un KPI, seuil, périmètre) restent à l'utilisateur : Claude propose, ne tranche pas.
+None of these files contains real values or people's names. Business decisions (KPI definition, threshold, scope) stay with the user: the agent proposes, it does not decide.
 
 ## agents
 
-**Sous-agents fournis** (Claude les lance quand la tâche s'y prête, ou sur demande : « fais auditer par powerbi-auditor ») :
+**Subagents shipped** (the agent delegates to them when the task fits, or on request: "have powerbi-auditor audit this"):
 
-| Sous-agent | Rôle |
+| Subagent | Role |
 |---|---|
-| `powerbi-auditor` | Relecteur en **lecture seule** : audit, revue d'un changement, contrôle avant mise en production |
-| `powerbi-modeler` | Modèle sémantique et mesures DAX, une fois le plan validé |
-| `powerbi-report-designer` | Maquette, mise en page, visuels d'une page de rapport |
+| `powerbi-analyst` | Scoping: `SCOPE.md`, `KPI.md`, progress report; read-only on the model |
+| `powerbi-modeler` | Semantic model, Power Query, DAX measures and functions, once the plan is approved |
+| `powerbi-report-designer` | Mockup, layout and visuals of a report page |
+| `powerbi-tester` | Check queries, non-regression, RLS tests, migration parity, `ACCEPTANCE.md` |
+| `powerbi-ai-curator` | Readiness for Copilot and data agents, AI question set |
+| `powerbi-ops` | Refresh triage, incidents, health review, `RUNBOOK.md`; read-only on production |
+| `powerbi-auditor` | **Read-only** reviewer: audit, review of a change, check before release |
 
-**Autres agents** (Codex, Grok, Gemini, Copilot, Cursor…) : les skills sont au format ouvert Agent Skills et s'installent dans un projet avec `python scripts/install.py --agent <agent> --target <projet>` depuis une copie du dépôt `keemboll/keemboll-bi`. Détails et emplacements par agent : `docs/agents.md` de ce dépôt. Toute l'équipe applique alors les mêmes règles, quel que soit l'outil.
+**Other agents** (Codex, Grok, Gemini, GitHub Copilot, Cursor...): the skills use the open Agent Skills format and install into a project with `python scripts/install.py --agent <agent> --target <project>` from a copy of the `keemboll/keemboll-bi` repository. Details and folders per agent: `docs/agents.md` in that repository. The whole team then applies the same rules, whatever the tool.
 
 ## lean
 
-Script Python en **lecture seule**, fourni avec `powerbi-lean`. Claude le lance lui-même ; vous pouvez aussi l'exécuter :
+**Read-only** Python script shipped with `powerbi-lean`. The agent runs it itself; you can run it too:
 
 ```powershell
-python "<dossier du skill>/scripts/lean.py" audit <projet>                 # audit complet
-python "<dossier du skill>/scripts/lean.py" audit <projet> --changed       # fichiers modifiés depuis le dernier commit
-python "<dossier du skill>/scripts/lean.py" usage <projet>                 # champs utilisés par page / visuel
-python "<dossier du skill>/scripts/lean.py" usage <projet> --field "[Mesure]"
-python "<dossier du skill>/scripts/lean.py" dette <projet>                 # état DEBT.md + CHANGES.md
-python "<dossier du skill>/scripts/lean.py" catalogue <projet>             # dictionnaire de données (Markdown) sur la sortie standard
+python "<skill folder>/scripts/lean.py" audit <project>                 # full audit
+python "<skill folder>/scripts/lean.py" audit <project> --changed       # files changed since the last commit
+python "<skill folder>/scripts/lean.py" usage <project>                 # fields used per page / visual
+python "<skill folder>/scripts/lean.py" usage <project> --field "[Measure]"
+python "<skill folder>/scripts/lean.py" debt <project>                  # state of DEBT.md + CHANGES.md
+python "<skill folder>/scripts/lean.py" catalog <project>               # data dictionary (Markdown) on standard output
 ```
 
-`--json` donne une sortie exploitable. « Inutilisé » = non utilisé par **ce** rapport : vérifiez la vue de traçabilité de l'espace de travail avant de supprimer.
+`--json` gives machine-readable output. "Unused" = not used by **this** report: check the lineage view of the workspace before deleting.
 
-## dette
+## debt
 
-Deux fichiers à la racine de chaque projet, versionnés avec lui :
+Two files at the root of each project, versioned with it:
 
-- `DEBT.md` : ce qui reste à corriger (`D-001`…), avec priorité et échéance.
-- `CHANGES.md` : ce qui a été corrigé ou ajouté (`M-001`…), plus récent en haut ; il se remplit à mesure que la dette diminue.
+- `DEBT.md`: what remains to fix (`D-001`...), with priority and due date.
+- `CHANGES.md`: what has been fixed or added (`C-001`...), newest first; it fills up as the debt goes down.
 
-Solder une dette : entrée `M-xxx` dans le journal → `D-xxx` déplacée dans « Soldé » avec `**Modification** : M-xxx` → `lean.py dette` sans incohérence → un commit `M-xxx: …`. Avancée partielle : `D-xxx (partielle)`. Projet existant sans journal : « Initialise CHANGES.md en reprenant l'historique Git ».
+Closing a debt: `C-xxx` entry in the log → `D-xxx` moved to "Closed" with `**Change**: C-xxx` → `lean.py debt` without inconsistency → one commit `C-xxx: ...`. Partial progress: `D-xxx (partial)`. Existing project without a log: "Initialise CHANGES.md from the Git history".
 
-## methode
+## method
 
-0. **Cadrage** (`SCOPE.md`, `KPI.md`) pour un nouveau projet ou un nouveau rapport.
-1. **Audit** en lecture seule.
-2. **Plan** priorisé : d'abord ce qui ne change pas les visuels, les renommages en dernier.
-3. **Commit de sauvegarde** ; Power BI Desktop enregistré.
-4. **Maquette HTML** pour toute nouvelle page.
-5. **Exécution** par étapes ; DAX montré avant application ; décisions métier laissées à l'utilisateur.
-6. **Vérification** dans Desktop (valeurs avant / après) et revue humaine.
-7. **Tests et recette** (`tests/`, `tests/ACCEPTANCE.md`) ; sécurité vérifiée par rôle.
-8. **Revue powerbi-lean**, journal, documentation régénérée, commit ; la mise en production suit la checklist de `powerbi-alm`.
+0. **Scoping** (`SCOPE.md`, `KPI.md`) for a new project or report; **migration inventory** if the starting point is not a PBIP project.
+1. Read-only **audit**.
+2. Prioritized **plan**: first what does not change visuals, renames last.
+3. **Backup commit**; Power BI Desktop saved.
+4. **HTML mockup** for any new page.
+5. Step-by-step **execution**; DAX and M shown before being applied; business decisions left to the user.
+6. **Verification** in Desktop (before / after values) and human review.
+7. **Tests and acceptance** (`tests/`, `tests/ACCEPTANCE.md`); security checked per role; AI question set if the model is exposed to AI.
+8. **powerbi-lean review**, log, regenerated documentation, commit; the release follows the `powerbi-alm` checklist.
+9. **Operations**: `RUNBOOK.md`, refresh and capacity watch, quarterly health review.
 
-## securite
+## security
 
-- Claude lit les **métadonnées** du projet (noms, DAX) : vérifiez que c'est autorisé pour le projet.
-- Les **données** (`.pbi/cache.abf`) ne doivent jamais être lues ni versionnées : `.gitignore` + règle `deny Read(**/.pbi/cache.abf)` dans `~/.claude/settings.json`.
-- Les requêtes DAX via le MCP renvoient de vraies données : à valider une par une (règle `ask`).
-- Les maquettes n'utilisent que des valeurs fictives ; `DEBT.md` et `CHANGES.md` ne contiennent jamais de valeurs réelles.
-- Dépôts privés uniquement ; pas de `git push` automatique.
+- The agent reads the project's **metadata** (names, DAX, M): check that this is allowed for the project.
+- **Data** (`.pbi/cache.abf`) must never be read or committed: `.gitignore` + a `deny Read(**/.pbi/cache.abf)` rule in `~/.claude/settings.json`.
+- DAX queries through the MCP server return real data: approve them one by one (`ask` rule).
+- Mockups use fictitious values only; `DEBT.md`, `CHANGES.md`, `RUNBOOK.md` and incident notes never contain real values.
+- Descriptions and AI instructions are readable by everyone with access to the model: no secrets or personal data.
+- Private repositories only; no automatic `git push`, no deployment without an explicit request.
 
-## depannage
+## troubleshooting
 
-| Symptôme | Solution |
+| Symptom | Fix |
 |---|---|
-| Skills absents | `claude plugin list` ; `claude plugin update keemboll-powerbi@keemboll-bi` ; relancer `claude` |
-| `powerbi-modeling-mcp` en × | `/mcp` → Reconnect ; si fréquent : `$env:MCP_TIMEOUT="60000"` avant `claude` |
-| Écriture refusée par le mode auto | Projet sous Git + `.claude/settings.local.json`, ou mode par défaut (Shift+Tab) |
-| `python` ouvre le Microsoft Store | `winget install Python.Python.3.12`, puis rouvrir le terminal |
-| Changements non visibles dans Desktop | Appliquer les changements externes (préversion, Desktop d'août 2026 ou plus récent) ou rouvrir le `.pbip` |
-| Visuel très lent | « Diagnostique avec powerbi-performance » ; copier la requête de l'Analyseur de performances vers DAX Studio |
+| Skills missing | `claude plugin list`; `claude plugin update keemboll-powerbi@keemboll-bi`; restart `claude` |
+| Modeling MCP server shown as × | `/mcp` → Reconnect; if frequent: `$env:MCP_TIMEOUT="60000"` before `claude` |
+| Write refused by auto mode | Project under Git + `.claude/settings.local.json`, or default mode (Shift+Tab) |
+| `python` opens the Microsoft Store | `winget install Python.Python.3.12`, then reopen the terminal |
+| Changes not visible in Desktop | Apply external changes (preview option of recent Desktop versions) or reopen the `.pbip` — see `powerbi-tmdl` |
+| Very slow visual | "Diagnose with powerbi-performance"; copy the query from Performance analyzer into DAX Studio |
+| Refresh failed | "Triage this refresh failure" — `powerbi-operations` |
 
-Contribuer (nouvelle règle, nouvelle référence visuelle) : voir le `README.md` du dépôt `keemboll/keemboll-bi`.
+Contributing (new rule, new visual reference): see the `README.md` of the `keemboll/keemboll-bi` repository.
