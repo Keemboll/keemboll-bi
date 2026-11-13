@@ -12,7 +12,7 @@
       "name": "keemboll-powerbi",
       "source": "./plugins/keemboll-powerbi",
       "description": "Run and build BI projects with Power BI and Fabric: scoping, migration, conventions, dimensional modeling, Power Query, Direct Lake, TMDL, DAX library and user-defined functions, performance, report design and mockups, governance and RLS, AI readiness for Copilot and data agents, testing and acceptance, ALM and CI/CD, documentation, operations and lean reviews.",
-      "version": "2.0.0",
+      "version": "2.0.1",
       "keywords": ["powerbi", "fabric", "dax", "dax-udf", "tmdl", "power-query", "direct-lake", "semantic-model", "data-modeling", "report-design", "mockup", "review", "audit", "governance", "rls", "copilot", "ai-readiness", "testing", "alm", "cicd", "documentation", "operations", "migration", "project", "agent-skills"]
     }
   ]

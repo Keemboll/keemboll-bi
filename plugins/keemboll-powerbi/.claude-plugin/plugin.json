@@ -1,6 +1,6 @@
 {
   "name": "keemboll-powerbi",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Run and build BI projects with Power BI and Fabric: scoping, migration, conventions, dimensional modeling, Power Query, Direct Lake, TMDL, DAX library and user-defined functions, performance, report design and mockups, governance and RLS, AI readiness for Copilot and data agents, testing and acceptance, ALM and CI/CD, documentation, operations and lean reviews.",
   "author": {
     "name": "Keemboll contributors"
