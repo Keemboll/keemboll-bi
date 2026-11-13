@@ -2,6 +2,11 @@
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — versioning: [SemVer](https://semver.org/).
 
+## [2.0.1] — 2026-11-13
+
+### Changed
+- The guide command is now **`/keemboll-bi-docs`** (was `/keemboll-docs`), matching the marketplace name. File renamed to `commands/keemboll-bi-docs.md`; README, `docs/agents.md` and `CONTRIBUTING.md` updated.
+
 ## [2.0.0] — 2026-11-13
 
 The repository becomes an English-only, community-ready toolkit, and the plugin grows from 14 to 20 skills to cover the current Power BI / Fabric landscape: AI readiness, DAX user-defined functions, Power Query, Direct Lake, operations and migration.

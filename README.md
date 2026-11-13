@@ -6,7 +6,7 @@
 
 Agent skills to **run and build BI projects with Power BI and Microsoft Fabric** with a coding agent: from scoping to operations, with explicit working rules, ready-made templates and a read-only analysis script.
 
-- **For Claude Code**: a marketplace (`keemboll-bi`) with the `keemboll-powerbi` plugin — 20 skills, 7 subagents and a built-in guide (`/keemboll-docs`).
+- **For Claude Code**: a marketplace (`keemboll-bi`) with the `keemboll-powerbi` plugin — 20 skills, 7 subagents and a built-in guide (`/keemboll-bi-docs`).
 - **For other agents** (Codex, Grok, Gemini, GitHub Copilot, Cursor...): the same skills, in the open *Agent Skills* format, installed into the BI project by a script — see [docs/agents.md](docs/agents.md).
 
 Every skill works out of the box with sensible defaults (naming, formats, thresholds, design tokens). A team that has its own rules writes them in a `TEAM_RULES.md` at the project root: the agent reads it first and it overrides every default.
@@ -42,7 +42,7 @@ The `keemboll-powerbi` plugin covers the whole life of a project:
 
 Subagents (Claude Code): `powerbi-analyst` (scoping), `powerbi-modeler` (model and measures), `powerbi-report-designer` (report pages), `powerbi-tester` (tests and acceptance), `powerbi-ai-curator` (AI readiness), `powerbi-ops` (operations), `powerbi-auditor` (read-only review). The same roles are described in `powerbi-project` for other agents.
 
-Built-in guide: in Claude Code, type **`/keemboll-docs`** (or `/keemboll-docs <section>`: installation, skills, examples, project, agents, lean, debt, method, security, troubleshooting).
+Built-in guide: in Claude Code, type **`/keemboll-bi-docs`** (or `/keemboll-bi-docs <section>`: installation, skills, examples, project, agents, lean, debt, method, security, troubleshooting).
 
 ## Installation
 
