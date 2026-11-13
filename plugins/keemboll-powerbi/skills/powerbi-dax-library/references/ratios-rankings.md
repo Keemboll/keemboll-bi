@@ -1,133 +1,135 @@
-# Ratios, classements, clients
+# Ratios, rankings, customers
 
 ## Ratios
 
 ```dax
-Marge brute =
-[CA HT] - [Coût]
+Gross Margin =
+[Net Sales] - [Cost]
 ```
 
 ```dax
-Marge brute % =
-DIVIDE ( [Marge brute], [CA HT] )
+Gross Margin % =
+DIVIDE ( [Gross Margin], [Net Sales] )
 ```
 
-Part du total général (ignore les filtres de la dimension produit) :
+Share of the grand total (ignores the filters of the product dimension):
 
 ```dax
-Part du CA % =
-DIVIDE ( [CA HT], CALCULATE ( [CA HT], REMOVEFILTERS ( Dim_Produit ) ) )
+Share of Sales % =
+DIVIDE ( [Net Sales], CALCULATE ( [Net Sales], REMOVEFILTERS ( Dim_Product ) ) )
 ```
 
-Part du parent dans une hiérarchie (catégorie → sous-catégorie → produit). **À tester.**
+Share of the parent in a hierarchy (category → subcategory → product). **To be tested.**
 
 ```dax
-Part dans la catégorie % =
+Share of Category % =
 DIVIDE (
-    [CA HT],
+    [Net Sales],
     CALCULATE (
-        [CA HT],
-        REMOVEFILTERS ( Dim_Produit[Sous-categorie], Dim_Produit[Produit] )
+        [Net Sales],
+        REMOVEFILTERS ( Dim_Product[Subcategory], Dim_Product[Product] )
     )
 )
 ```
 
-Le dénominateur retire les filtres de **tous les niveaux sous la catégorie** : la mesure donne la part dans la catégorie que le visuel s'arrête à la sous-catégorie ou descende au produit (en retirant seulement `Sous-categorie`, le niveau Produit donnait 100 %). Les segments posés sur les autres colonnes de `Dim_Produit` sont conservés. Au niveau Catégorie, le résultat est 100 %. Ajouter les autres colonnes de niveau inférieur de la hiérarchie si elle en a.
+The denominator removes the filters of **every level below the category**: the measure returns the share within the category whether the visual stops at the subcategory or goes down to the product (removing only `Subcategory` would give 100% at product level). Slicers set on the other columns of `Dim_Product` are kept. At category level the result is 100%. Add the other lower-level columns of the hierarchy if it has any.
 
-Part en conservant les filtres de segments (ALLSELECTED) :
+Share that keeps the slicer filters (`ALLSELECTED`):
 
 ```dax
-Part du CA visible % =
-DIVIDE ( [CA HT], CALCULATE ( [CA HT], ALLSELECTED ( Dim_Produit ) ) )
+Share of Visible Sales % =
+DIVIDE ( [Net Sales], CALCULATE ( [Net Sales], ALLSELECTED ( Dim_Product ) ) )
 ```
 
-## Classements
+## Rankings
 
 ```dax
-Rang produit =
+Product Rank =
 IF (
-    ISINSCOPE ( Dim_Produit[Produit] ),
-    RANKX ( ALLSELECTED ( Dim_Produit[Produit] ), [CA HT],, DESC, DENSE )
+    ISINSCOPE ( Dim_Product[Product] ),
+    RANKX ( ALLSELECTED ( Dim_Product[Product] ), [Net Sales],, DESC, DENSE )
 )
 ```
 
-Top N + « Autres » : préférer le filtre visuel **Top N** natif. Si une ligne « Autres » est requise, créer une table déconnectée des libellés (produits + « Autres ») :
+Top N + "Others": prefer the native **Top N** visual filter. If an "Others" row is required, create a disconnected table of labels, `Products_TopN[Product]` (the products + "Others"), and put it on the visual:
 
 ```dax
-CA HT Top N =
+Net Sales Top N =
 VAR _n = 10
-VAR _produit = SELECTEDVALUE ( Produits_TopN[Produit] )
+VAR _product = SELECTEDVALUE ( Products_TopN[Product] )
 VAR _top =
-    TOPN ( _n, ALLSELECTED ( Dim_Produit[Produit] ), [CA HT] )
+    TOPN ( _n, ALLSELECTED ( Dim_Product[Product] ), [Net Sales] )
 RETURN
     IF (
-        _produit = "Autres",
-        CALCULATE ( [CA HT], EXCEPT ( ALLSELECTED ( Dim_Produit[Produit] ), _top ) ),
+        _product = "Others",
+        CALCULATE ( [Net Sales], EXCEPT ( ALLSELECTED ( Dim_Product[Product] ), _top ) ),
         IF (
-            _produit IN SELECTCOLUMNS ( _top, "p", Dim_Produit[Produit] ),
-            CALCULATE ( [CA HT], Dim_Produit[Produit] = _produit )
+            _product IN SELECTCOLUMNS ( _top, "p", Dim_Product[Product] ),
+            CALCULATE ( [Net Sales], Dim_Product[Product] = _product )
         )
     )
 ```
 
-Classe ABC (Pareto 80 / 15 / 5) :
+`_n = 10` is a default: drive it with a numeric parameter if users must choose N.
+
+ABC class (Pareto 80 / 15 / 5):
 
 ```dax
-Classe ABC =
-VAR _ca = [CA HT]
-VAR _total = CALCULATE ( [CA HT], ALLSELECTED ( Dim_Produit[Produit] ) )
-VAR _cumul =
+ABC Class =
+VAR _sales = [Net Sales]
+VAR _total = CALCULATE ( [Net Sales], ALLSELECTED ( Dim_Product[Product] ) )
+VAR _cumulative =
     SUMX (
         FILTER (
-            ALLSELECTED ( Dim_Produit[Produit] ),
-            [CA HT] >= _ca
+            ALLSELECTED ( Dim_Product[Product] ),
+            [Net Sales] >= _sales
         ),
-        [CA HT]
+        [Net Sales]
     )
-VAR _pct = DIVIDE ( _cumul, _total )
+VAR _pct = DIVIDE ( _cumulative, _total )
 RETURN
     IF (
-        ISINSCOPE ( Dim_Produit[Produit] ) && NOT ISBLANK ( _ca ),
+        ISINSCOPE ( Dim_Product[Product] ) && NOT ISBLANK ( _sales ),
         SWITCH ( TRUE (), _pct <= 0.8, "A", _pct <= 0.95, "B", "C" )
     )
 ```
 
-(Coûteux sur de grandes dimensions : préférer un calcul en amont si > ~10 000 produits.)
+Expensive on large dimensions: compute the class upstream beyond roughly 10,000 products (default threshold).
 
-## Clients
+## Customers
 
-Clients actifs sur la période = `[Nb clients]`.
+Active customers over the period = `[Customer Count]` (see [base-measures.md](base-measures.md)).
 
-Si `Dim_Client` est en **SCD2**, compter la clé métier `CustomerCode` (une clé de substitution `CustomerKey` change à chaque version du client) ; `SUMMARIZE` part des faits, donc chaque ensemble est évalué dans son propre contexte de date. Mesures **à tester**.
+If `Dim_Customer` is an **SCD type 2**, count the business key `CustomerCode` (the surrogate key `CustomerKey` changes with each version of the customer); `SUMMARIZE` starts from the facts, so each set is evaluated in its own date context. Measures **to be tested**.
 
-Nouveaux clients (premier achat dans la période) :
+New customers (first purchase within the period):
 
 ```dax
-Nouveaux clients =
-VAR _debut = MIN ( Dim_Date[Date] )
-VAR _clientsPeriode = SUMMARIZE ( Fact_Ventes, Dim_Client[CustomerCode] )
-VAR _clientsAvant =
+New Customers =
+VAR _start = MIN ( Dim_Date[Date] )
+VAR _customersInPeriod = SUMMARIZE ( Fact_Sales, Dim_Customer[CustomerCode] )
+VAR _customersBefore =
     CALCULATETABLE (
-        SUMMARIZE ( Fact_Ventes, Dim_Client[CustomerCode] ),
-        Dim_Date[Date] < _debut,
+        SUMMARIZE ( Fact_Sales, Dim_Customer[CustomerCode] ),
+        Dim_Date[Date] < _start,
         REMOVEFILTERS ( Dim_Date )
     )
 RETURN
-    COUNTROWS ( EXCEPT ( _clientsPeriode, _clientsAvant ) )
+    COUNTROWS ( EXCEPT ( _customersInPeriod, _customersBefore ) )
 ```
 
-Clients perdus (actifs N-1, inactifs sur la période) :
+Lost customers (active in the prior year, inactive in the period):
 
 ```dax
-Clients perdus =
-VAR _clientsN1 =
+Lost Customers =
+VAR _customersPY =
     CALCULATETABLE (
-        SUMMARIZE ( Fact_Ventes, Dim_Client[CustomerCode] ),
+        SUMMARIZE ( Fact_Sales, Dim_Customer[CustomerCode] ),
         SAMEPERIODLASTYEAR ( Dim_Date[Date] )
     )
-VAR _clientsN = SUMMARIZE ( Fact_Ventes, Dim_Client[CustomerCode] )
+VAR _customersCY = SUMMARIZE ( Fact_Sales, Dim_Customer[CustomerCode] )
 RETURN
-    COUNTROWS ( EXCEPT ( _clientsN1, _clientsN ) )
+    COUNTROWS ( EXCEPT ( _customersPY, _customersCY ) )
 ```
 
-Si un historique long existe, matérialiser la date de premier achat dans `Dim_Client` (en amont) et comparer à la période : beaucoup plus rapide.
+With a long history, materialize the first purchase date in `Dim_Customer` (upstream) and compare it with the period: much faster.

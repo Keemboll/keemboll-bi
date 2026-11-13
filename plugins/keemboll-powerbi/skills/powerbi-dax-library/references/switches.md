@@ -1,126 +1,139 @@
-# Interrupteurs (tables déconnectées)
+# Switches (disconnected tables)
 
-Une page, plusieurs vues : au lieu de dupliquer les pages, l'utilisateur choisit la vue avec un petit segment en boutons. Mécanique :
+One page, several views: instead of duplicating pages, the user picks the view with a small button slicer. How it works:
 
-1. une **petite table d'options**, sans relation avec le modèle (table déconnectée) ;
-2. un **segment** sur cette table, style *Boutons*, **sélection unique** et **forcer la sélection** activés ;
-3. des **mesures** qui lisent l'option avec `SELECTEDVALUE` ;
-4. les **visuels, titres et couleurs** utilisent ces mesures.
+1. a **small options table** with no relationship to the model (disconnected table);
+2. a **slicer** on that table, *Buttons* style, with **single select** and **force selection** turned on;
+3. **measures** that read the option with `SELECTEDVALUE`;
+4. **visuals, titles and colors** that use those measures.
 
-Préférer un **paramètre de champs** quand il s'agit seulement de changer la mesure ou l'axe d'un visuel ; préférer une **table déconnectée** quand la logique, les titres ou les couleurs doivent suivre le choix.
+Prefer a **field parameter** when the only need is to change the measure or the axis of a visual; prefer a **disconnected table** when the logic, the titles or the colors must follow the choice.
 
-Toujours donner une **valeur par défaut** à `SELECTEDVALUE` (cas où rien n'est sélectionné). Montrer le DAX à l'utilisateur **avant** de l'appliquer.
+Always give `SELECTEDVALUE` a **default value** (case where nothing is selected). Show the DAX to the user **before** applying it.
 
-## Comparaison : Plan ou N-1
+## Comparison: Plan or PY
 
 ```dax
-Param_Comparaison =
+Param_Comparison =
 DATATABLE (
-    "Comparaison", STRING,
-    "Ordre", INTEGER,
-    { { "Plan", 1 }, { "N-1", 2 } }
+    "Comparison", STRING,
+    "SortOrder", INTEGER,
+    { { "Plan", 1 }, { "PY", 2 } }
 )
 ```
 
-(Trier `Comparaison` par `Ordre` ; masquer `Ordre`.)
+(Sort `Comparison` by `SortOrder`; hide `SortOrder`.)
 
 ```dax
-// QUOI : valeur de référence choisie par l'utilisateur (Plan ou N-1).
-// COMMENT : lit Param_Comparaison ; N-1 par défaut.
-// ADAPTER : [Objectif CA] et [CA HT N-1] selon le modèle.
-CA comparaison =
+// WHAT: reference value chosen by the user (Plan or PY).
+// HOW: reads Param_Comparison; PY by default.
+// NOTE: [Sales Target] is defined in base-measures.md, [Net Sales PY] in time-intelligence.md.
+Net Sales Comparison =
 SWITCH (
-    SELECTEDVALUE ( Param_Comparaison[Comparaison], "N-1" ),
-    "Plan", [Objectif CA],
-    "N-1", [CA HT N-1]
+    SELECTEDVALUE ( Param_Comparison[Comparison], "PY" ),
+    "Plan", [Sales Target],
+    "PY", [Net Sales PY]
 )
 ```
 
 ```dax
-CA écart comparaison =
-VAR _reel = [CA HT]
-VAR _ref = [CA comparaison]
+Net Sales Variance vs Comparison =
+VAR _actual = [Net Sales]
+VAR _reference = [Net Sales Comparison]
 RETURN
-    IF ( NOT ISBLANK ( _reel ) && NOT ISBLANK ( _ref ), _reel - _ref )
+    IF ( NOT ISBLANK ( _actual ) && NOT ISBLANK ( _reference ), _actual - _reference )
 ```
 
 ```dax
-CA atteinte % =
-DIVIDE ( [CA HT], [CA comparaison] )
+Net Sales Achievement % =
+DIVIDE ( [Net Sales], [Net Sales Comparison] )
 ```
 
-Titre dynamique (titre du visuel → *fx* → cette mesure) :
+Dynamic title (visual title → *fx* → this measure):
 
 ```dax
-Titre tendance =
-VAR _ref = SELECTEDVALUE ( Param_Comparaison[Comparaison], "N-1" )
-VAR _atteinte = [CA atteinte %]
+Trend Title =
+VAR _reference = SELECTEDVALUE ( Param_Comparison[Comparison], "PY" )
+VAR _achievement = [Net Sales Achievement %]
 RETURN
-    "Sommes-nous au-dessus " & IF ( _ref = "Plan", "du plan", "de N-1" ) & " ? "
-        & IF ( _atteinte >= 1, "Oui", "Non" ) & ", "
-        & FORMAT ( _atteinte, "0.0 %" )
+    "Are we above " & IF ( _reference = "Plan", "plan", "prior year" ) & "? "
+        & IF ( _achievement >= 1, "Yes", "No" ) & ", "
+        & FORMAT ( _achievement, "0.0%" )
 ```
 
-Couleur conditionnelle (mise en forme → *fx* → valeur de champ) :
+Conditional color (formatting → *fx* → field value):
 
 ```dax
-Couleur écart =
-IF ( [CA écart comparaison] >= 0, "#2E7D32", "#C62828" )
+Variance Color =
+IF ( [Net Sales Variance vs Comparison] >= 0, "#2E7D32", "#C62828" )
 ```
 
-## Classement : Haut ou Bas
+The two hex codes are placeholders: take the colors from the report theme (see `powerbi-report-design`).
+
+## Ranking: Top or Bottom
 
 ```dax
-Param_Sens =
-DATATABLE ( "Sens", STRING, { { "Bas" }, { "Haut" } } )
+Param_Direction =
+DATATABLE ( "Direction", STRING, { { "Bottom" }, { "Top" } } )
 ```
 
 ```dax
-// QUOI : rang du client selon l'écart, dans le sens choisi (5 pires ou 5 meilleurs).
-// COMMENT : RANKX sur les clients visibles ; ignore les clients sans écart.
-// ADAPTER : Dim_Client[Client] et la mesure d'écart.
-Rang écart =
-VAR _sens = SELECTEDVALUE ( Param_Sens[Sens], "Bas" )
-VAR _clients =
+// WHAT: rank of the customer by variance, in the chosen direction (5 worst or 5 best).
+// HOW: RANKX over the visible customers; ignores customers without a variance.
+// NOTE: Bottom by default; ties share the same rank (DENSE).
+Variance Rank =
+VAR _direction = SELECTEDVALUE ( Param_Direction[Direction], "Bottom" )
+VAR _customers =
     FILTER (
-        ALLSELECTED ( Dim_Client[Client] ),
-        NOT ISBLANK ( [CA écart comparaison] )
+        ALLSELECTED ( Dim_Customer[Customer] ),
+        NOT ISBLANK ( [Net Sales Variance vs Comparison] )
     )
 RETURN
     IF (
-        ISINSCOPE ( Dim_Client[Client] ) && NOT ISBLANK ( [CA écart comparaison] ),
+        ISINSCOPE ( Dim_Customer[Customer] ) && NOT ISBLANK ( [Net Sales Variance vs Comparison] ),
         IF (
-            _sens = "Haut",
-            RANKX ( _clients, [CA écart comparaison],, DESC, DENSE ),
-            RANKX ( _clients, [CA écart comparaison],, ASC, DENSE )
+            _direction = "Top",
+            RANKX ( _customers, [Net Sales Variance vs Comparison],, DESC, DENSE ),
+            RANKX ( _customers, [Net Sales Variance vs Comparison],, ASC, DENSE )
         )
     )
 ```
 
-Sur la table : filtre de visuel `Rang écart` *est inférieur ou égal à* 5, tri par `Rang écart` croissant.
+On the table: visual filter `Variance Rank` *is less than or equal to* 5, sorted by `Variance Rank` ascending.
 
-Titre : `"Quels clients sont " & IF ( SELECTEDVALUE ( Param_Sens[Sens], "Bas" ) = "Haut", "le plus au-dessus", "le plus en dessous" ) & " de la référence ?"`
-
-## Vue : Mensuel ou Cumul
+Title:
 
 ```dax
-Param_Vue =
-DATATABLE ( "Vue", STRING, "Ordre", INTEGER, { { "Mensuel", 1 }, { "Cumul", 2 } } )
+Ranking Title =
+"Which customers are the furthest "
+    & IF ( SELECTEDVALUE ( Param_Direction[Direction], "Bottom" ) = "Top", "above", "below" )
+    & " the reference?"
 ```
 
+## View: Monthly or Cumulative
+
 ```dax
-CA vue =
-SWITCH (
-    SELECTEDVALUE ( Param_Vue[Vue], "Mensuel" ),
-    "Mensuel", [CA HT],
-    "Cumul", [CA HT YTD]
+Param_View =
+DATATABLE (
+    "View", STRING,
+    "SortOrder", INTEGER,
+    { { "Monthly", 1 }, { "Cumulative", 2 } }
 )
 ```
 
-Même principe pour la référence : `CA comparaison vue` = N-1 mensuel ou `[CA HT YTD N-1]`.
+```dax
+Net Sales View =
+SWITCH (
+    SELECTEDVALUE ( Param_View[View], "Monthly" ),
+    "Monthly", [Net Sales],
+    "Cumulative", [Net Sales YTD]
+)
+```
 
-## Pièges
+Same principle for the reference: `Net Sales Comparison View` returns `[Net Sales Comparison]` in the monthly view and its cumulative counterpart (`[Net Sales YTD PY]` for PY) in the cumulative view.
 
-- Une table déconnectée ne doit **jamais** recevoir de relation.
-- Sans « forcer la sélection », plusieurs choix peuvent être cochés : `SELECTEDVALUE` renvoie alors la valeur par défaut.
-- Nommer les tables `Param_…` et les masquer du rapport sauf la colonne utilisée par le segment.
+## Pitfalls
+
+- A disconnected table must **never** receive a relationship.
+- Without "force selection", several options can be ticked: `SELECTEDVALUE` then returns the default value.
+- Name the tables `Param_...` and hide them from the report except the column used by the slicer.

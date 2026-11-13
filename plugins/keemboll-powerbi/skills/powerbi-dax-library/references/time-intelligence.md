@@ -1,6 +1,8 @@
 # Time intelligence
 
-Assumption: `Dim_Date` marked as the date table, related to the main date of the facts. Replace `[Measure]` with the base measure.
+Assumption: `Dim_Date` marked as the date table, related to the main date of the facts. Replace `[Net Sales]` with the base measure needed.
+
+These are the **classic** patterns (date column as argument). For fiscal calendars that are not shifted Gregorian (4-4-5, 13 periods) or week-based calculations, see [calendar-time-intelligence.md](calendar-time-intelligence.md).
 
 ## "No future" bound
 
@@ -118,6 +120,8 @@ RETURN
 ```
 
 ## Last known value
+
+`[Price]` stands for any base measure of a fact that is not filled every day.
 
 ```dax
 Last Known Price =
