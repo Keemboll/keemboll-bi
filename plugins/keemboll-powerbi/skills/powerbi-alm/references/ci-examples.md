@@ -1,50 +1,50 @@
-# Intégration continue — exemples
+# Continuous integration — examples
 
-La CI analyse **les fichiers du dépôt** avec `lean.py` (skill `powerbi-lean`). Elle ne se connecte à aucun espace de travail, ne lit aucune donnée et n'a besoin d'aucun secret.
+The CI analyses **the files of the repository** with `lean.py` (`powerbi-lean` skill). It connects to no workspace, reads no data and needs no secret.
 
-## Ce que renvoie `lean.py`
+## What `lean.py` returns
 
-| Commande | Code de sortie | Sortie |
+| Command | Exit code | Output |
 |---|---|---|
-| `audit <projet> [--json]` | **0**, qu'il y ait des constats ou non | `--json` : `{"findings": [{"prio", "cat", "obj", "detail", "file"}], "stats": {…}}` — `prio` vaut 1, 2 ou 3 |
-| `dette <projet> [--json]` | **0**, qu'il y ait des incohérences ou non | `--json` : `open`, `closed`, `progress`, `openItems`, `issues` (liste de textes) … |
-| sous-commande inconnue | **1** | aide sur la sortie standard |
-| `audit` : aucun dossier `*.SemanticModel`, dossier absent, erreur de lecture | **1** | message sur la sortie d'erreur |
-| `dette` : `DEBT.md` et `CHANGES.md` absents, ou mauvais dossier | **0**, `total: 0`, `issues: []` | la porte passe à vide — vérifier `PROJET` |
+| `audit <project> [--json]` | **0**, whether there are findings or not | `--json`: `{"findings": [{"prio", "cat", "obj", "detail", "file"}], "stats": {…}}` — `prio` is 1, 2 or 3 |
+| `debt <project> [--json]` | **0**, whether there are inconsistencies or not | `--json`: `open`, `closed`, `progress`, `openItems`, `issues` (list of strings) … |
+| unknown subcommand | **1** | help on standard output |
+| `audit`: no `*.SemanticModel` folder, missing folder, read error | **1** | message on standard error |
+| `debt`: `DEBT.md` and `CHANGES.md` missing, or wrong folder | **0**, `total: 0`, `issues: []` | the gate passes on nothing — check `PROJECT` |
 
-Conséquence : **le script ne fait jamais échouer le build à cause d'un constat**. Il n'existe pas d'option de seuil, et une option inconnue est ignorée sans erreur. C'est une étape de la CI qui lit le JSON et décide. Le petit script ci-dessous (`ci_seuil.py`, à placer dans le dépôt du projet, p. ex. dans `tests/`) applique le seuil par défaut — **À ADAPTER** : échec sur un constat de priorité 1 ou une incohérence dette / journal.
+Consequence: **the script never fails the build because of a finding**. There is no threshold option, and an unknown option is ignored without error. A CI step reads the JSON and decides. The small script below (`ci_threshold.py`, to place in the project repository, e.g. in `tests/`) applies the default threshold: fail on a priority 1 finding or a debt / change-log inconsistency.
 
 ```python
-"""Seuil de la CI : python ci_seuil.py audit.json dette.json"""
+"""CI threshold: python ci_threshold.py audit.json debt.json"""
 import json
 import sys
 
 audit = json.load(open(sys.argv[1], encoding="utf-8"))
-dette = json.load(open(sys.argv[2], encoding="utf-8"))
-bloquants = [f for f in audit["findings"] if f["prio"] == 1]
-for f in bloquants:
-    print(f"BLOQUANT {f['cat']} : {f['obj']} - {f['detail']}")
-for i in dette["issues"]:
-    print(f"INCOHERENCE {i}")
-print(f"{len(audit['findings'])} constat(s), dont {len(bloquants)} bloquant(s) ; "
-      f"{len(dette['issues'])} incoherence(s) dette / journal.")
-sys.exit(1 if bloquants or dette["issues"] else 0)
+debt = json.load(open(sys.argv[2], encoding="utf-8"))
+blocking = [f for f in audit["findings"] if f["prio"] == 1]
+for f in blocking:
+    print(f"BLOCKING {f['cat']}: {f['obj']} - {f['detail']}")
+for i in debt["issues"]:
+    print(f"INCONSISTENCY {i}")
+print(f"{len(audit['findings'])} finding(s), {len(blocking)} blocking; "
+      f"{len(debt['issues'])} debt / change-log inconsistency(ies).")
+sys.exit(1 if blocking or debt["issues"] else 0)
 ```
 
-`dette` signale aussi les **échéances dépassées** dans `issues` : avec ce seuil, une dette en retard bloque la PR. Filtrer ces lignes dans `ci_seuil.py` si ce n'est pas voulu.
+`debt` also reports **overdue items** in `issues`: with this threshold, a late debt blocks the PR. Filter those lines out in `ci_threshold.py` if that is not wanted.
 
-## Rendre le script disponible
+## Making the script available
 
-La CI n'a pas accès aux skills installés sur le poste. Le script doit être **dans le dépôt du projet** : les skills installés dans le projet, p. ex. `.agents/skills/powerbi-lean/`, versionnés avec lui. Adapter la variable `LEAN` ci-dessous au dossier réellement utilisé. Mettre à jour cette copie quand le skill évolue.
+The CI has no access to the skills installed on a workstation. The script must be **in the project repository**: the skills installed in the project, e.g. `.agents/skills/powerbi-lean/`, versioned with it. Set the `LEAN` variable below to the folder actually used. Update that copy when the skill changes.
 
-Dans les exemples, `PROJET` est le dossier qui contient le `.pbip` (`.` s'il est à la racine).
+In the examples, `PROJECT` is the folder that contains the `.pbip` (`.` when it is at the root).
 
 ## GitHub Actions
 
-`.github/workflows/powerbi-qualite.yml`
+`.github/workflows/powerbi-quality.yml`
 
 ```yaml
-name: Qualité Power BI
+name: Power BI quality
 
 on:
   pull_request:
@@ -55,7 +55,7 @@ permissions:
 
 env:
   LEAN: .agents/skills/powerbi-lean/scripts/lean.py
-  PROJET: .
+  PROJECT: .
 
 jobs:
   lean:
@@ -65,20 +65,20 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Audit (lisible dans le journal)
-        run: python "$LEAN" audit "$PROJET"
-      - name: Dette et journal
-        run: python "$LEAN" dette "$PROJET"
-      - name: Seuil
+      - name: Audit (readable in the log)
+        run: python "$LEAN" audit "$PROJECT"
+      - name: Debt and change log
+        run: python "$LEAN" debt "$PROJECT"
+      - name: Threshold
         run: |
-          python "$LEAN" audit "$PROJET" --json > audit.json
-          python "$LEAN" dette "$PROJET" --json > dette.json
-          python tests/ci_seuil.py audit.json dette.json
+          python "$LEAN" audit "$PROJECT" --json > audit.json
+          python "$LEAN" debt "$PROJECT" --json > debt.json
+          python tests/ci_threshold.py audit.json debt.json
 ```
 
 ## Azure DevOps
 
-`azure-pipelines.yml` — pour qu'il s'exécute sur les PR d'un dépôt Azure Repos, ajouter une **stratégie de validation de build** sur la branche `main` (les déclencheurs `pr:` du YAML ne s'appliquent pas à Azure Repos).
+`azure-pipelines.yml` — to run it on the PRs of an Azure Repos repository, add a **build validation policy** on the `main` branch (the YAML `pr:` triggers do not apply to Azure Repos).
 
 ```yaml
 trigger: none
@@ -88,31 +88,31 @@ pool:
 
 variables:
   LEAN: .agents/skills/powerbi-lean/scripts/lean.py
-  PROJET: .
+  PROJECT: .
 
 steps:
   - task: UsePythonVersion@0
     inputs:
       versionSpec: "3.12"
-  - script: python "$(LEAN)" audit "$(PROJET)"
-    displayName: Audit (lisible dans le journal)
-  - script: python "$(LEAN)" dette "$(PROJET)"
-    displayName: Dette et journal
+  - script: python "$(LEAN)" audit "$(PROJECT)"
+    displayName: Audit (readable in the log)
+  - script: python "$(LEAN)" debt "$(PROJECT)"
+    displayName: Debt and change log
   - script: |
-      python "$(LEAN)" audit "$(PROJET)" --json > audit.json
-      python "$(LEAN)" dette "$(PROJET)" --json > dette.json
-      python tests/ci_seuil.py audit.json dette.json
-    displayName: Seuil
+      python "$(LEAN)" audit "$(PROJECT)" --json > audit.json
+      python "$(LEAN)" debt "$(PROJECT)" --json > debt.json
+      python tests/ci_threshold.py audit.json debt.json
+    displayName: Threshold
 ```
 
-## Variantes
+## Variants
 
-- **Constats limités à la PR** : `audit --changed` compare l'arbre de travail au dernier commit ; dans une CI, l'arbre est propre, donc l'option ne renvoie rien d'utile. Pour ne bloquer que sur les fichiers de la PR, filtrer dans `ci_seuil.py` les constats dont `file` (chemin **absolu** ; `null` pour un constat de modèle, à garder) correspond, une fois rendu relatif à la racine du dépôt (`os.path.relpath`), à une ligne de `git diff --name-only origin/main...HEAD` (prévoir alors un clone complet, `fetch-depth: 0`).
-- **Dictionnaire à jour** : `python "$LEAN" catalogue "$PROJET" > DATA_DICTIONARY.md`, puis `git diff --exit-code -I '^> Généré le ' DATA_DICTIONARY.md` (Git 2.30+ ; `-I` ignore la ligne de date) : le build échoue si le dictionnaire versionné ne correspond plus au modèle (`powerbi-documentation`).
-- **Tests** : les requêtes de contrôle de `tests/` demandent un moteur et des données ; elles ne s'exécutent pas dans cette CI sans connexion (`powerbi-testing`).
-- **Best Practice Analyzer** (Tabular Editor) : complément optionnel pour les règles de modèle ; à ajouter comme étape séparée selon la version et la licence de l'outil dont dispose l'équipe.
-- **Plusieurs projets dans un dépôt** : une exécution par dossier de projet (matrice de jobs).
+- **Findings limited to the PR**: `audit --changed` compares the working tree to the last commit; in a CI the tree is clean, so the option returns nothing useful. To block only on the files of the PR, filter in `ci_threshold.py` the findings whose `file` (an **absolute** path; `null` for a model-level finding, to keep) matches, once made relative to the repository root (`os.path.relpath`), a line of `git diff --name-only origin/main...HEAD` (this needs a full clone, `fetch-depth: 0`).
+- **Dictionary up to date**: `python "$LEAN" catalog "$PROJECT" > DATA_DICTIONARY.md`, then `git diff --exit-code -I '^> Generated on ' DATA_DICTIONARY.md` (Git 2.30+; `-I` ignores the date line): the build fails when the versioned dictionary no longer matches the model (`powerbi-documentation`).
+- **Tests**: the control queries in `tests/` need an engine and data; they do not run in this CI without a connection (`powerbi-testing`).
+- **Best Practice Analyzer** (Tabular Editor): optional complement for model rules; add it as a separate step depending on the version and licence of the tool the team has.
+- **Several projects in one repository**: one run per project folder (job matrix).
 
-## Ce que la CI ne remplace pas
+## What the CI does not replace
 
-La revue humaine, la recette métier, le test des rôles de sécurité et la vérification des valeurs dans Power BI Desktop. Une CI verte signifie « aucun constat bloquant détectable dans les fichiers », pas « prêt pour la production ».
+Human review, business acceptance, testing the security roles and checking the values in Power BI Desktop. A green CI means "no blocking finding detectable in the files", not "ready for production".

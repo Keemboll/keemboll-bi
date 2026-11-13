@@ -1,41 +1,41 @@
-# Modèle de REPORT.md
+# REPORT.md template
 
-Fiche du rapport, à la racine du projet. Elle décrit **à qui sert le rapport et à quelle question répond chaque page** ; les champs utilisés par visuel se retrouvent avec `lean.py usage` et ne sont pas recopiés ici.
+Report sheet, at the project root. It describes **who the report is for and which question each page answers**; the fields used per visual are found with `lean.py usage` and are not copied here.
 
 ```markdown
-# Fiche du rapport — <nom du rapport>
+# Report sheet — <report name>
 
-- **Modèle sémantique** : <nom> (voir `DATA_DICTIONARY.md`)
-- **Public** : <rôles ou équipes, pas de noms de personnes>
-- **Décisions éclairées** : <ce que le lecteur fait après avoir lu le rapport>
-- **Fréquence de consultation** : <quotidienne / hebdomadaire / mensuelle>
-- **Actualisation des données** : <fréquence et heure> — À ADAPTER
-- **Propriétaire métier** : <fonction> · **Responsable technique** : <fonction>
-- **Sécurité** : voir `SECURITY_MODEL.md`
+- **Semantic model**: <name> (see `DATA_DICTIONARY.md`)
+- **Audience**: <roles or teams, no person names>
+- **Decisions supported**: <what the reader does after reading the report>
+- **Reading frequency**: <daily / weekly / monthly>
+- **Data refresh**: <frequency and time>
+- **Business owner**: <job title> · **Technical lead**: <job title>
+- **Security**: see `SECURITY_MODEL.md`
 
 ## Pages
 
-| # | Page | Question à laquelle elle répond | Indicateurs principaux | Filtres et segments |
+| # | Page | Question it answers | Main KPIs | Filters and slicers |
 |---|---|---|---|---|
-| 1 | Synthèse | Où en sommes-nous par rapport à l'objectif ? | `CA HT`, `Marge brute %` | Année, Région |
-| 2 | Détail clients | Quels clients expliquent l'écart ? | `Nb clients`, `CA HT` | Année, Segment |
+| 1 | Overview | Where do we stand against the target? | `Net Sales`, `Gross Margin %` | Year, Region |
+| 2 | Customer detail | Which customers explain the gap? | `Customer Count`, `Net Sales` | Year, Segment |
 
-## Navigation et interactions
+## Navigation and interactions
 
-- Extraction (drill-through) : <page source → page cible, champ>
-- Infobulles de rapport : <page d'infobulle → visuels concernés>
-- Signets et interrupteurs : <ex. Plan / N-1>
+- Drill-through: <source page → target page, field>
+- Report tooltips: <tooltip page → visuals concerned>
+- Bookmarks and toggles: <e.g. Target / Previous year>
 
-## Limites connues
+## Known limits
 
-- <périmètre exclu, données disponibles à partir de quelle date, décalage d'actualisation>
-- <indicateur non comparable avant une date donnée>
-- Dette ouverte : voir `DEBT.md`
+- <excluded scope, date from which data is available, refresh lag>
+- <KPI not comparable before a given date>
+- Open debt: see `DEBT.md`
 ```
 
-## Règles
+## Rules
 
-- Une page sans question claire est un constat à remonter, pas une ligne à remplir par défaut (voir les quatre questions de `powerbi-report-design`).
-- Les noms d'indicateurs sont ceux du modèle, entre accents graves.
-- Les limites connues se rédigent pour un lecteur métier : ce qu'il ne doit **pas** conclure du rapport.
-- Aucune valeur réelle ni capture avec des données réelles.
+- A page without a clear question is a finding to raise, not a row to fill in by default (see the four questions of `powerbi-report-design`).
+- KPI names are those of the model, in backticks.
+- Known limits are written for a business reader: what they must **not** conclude from the report.
+- No real value and no screenshot with real data.

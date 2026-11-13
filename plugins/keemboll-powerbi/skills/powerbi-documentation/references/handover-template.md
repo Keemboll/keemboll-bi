@@ -1,46 +1,46 @@
-# Modèle de HANDOVER.md
+# HANDOVER.md template
 
-Dossier court pour la personne qui reprend le projet. Il **pointe** vers les autres fichiers au lieu de les recopier ; il ne contient que ce qui n'est écrit nulle part ailleurs.
+A short file for the person taking over the project. It **points** to the other files instead of copying them; it only contains what is written nowhere else.
 
 ```markdown
-# Passation — <nom du projet> · <date>
+# Handover — <project name> · <date>
 
-## En une phrase
-<À quoi sert ce projet et pour qui.>
+## In one sentence
+<What this project is for, and for whom.>
 
-## Où trouver quoi
+## Where to find what
 
-| Sujet | Fichier |
+| Topic | File |
 |---|---|
-| Besoin, périmètre, indicateurs | `SCOPE.md`, `KPI.md` |
-| Modèle : tables, mesures, relations | `DATA_DICTIONARY.md` (régénéré le <date>) |
-| Rapport : pages et public | `REPORT.md` |
-| Sécurité et accès | `SECURITY_MODEL.md` |
-| Tests et recette | `tests/`, `tests/ACCEPTANCE.md` |
-| Ce qui reste à corriger | `DEBT.md` |
-| Ce qui a été fait | `CHANGES.md`, `RELEASE_NOTES.md` |
+| Requirements, scope, KPIs | `SCOPE.md`, `KPI.md` |
+| Model: tables, measures, relationships | `DATA_DICTIONARY.md` (regenerated on <date>) |
+| Report: pages and audience | `REPORT.md` |
+| Security and access | `SECURITY_MODEL.md` |
+| Tests and acceptance | `tests/`, `tests/ACCEPTANCE.md` |
+| What remains to be fixed | `DEBT.md` |
+| What has been done | `CHANGES.md`, `RELEASE_NOTES.md` |
 
-## Sources et actualisation
-- Sources : <systèmes, sans chaîne de connexion ni identifiant>
-- Actualisation : <fréquence, qui est alerté en cas d'échec>
-- Environnements et déploiement : voir `powerbi-alm` — <espaces de travail désignés par leur rôle : dev / test / prod>
+## Sources and refresh
+- Sources: <systems, without connection string or identifier>
+- Refresh: <frequency, who is alerted on failure>
+- Environments and deployment: see `powerbi-alm` — <workspaces named by their role: dev / test / prod>
 
-## Ce qu'il faut savoir avant de toucher au modèle
-- <choix de modélisation non évident et sa raison>
-- <mesure sensible : définition arbitrée avec le métier, ne pas la modifier sans lui>
-- <piège connu : objet utilisé par un autre rapport, renommage risqué>
+## What to know before touching the model
+- <non-obvious modelling choice and its reason>
+- <sensitive measure: definition agreed with the business, do not change it without them>
+- <known pitfall: object used by another report, risky rename>
 
-## En cours et prochaines étapes
-- <travail commencé, branche, état>
-- <dettes prioritaires>
+## In progress and next steps
+- <work started, branch, state>
+- <priority debts>
 
 ## Contacts
-- Propriétaire métier : <fonction> · Responsable technique : <fonction> · Accès : <à qui demander>
+- Business owner: <job title> · Technical lead: <job title> · Access: <whom to ask>
 ```
 
-## Règles
+## Rules
 
-- Régénérer `DATA_DICTIONARY.md` et lancer `lean.py dette` **avant** d'écrire la passation : elle cite leur état du jour.
-- La section « Ce qu'il faut savoir » se remplit avec l'utilisateur : ce sont les décisions et les pièges que ni le modèle ni Git ne racontent. Ne pas la remplir par déduction.
-- Fonctions plutôt que noms de personnes ; aucun identifiant de tenant ou d'espace de travail, aucun secret, aucune valeur réelle.
-- Une section vide se supprime ou porte « rien à signaler » : pas de remplissage.
+- Regenerate `DATA_DICTIONARY.md` and run `lean.py debt` **before** writing the handover: it cites their state as of today.
+- The "What to know" section is filled in with the user: these are the decisions and pitfalls that neither the model nor Git tell. Do not fill it in by deduction.
+- Job titles rather than person names; no tenant or workspace identifier, no secret, no real value.
+- An empty section is deleted or says "nothing to report": no padding.

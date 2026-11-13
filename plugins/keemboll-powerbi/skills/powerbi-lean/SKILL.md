@@ -1,79 +1,79 @@
 ---
 name: powerbi-lean
-description: "Sobriété et revue des modèles et rapports Power BI : moins d'objets, pas moins de documentation. Trois modes : review (revue du git diff d'un projet PBIP), audit (mesures et colonnes inutilisées, doublons DAX, valeurs en dur, FILTER sur table entière, summarizeBy, clés visibles, table de dates) et dette (registre DEBT.md des raccourcis assumés et journal CHANGES.md qui se remplit à mesure que la dette diminue). Inclut un script Python en lecture seule (lean.py) qui inventorie aussi les champs utilisés par le rapport avant un renommage. Triggers: revue, review, audit, journal des modifications, changelog, solder une dette, progression de la dette, nettoyage, simplifier, inutilisé, unused, doublon, duplicate, dette technique, tech debt, refactoriser, avant renommage, où est utilisée cette mesure, impact."
+description: "Lean Power BI models and reports, and review of changes: fewer objects, not less documentation. Three modes: review (review the git diff of a PBIP project), audit (unused measures and columns, duplicate DAX, hardcoded values, FILTER over a whole table, summarizeBy, visible keys, date table) and debt (DEBT.md register of accepted shortcuts and CHANGES.md change log that fills up as the debt goes down). Ships a read-only Python script (lean.py) that also lists the fields used by the report before a rename. Use after changing a model or report, when taking over a project, before a refactoring or a publication, or to record and close technical debt. Triggers: review, audit, change log, changelog, close a debt, debt progress, cleanup, simplify, unused, duplicate, technical debt, tech debt, refactor, before rename, where is this measure used, impact."
 ---
 
-# powerbi-lean — moins d'objets, pas moins de documentation
+# powerbi-lean — fewer objects, not less documentation
 
-But : chaque mesure, colonne ou table doit **servir une question** du rapport. On retire le superflu (doublons, objets morts, valeurs en dur, logique recopiée) ; on **ne retire jamais** descriptions, commentaires QUOI / COMMENT / ADAPTER, dossiers d'affichage ni formats.
+Goal: every measure, column or table must **serve a question** of the report. Remove what is superfluous (duplicates, dead objects, hardcoded values, copied logic); **never remove** descriptions, `// WHAT:` / `// HOW:` / `// NOTE:` comments, display folders or formats.
 
-Applique `powerbi-conventions` (validation, Git, modèle existant, confidentialité), `powerbi-performance` (réécritures DAX) et `powerbi-dax-library` (motifs de remplacement). **Lecture seule par défaut** : aucun changement sans plan validé.
+Apply `powerbi-conventions` (validation, Git, existing model, confidentiality), `powerbi-performance` (DAX rewrites) and `powerbi-dax-library` (replacement patterns). **Read-only by default**: no change without a validated plan.
 
-## Le script
+## The script
 
-`scripts/lean.py` (dans le dossier de ce skill, Python 3.8+, bibliothèque standard uniquement) analyse un projet PBIP **sans rien modifier** : TMDL du modèle + PBIR du rapport.
+`scripts/lean.py` (in this skill's folder, Python 3.8+, standard library only) analyses a PBIP project **without modifying anything**: TMDL of the model + PBIR of the report.
 
 ```bash
-python "<dossier du skill>/scripts/lean.py" audit "<dossier du projet PBIP>"            # audit complet
-python "<dossier du skill>/scripts/lean.py" audit "<dossier>" --changed                  # fichiers modifiés depuis le dernier commit
-python "<dossier du skill>/scripts/lean.py" usage "<dossier>"                            # champs utilisés par page / visuel
-python "<dossier du skill>/scripts/lean.py" usage "<dossier>" --field "'Table'[Colonne]" # où un champ est utilisé
-python "<dossier du skill>/scripts/lean.py" usage "<dossier>" --field "[Mesure]"
-python "<dossier du skill>/scripts/lean.py" dette "<dossier>"                            # état DEBT.md + CHANGES.md
-python "<dossier du skill>/scripts/lean.py" catalogue "<dossier>"                        # dictionnaire de données (Markdown, voir powerbi-documentation)
+python "<skill folder>/scripts/lean.py" audit "<PBIP project folder>"                 # full audit
+python "<skill folder>/scripts/lean.py" audit "<folder>" --changed                    # files changed since the last commit
+python "<skill folder>/scripts/lean.py" usage "<folder>"                              # fields used per page / visual
+python "<skill folder>/scripts/lean.py" usage "<folder>" --field "'Table'[Column]"    # where a field is used
+python "<skill folder>/scripts/lean.py" usage "<folder>" --field "[Measure]"
+python "<skill folder>/scripts/lean.py" debt "<folder>"                               # state of DEBT.md + CHANGES.md
+python "<skill folder>/scripts/lean.py" catalog "<folder>"                            # data dictionary (Markdown, see powerbi-documentation)
 ```
 
-Ajouter `--json` pour une sortie exploitable. Sous Windows, utiliser `python` (ou `py`) ; ailleurs `python3`. Le dossier peut être celui du `.pbip`, du `*.SemanticModel` ou le fichier `.pbip`. Ce que le script vérifie et ses limites : [references/audit-rules.md](references/audit-rules.md).
+Add `--json` for machine-readable output. On Windows use `python` (or `py`); elsewhere `python3`. The folder can be the one holding the `.pbip`, the `*.SemanticModel` folder, or the `.pbip` file itself. What the script checks and its limits: [references/audit-rules.md](references/audit-rules.md).
 
-Toujours **exécuter le script** plutôt que deviner l'utilisation d'un champ : c'est lui qui fait foi pour « utilisé / inutilisé ».
+Always **run the script** rather than guess where a field is used: it is the authority for "used / unused".
 
-## Mode `review` — revue d'un changement
+## `review` mode — review a change
 
-Quand : après une modification du modèle ou du rapport, avant le commit.
+When: after a change to the model or the report, before the commit.
 
-1. `git status` et `git diff` dans le dossier du projet (TMDL et PBIR).
-2. `lean.py audit <dossier> --changed` : constats limités aux fichiers modifiés.
-3. Relire le diff avec la grille [references/review-grid.md](references/review-grid.md) : logique dupliquée, mesure qui réécrit une mesure existante, valeur en dur, documentation retirée, renommage sans mise à jour des visuels, `lineageTag` copié.
-4. Rendre **au plus 7 constats**, classés par impact : objet, problème, correction proposée (avec DAX si utile). Terminer par un verdict : *prêt à commit* / *à corriger*.
-5. Ne rien modifier sans accord.
+1. `git status` and `git diff` in the project folder (TMDL and PBIR).
+2. `lean.py audit <folder> --changed`: findings limited to the changed files.
+3. Read the diff against the grid in [references/review-grid.md](references/review-grid.md): duplicated logic, a measure that rewrites an existing measure, hardcoded value, documentation removed, rename without updating the visuals, copied `lineageTag`.
+4. Return **at most 7 findings**, ranked by impact: object, problem, proposed fix (with DAX when useful). End with a verdict: *ready to commit* / *to fix*.
+5. Change nothing without agreement.
 
-## Mode `audit` — revue de tout le projet
+## `audit` mode — review the whole project
 
-Quand : prise en main d'un modèle, avant une refonte, avant publication.
+When: taking over a model, before a redesign, before publication.
 
-1. `lean.py audit <dossier>` (+ `usage` si des renommages sont envisagés).
-2. Compléter par la lecture ciblée de ce que le script ne voit pas : logique quasi dupliquée (mêmes calculs avec variations), mesures « fourre-tout » (SWITCH qui recopie d'autres mesures), noms trompeurs.
-3. Restituer un tableau **priorisé gain / risque** :
-   - **Sans impact visuel** d'abord : table de dates, `summarizeBy`, masquage des clés, formats, descriptions.
-   - **Nettoyage** : suppression d'objets inutilisés (après confirmation qu'aucun autre rapport connecté ne les utilise), fusion des doublons.
-   - **Refactorisation** : mesures recopiées → composition de mesures de base ; valeurs en dur → mesures ou tables de référence.
-   - **Renommages** en dernier, avec l'inventaire `usage` de chaque objet.
-4. Proposer de consigner dans `DEBT.md` ce qui ne sera pas corrigé tout de suite.
+1. `lean.py audit <folder>` (+ `usage` when renames are being considered).
+2. Complete it with a targeted read of what the script cannot see: near-duplicate logic (same calculations with variations), "catch-all" measures (a SWITCH that copies other measures), misleading names.
+3. Report a table **prioritised by gain / risk**:
+   - **No visual impact** first: date table, `summarizeBy`, hiding keys, formats, descriptions.
+   - **Cleanup**: removal of unused objects (after confirming that no other connected report uses them), merging duplicates.
+   - **Refactoring**: copied measures → composition of base measures; hardcoded values → measures or reference tables.
+   - **Renames** last, with the `usage` inventory of each object.
+4. Offer to record in `DEBT.md` whatever will not be fixed right away.
 
-## Mode `dette` — registre des raccourcis et journal des modifications
+## `debt` mode — register of shortcuts and change log
 
-Deux fichiers à la racine du projet, à côté du `.pbip`, versionnés avec lui — **jamais en commentaire dans le modèle publié** :
+Two files at the project root, next to the `.pbip`, versioned with it — **never as comments in the published model**:
 
-| Fichier | Rôle | Modèle |
+| File | Role | Template |
 |---|---|---|
-| `DEBT.md` | Ce qui reste à corriger (raccourcis assumés, constats d'audit non traités) | [debt-template.md](references/debt-template.md) |
-| `CHANGES.md` | Ce qui a été corrigé ou ajouté, plus récent en haut ; se remplit à mesure que la dette diminue | [changes-template.md](references/changes-template.md) |
+| `DEBT.md` | What remains to be fixed (accepted shortcuts, audit findings not handled) | [debt-template.md](references/debt-template.md) |
+| `CHANGES.md` | What has been fixed or added, newest first; fills up as the debt goes down | [changes-template.md](references/changes-template.md) |
 
-- **État** : `python "<dossier du skill>/scripts/lean.py" dette "<dossier du projet>"` → dettes ouvertes / soldées, progression, priorités, échéances dépassées, prochains identifiants (D-xxx, M-xxx) et incohérences entre les deux fichiers.
-- **Ajouter une dette** : nouvelle entrée `D-xxx` dans « Ouvert » ; à la fin d'un `audit`, proposer d'y consigner les constats non traités.
-- **Solder une dette** (après correction **et** vérification) :
-  1. ajouter en haut de `CHANGES.md` une entrée `M-xxx` : dette(s) soldée(s), type, objets modifiés, avant → après, impact sur le rapport, vérification (sans valeurs réelles) ;
-  2. déplacer l'entrée `D-xxx` de « Ouvert » vers « Soldé » avec `**Soldé le**` et `**Modification** : M-xxx` ;
-  3. relancer `lean.py dette` : aucune incohérence attendue ;
-  4. un seul commit pour le changement et les deux fichiers, message `M-xxx: <résumé>`.
-- **Évolution hors dette** (nouvelle page, nouvelle mesure) : entrée `M-xxx` avec `**Dette** : hors dette`.
-- **Avancée partielle** : `**Dette** : D-xxx (partielle)`, la dette reste ouverte.
-- **Projet qui a déjà une dette mais pas de journal** : reconstituer `CHANGES.md` depuis `git log` et `DEBT.md`, sans rien inventer — procédure dans [changes-template.md](references/changes-template.md#initialiser-le-journal-sur-un-projet-qui-a-déjà-une-dette).
-- Ne jamais solder une dette sans entrée de journal, ni écrire une entrée de journal sans avoir vérifié les valeurs.
+- **State**: `python "<skill folder>/scripts/lean.py" debt "<project folder>"` → open / closed debts, progress, priorities, overdue items, next identifiers (D-xxx, C-xxx) and inconsistencies between the two files.
+- **Add a debt**: new `D-xxx` entry under "Open"; at the end of an `audit`, offer to record the findings not handled there.
+- **Close a debt** (after the fix **and** its verification):
+  1. add a `C-xxx` entry at the top of `CHANGES.md`: debt(s) closed, type, changed objects, before → after, impact on the report, verification (no real values);
+  2. move the `D-xxx` entry from "Open" to "Closed" with `**Closed on**` and `**Change**: C-xxx`;
+  3. run `lean.py debt` again: no inconsistency expected;
+  4. a single commit for the change and both files, message `C-xxx: <summary>`.
+- **Change that is not debt-related** (new page, new measure): `C-xxx` entry with `**Debt**: none`.
+- **Partial progress**: `**Debt**: D-xxx (partial)`, the debt stays open.
+- **Project that already has debt but no change log**: rebuild `CHANGES.md` from `git log` and `DEBT.md`, without inventing anything — procedure in [changes-template.md](references/changes-template.md#initialise-the-change-log-on-a-project-that-already-has-debt).
+- Never close a debt without a change log entry, and never write a change log entry without having verified the values.
 
-## Règles
+## Rules
 
-- Supprimer ou fusionner seulement après inventaire `usage` **et** validation explicite.
-- « Inutilisé » = non référencé par **ce** rapport : un autre rapport connecté au modèle publié peut l'utiliser. Le dire à chaque fois.
-- Une simplification qui change un résultat n'est pas une simplification : vérifier les valeurs avant/après (requête DAX de contrôle).
-- Jamais de commentaire `TODO` / `shortcut` dans les mesures : la dette va dans `DEBT.md`.
+- Delete or merge only after the `usage` inventory **and** explicit validation.
+- "Unused" = not referenced by **this** report: another report connected to the published model may use it. Say so every time.
+- A simplification that changes a result is not a simplification: check the values before/after (control DAX query).
+- Never a `TODO` / `shortcut` comment in measures: debt goes into `DEBT.md`.

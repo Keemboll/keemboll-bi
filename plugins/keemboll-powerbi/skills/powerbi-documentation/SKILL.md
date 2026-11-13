@@ -1,73 +1,73 @@
 ---
 name: powerbi-documentation
-description: "Documentation d'un projet Power BI : dictionnaire de données généré depuis le modèle (DATA_DICTIONARY.md), catalogue de mesures, fiche de rapport (pages, public, question de chaque page, filtres, limites connues), note de version tirée du journal des modifications et dossier de passation. À utiliser pour documenter un modèle sémantique ou un rapport, préparer une publication, une recette ou une passation, compléter les descriptions manquantes ou expliquer un modèle à un nouvel arrivant. Triggers: documentation, documenter, dictionnaire de données, data dictionary, catalogue de mesures, measure catalog, fiche de rapport, note de version, release notes, passation, handover, onboarding, description manquante, glossaire, lineage."
+description: "Documentation of a Power BI project: data dictionary generated from the model (DATA_DICTIONARY.md), measure catalog, report sheet (pages, audience, question answered by each page, filters, known limits), release notes drawn from the change log, and handover file. Use to document a semantic model or a report, prepare a publication, an acceptance phase or a handover, fill in missing descriptions, or explain a model to a newcomer. Triggers: documentation, document, data dictionary, measure catalog, report sheet, release notes, handover, onboarding, missing description, glossary, lineage."
 ---
 
-# powerbi-documentation — documenter sans réécrire le modèle
+# powerbi-documentation — document without rewriting the model
 
-But : toute personne qui reprend le projet comprend **ce que mesure chaque indicateur, d'où il vient et à quoi sert chaque page**, sans ouvrir Power BI Desktop. La documentation est **générée** depuis le modèle partout où c'est possible, et **rédigée** seulement pour ce que le modèle ne sait pas (le pourquoi métier, le public, les limites).
+Goal: anyone taking over the project understands **what each KPI measures, where it comes from and what each page is for**, without opening Power BI Desktop. Documentation is **generated** from the model wherever possible, and **written** only for what the model does not know (the business why, the audience, the limits).
 
-Applique `powerbi-conventions` (descriptions obligatoires, confidentialité des métadonnées, validation avant modification) et `powerbi-tmdl` (écriture des descriptions `///`). **Lecture seule par défaut** : ce skill n'écrit que des fichiers Markdown de documentation, après accord.
+Apply `powerbi-conventions` (mandatory descriptions, confidentiality of metadata, validation before any change) and `powerbi-tmdl` (writing `///` descriptions). **Read-only by default**: this skill only writes Markdown documentation files, after agreement.
 
-## Les livrables
+## The deliverables
 
-À la racine du projet, à côté du `.pbip`, versionnés avec lui (dossier `docs/` possible — **À ADAPTER**) :
+Default location: the project root, next to the `.pbip`, versioned with it (a `docs/` folder is also possible):
 
-| Fichier | Contenu | Origine |
+| File | Content | Origin |
 |---|---|---|
-| `DATA_DICTIONARY.md` | Tables, colonnes, mesures et leur DAX, relations, rôles, objets sans description | **Généré** par `lean.py catalogue` |
-| `REPORT.md` | Fiche du rapport : public, question de chaque page, filtres, limites connues | Rédigé — [report-sheet-template.md](references/report-sheet-template.md) |
-| `RELEASE_NOTES.md` | Ce qui change pour les utilisateurs à chaque publication | Tiré de `CHANGES.md` — [release-notes-template.md](references/release-notes-template.md) |
-| `HANDOVER.md` | Ce qu'il faut savoir pour reprendre le projet | Rédigé — [handover-template.md](references/handover-template.md) |
+| `DATA_DICTIONARY.md` | Tables, columns, measures and their DAX, relationships, roles, objects without a description | **Generated** by `lean.py catalog` |
+| `REPORT.md` | Report sheet: audience, question answered by each page, filters, known limits | Written — [report-sheet-template.md](references/report-sheet-template.md) |
+| `RELEASE_NOTES.md` | What changes for users at each publication | Drawn from `CHANGES.md` — [release-notes-template.md](references/release-notes-template.md) |
+| `HANDOVER.md` | What one needs to know to take over the project | Written — [handover-template.md](references/handover-template.md) |
 
-Le **catalogue de mesures** n'est pas un fichier à part : ce sont les sections « Mesures » de `DATA_DICTIONARY.md`, classées par table et dossier d'affichage. Pour un public métier, en extraire un tableau *mesure / définition / format* sans le DAX.
+The **measure catalog** is not a separate file: it is the "Measures" sections of `DATA_DICTIONARY.md`, grouped by table and display folder. For a business audience, extract from it a *measure / definition / format* table without the DAX.
 
-Ne pas dupliquer ce que d'autres fichiers portent déjà : besoin et indicateurs (`SCOPE.md`, `KPI.md` — skill `powerbi-project`), sécurité (`SECURITY_MODEL.md` — `powerbi-governance`), tests et recette (`tests/`, `tests/ACCEPTANCE.md` — `powerbi-testing`), branches et déploiement (`powerbi-alm`), dette et journal (`DEBT.md`, `CHANGES.md` — `powerbi-lean`). La documentation **renvoie** vers eux.
+Do not duplicate what other files already hold: requirements and KPIs (`SCOPE.md`, `KPI.md` — skill `powerbi-project`), security (`SECURITY_MODEL.md` — `powerbi-governance`), tests and acceptance (`tests/`, `tests/ACCEPTANCE.md` — `powerbi-testing`), branches and deployment (`powerbi-alm`), debt and change log (`DEBT.md`, `CHANGES.md` — `powerbi-lean`). The documentation **points** to them.
 
-## Générer le dictionnaire
+## Generate the dictionary
 
-Le script est celui du skill voisin `powerbi-lean` (même plugin), en lecture seule ; il écrit sur la sortie standard :
+The script belongs to the neighbouring skill `powerbi-lean` (same plugin), is read-only and writes to standard output:
 
 ```bash
-python "<dossier du skill powerbi-lean>/scripts/lean.py" catalogue "<dossier du projet>"          # Markdown
-python "<dossier du skill powerbi-lean>/scripts/lean.py" catalogue "<dossier du projet>" --json   # sortie exploitable
+python "<powerbi-lean skill folder>/scripts/lean.py" catalog "<project folder>"          # Markdown
+python "<powerbi-lean skill folder>/scripts/lean.py" catalog "<project folder>" --json   # machine-readable output
 ```
 
-Sous Windows `python` (ou `py`), ailleurs `python3`. Rediriger la sortie vers `DATA_DICTIONARY.md` en UTF-8 (sous Windows PowerShell 5.1, `>` écrit en UTF-16 : utiliser `| Out-File -Encoding utf8 DATA_DICTIONARY.md`), ou la relire puis l'écrire avec l'outil d'écriture de fichiers.
+On Windows `python` (or `py`), elsewhere `python3`. Redirect the output to `DATA_DICTIONARY.md` in UTF-8 (in Windows PowerShell 5.1, `>` writes UTF-16: use `| Out-File -Encoding utf8 DATA_DICTIONARY.md`), or read it back and write it with the file-writing tool.
 
-Le dictionnaire contient : compteurs, liste des tables (type déduit du préfixe, masquée ou non), colonnes (type, description, masquée, agrégation, colonne de tri, format), mesures (description, format, masquée, utilisée par le rapport, DAX), relations (cardinalité, filtrage croisé, active), rôles RLS et la section **« Sans description »**. Le filtre d'un rôle qui contient une adresse e-mail n'est pas recopié.
+The dictionary contains: counters, list of tables (type derived from the prefix, hidden or not), columns (type, description, hidden, aggregation, sort-by column, format), measures (description, format, hidden, used by the report, DAX), relationships (cardinality, cross-filtering, active), RLS roles and the **"Without a description"** section. The filter of a role that contains an e-mail address is not copied.
 
-## Processus
+## Process
 
-1. **Générer** `DATA_DICTIONARY.md` avec `lean.py catalogue`. Ne jamais le rédiger à la main ni à partir de suppositions.
-2. **Lire la section « Sans description »** et la présenter à l'utilisateur. Pour chaque objet : demander la définition métier, ou proposer une formulation **marquée comme proposition** à valider. Ne jamais inventer une définition.
-3. **Corriger dans le modèle** : les descriptions validées s'écrivent en `///` dans les fichiers TMDL (`powerbi-tmdl`), selon le processus de validation de `powerbi-conventions`. Jamais dans `DATA_DICTIONARY.md`.
-4. **Régénérer** le dictionnaire ; la section « Sans description » doit avoir diminué.
-5. **Rédiger ou mettre à jour** `REPORT.md` à partir des pages réelles du rapport (`lean.py usage` donne les champs par page et par visuel) et des réponses de l'utilisateur sur le public et les questions.
-6. **Avant publication** : note de version depuis les entrées `M-xxx` ajoutées depuis la dernière publication.
-7. Un seul commit pour le changement de modèle et la documentation régénérée.
+1. **Generate** `DATA_DICTIONARY.md` with `lean.py catalog`. Never write it by hand or from assumptions.
+2. **Read the "Without a description" section** and present it to the user. For each object: ask for the business definition, or propose a wording **marked as a proposal** to validate. Never invent a definition.
+3. **Fix in the model**: validated descriptions are written as `///` in the TMDL files (`powerbi-tmdl`), following the validation process of `powerbi-conventions`. Never in `DATA_DICTIONARY.md`.
+4. **Regenerate** the dictionary; the "Without a description" section must have shrunk.
+5. **Write or update** `REPORT.md` from the actual pages of the report (`lean.py usage` gives the fields per page and per visual) and from the user's answers about the audience and the questions.
+6. **Before publication**: release notes from the `C-xxx` entries added since the last publication.
+7. A single commit for the model change and the regenerated documentation.
 
-## Quand régénérer
+## When to regenerate
 
-- Avant chaque publication (voir `powerbi-alm`).
-- Après chaque modification `M-xxx` qui touche le modèle : mesure, colonne, relation, rôle, description.
-- Avant une recette ou une passation.
+- Before each publication (see `powerbi-alm`).
+- After each `C-xxx` change that touches the model: measure, column, relationship, role, description.
+- Before an acceptance phase or a handover.
 
-Un dictionnaire plus ancien que le dernier commit du modèle est faux : le dire plutôt que de s'en servir.
+A dictionary older than the last commit of the model is wrong: say so rather than use it.
 
-## Règles
+## Rules
 
-- **Source de vérité = le modèle.** Une description fausse se corrige dans le TMDL, puis on régénère. Toute correction faite directement dans `DATA_DICTIONARY.md` sera perdue.
-- **Documenter le pourquoi, pas paraphraser le DAX.** « Clients ayant commandé au moins une fois sur la période, hors comptes internes » — pas « DISTINCTCOUNT de CustomerKey ». Le DAX figure déjà dans le dictionnaire.
-- Une description de mesure dit : **définition métier, règle de calcul, périmètre, source**. Une description de colonne dit ce que contient la valeur et son unité.
-- **Aucune valeur réelle** (montants, noms de clients, de patients, d'agents) ni donnée personnelle dans la documentation : exemples fictifs uniquement. Si le script signale un filtre masqué, ne pas aller le recopier.
-- **Signaler** ce qui manque (description, format, propriétaire d'un indicateur) plutôt que combler par une supposition.
-- « Utilisée par le rapport : non » = non référencée par **ce** rapport ; un autre rapport connecté au modèle publié peut l'utiliser (voir `powerbi-lean`).
-- Vocabulaire : reprendre les libellés du modèle et de `KPI.md` à l'identique ; un même indicateur n'a qu'un nom.
-- Pas de capture d'écran contenant des données réelles ; préférer la maquette (`powerbi-mockup`) pour illustrer une page.
+- **Source of truth = the model.** A wrong description is fixed in the TMDL, then the dictionary is regenerated. Any correction made directly in `DATA_DICTIONARY.md` will be lost.
+- **Document the why, do not paraphrase the DAX.** "Customers who ordered at least once in the period, excluding internal accounts" — not "DISTINCTCOUNT of CustomerKey". The DAX is already in the dictionary.
+- A measure description states: **business definition, calculation rule, scope, source**. A column description states what the value contains and its unit.
+- **No real value** (amounts, names of customers or employees) and no personal data in the documentation: fictitious examples only. If the script reports a masked filter, do not go and copy it.
+- **Flag** what is missing (description, format, owner of a KPI) rather than fill the gap with an assumption.
+- "Used by the report: no" = not referenced by **this** report; another report connected to the published model may use it (see `powerbi-lean`).
+- Vocabulary: reuse the labels of the model and of `KPI.md` verbatim; a KPI has only one name.
+- No screenshot containing real data; prefer the mockup (`powerbi-mockup`) to illustrate a page.
 
-## Références
+## References
 
-- [references/report-sheet-template.md](references/report-sheet-template.md) — fiche d'un rapport, page par page.
-- [references/release-notes-template.md](references/release-notes-template.md) — note de version pour les utilisateurs.
-- [references/handover-template.md](references/handover-template.md) — dossier de passation.
+- [references/report-sheet-template.md](references/report-sheet-template.md) — report sheet, page by page.
+- [references/release-notes-template.md](references/release-notes-template.md) — release notes for users.
+- [references/handover-template.md](references/handover-template.md) — handover file.
