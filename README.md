@@ -1,145 +1,160 @@
 # keemboll-bi
 
-Skills pour **gérer et développer des projets BI avec Power BI / Microsoft Fabric** à l'aide d'un agent de code : du cadrage à l'exploitation, avec les règles maison de l'équipe.
+Agent skills to **run and build BI projects with Power BI and Microsoft Fabric** with a coding agent: from scoping to operations, with explicit working rules, ready-made templates and a read-only analysis script.
 
-- **Pour Claude Code** : une marketplace (`keemboll-bi`) avec le plugin `keemboll-powerbi` — skills, sous-agents et guide intégré.
-- **Pour les autres agents** (Codex, Grok, Gemini, Copilot, Cursor…) : les mêmes skills, au format ouvert *Agent Skills*, installés dans le projet BI par un script — voir [docs/agents.md](docs/agents.md).
+- **For Claude Code**: a marketplace (`keemboll-bi`) with the `keemboll-powerbi` plugin — 20 skills, 7 subagents and a built-in guide (`/keemboll-docs`).
+- **For other agents** (Codex, Grok, Gemini, GitHub Copilot, Cursor...): the same skills, in the open *Agent Skills* format, installed into the BI project by a script — see [docs/agents.md](docs/agents.md).
 
-> Les contenus marqués **« À ADAPTER »** sont des bonnes pratiques par défaut à remplacer par les règles réelles de l'équipe.
+Every skill works out of the box with sensible defaults (naming, formats, thresholds, design tokens). A team that has its own rules writes them in a `TEAM_RULES.md` at the project root: the agent reads it first and it overrides every default.
 
 ---
 
-## Contenu
+## Contents
 
-Le plugin `keemboll-powerbi` couvre tout le cycle d'un projet :
+The `keemboll-powerbi` plugin covers the whole life of a project:
 
-| Étape | Skill | Rôle |
+| Stage | Skill | Role |
 |---|---|---|
-| **Piloter** | `powerbi-project` | Phases d'un projet BI, fiche de cadrage `SCOPE.md`, catalogue de KPI `KPI.md`, rôles, definition of done |
-| **Concevoir le modèle** | `powerbi-conventions` | Nommage, organisation du modèle, règles DAX de base, processus de validation avant modification |
-| | `powerbi-data-modeling` | Modélisation dimensionnelle : schéma en étoile, grain, clés, SCD, dimensions de rôle, tables pont |
-| | `powerbi-tmdl` | Lecture / écriture de modèles sémantiques au format TMDL (projets PBIP) |
-| **Calculer** | `powerbi-dax-library` | Bibliothèque de mesures standard (time intelligence, marges, parts, classements…) |
-| | `powerbi-performance` | Optimisation DAX et modèle (cardinalité, VertiPaq, Power Query, diagnostic) |
-| **Construire le rapport** | `powerbi-mockup` | Maquette HTML d'une page à partir du modèle réel, avant de construire dans Power BI |
-| | `powerbi-report-design` | Charte des rapports : thème, mise en page, accessibilité, choix des visuels |
-| | `powerbi-html-visuals` | Visuels HTML / SVG générés en DAX (cartes, sparklines, barres de progression) |
-| **Sécuriser** | `powerbi-governance` | RLS / OLS, étiquettes de sensibilité, endossement, accès et partage, fiche `SECURITY_MODEL.md` |
-| **Vérifier** | `powerbi-testing` | Intégrité du modèle, rapprochement, tests de mesures, non-régression, tests RLS, recette (`tests/`) |
-| | `powerbi-lean` | Revue de diff, audit (inutilisés, doublons, valeurs en dur), registre `DEBT.md` et journal `CHANGES.md` ; script `lean.py` |
-| **Livrer** | `powerbi-alm` | Dépôt PBIP, branches, environnements, portes de qualité, intégration continue, mise en production |
-| | `powerbi-documentation` | Dictionnaire de données `DATA_DICTIONARY.md` (généré), fiche de rapport, note de version, passation |
+| **Run** | `powerbi-project` | Phases of a BI project, `SCOPE.md` brief, `KPI.md` catalog, roles, definition of done |
+| | `powerbi-migration` | PBIX → PBIP, Tableau / Qlik / Excel / SSRS → Power BI: inventory, mapping, parity, cut-over |
+| **Design the model** | `powerbi-conventions` | Naming, model organization, baseline DAX rules, approval process, `TEAM_RULES.md` |
+| | `powerbi-data-modeling` | Dimensional modeling: star schema, grain, keys, SCD, role-playing dimensions, bridge tables |
+| | `powerbi-power-query` | M code: staging, parameters, query folding, typing, incremental refresh |
+| | `powerbi-direct-lake` | Storage mode choice, Direct Lake on OneLake / SQL endpoint, framing, fallback, Delta hygiene |
+| | `powerbi-tmdl` | Reading / writing semantic models in TMDL (PBIP projects) |
+| **Calculate** | `powerbi-dax-library` | Standard measures: time intelligence (classic and calendar-based), margins, shares, rankings, toggles, visual calculations |
+| | `powerbi-dax-udf` | DAX user-defined functions: when, naming, typing, `functions.tmdl`, tests |
+| | `powerbi-performance` | DAX and model optimization (cardinality, VertiPaq, diagnostics) |
+| **Build the report** | `powerbi-mockup` | HTML mockup of a page from the real model, before building in Power BI |
+| | `powerbi-report-design` | Report style guide: theme, layout, accessibility, choice of visuals |
+| | `powerbi-html-visuals` | HTML / SVG visuals generated in DAX (cards, sparklines, progress bars) |
+| **Secure and open to AI** | `powerbi-governance` | RLS / OLS, sensitivity labels, endorsement, access and sharing, `SECURITY_MODEL.md` |
+| | `powerbi-ai-readiness` | Model ready for Copilot and Fabric data agents: AI data schema, verified answers, AI instructions, AI test set |
+| **Verify** | `powerbi-testing` | Model integrity, reconciliation, measure tests, non-regression, RLS tests, acceptance (`tests/`) |
+| | `powerbi-lean` | Diff review, audit (unused, duplicates, hard-coded values), `DEBT.md` and `CHANGES.md`; `lean.py` script |
+| **Deliver** | `powerbi-alm` | PBIP repository, branches, environments, quality gates, CI, fabric-cicd, release and rollback |
+| | `powerbi-documentation` | Generated `DATA_DICTIONARY.md`, report sheet, release notes, handover |
+| **Run in production** | `powerbi-operations` | Refresh triage, incidents, capacity and usage watch, `RUNBOOK.md`, retiring unused content |
 
-Sous-agents (Claude Code) : `powerbi-auditor` (relecture en lecture seule), `powerbi-modeler` (modèle et mesures), `powerbi-report-designer` (pages de rapport). Les mêmes rôles sont décrits dans `powerbi-project` pour les autres agents.
+Subagents (Claude Code): `powerbi-analyst` (scoping), `powerbi-modeler` (model and measures), `powerbi-report-designer` (report pages), `powerbi-tester` (tests and acceptance), `powerbi-ai-curator` (AI readiness), `powerbi-ops` (operations), `powerbi-auditor` (read-only review). The same roles are described in `powerbi-project` for other agents.
 
-Guide d'utilisation intégré : dans Claude Code, tapez **`/keemboll-docs`** (ou `/keemboll-docs <section>` : installation, skills, exemples, projet, agents, lean, dette, methode, securite, depannage).
+Built-in guide: in Claude Code, type **`/keemboll-docs`** (or `/keemboll-docs <section>`: installation, skills, examples, project, agents, lean, debt, method, security, troubleshooting).
 
 ## Installation
 
 ### Claude Code
 
-Prérequis : Claude Code, Azure CLI connecté (`az login --allow-no-subscriptions`), plugins Microsoft installés.
+Prerequisites: Claude Code, Git, Python 3.8+. Recommended: the Microsoft plugins (they need Azure CLI signed in with `az login --allow-no-subscriptions`).
 
 ```powershell
-# 1. Plugins Microsoft (source officielle)
+# 1. Microsoft plugins (official source) — recommended
 claude plugin marketplace add microsoft/skills-for-fabric
 claude plugin install fabric-skills@fabric-collection
 claude plugin install powerbi-authoring@fabric-collection
 
-# 2. Nos skills
+# 2. This plugin
 claude plugin marketplace add keemboll/keemboll-bi
 claude plugin install keemboll-powerbi@keemboll-bi
 ```
 
-Test local, avant de pousser sur GitHub :
+Local test, before pushing to GitHub:
 
 ```powershell
 claude plugin marketplace add ./keemboll-bi
 claude plugin install keemboll-powerbi@keemboll-bi
 ```
 
-Activer la mise à jour automatique : dans Claude Code, `/plugin` → **Marketplaces** → `keemboll-bi` → **Enable auto-update** (idem pour `fabric-collection`).
+Enable automatic updates: in Claude Code, `/plugin` → **Marketplaces** → `keemboll-bi` → **Enable auto-update** (same for `fabric-collection`).
 
-### Codex, Grok, Gemini, Copilot, Cursor et autres
+### Codex, Grok, Gemini, GitHub Copilot, Cursor and others
 
-Prérequis : Python 3.8+ et une copie de ce dépôt.
+Prerequisites: Python 3.8+ and a copy of this repository.
 
 ```powershell
 git clone https://github.com/keemboll/keemboll-bi
 cd keemboll-bi
-python scripts/install.py --agent codex --target "C:\chemin\vers\mon-projet-bi"   # ou grok, gemini, copilot, cursor, generic
+python scripts/install.py --agent codex --target "C:\path\to\my-bi-project"   # or grok, gemini, copilot, cursor, generic
 ```
 
-Le script copie les skills dans le dossier que l'agent lit (`.agents/skills/`, `.grok/skills/`…) et ajoute au `AGENTS.md` du projet un bloc d'index des skills, sans toucher au reste du fichier. Relancer la commande met à jour ; `--uninstall` retire tout ; `--list` affiche les agents pris en charge. Pour un agent sans accès aux fichiers, `python scripts/build_dist.py` produit tous les skills en un seul fichier Markdown. Détails, emplacements et limites : [docs/agents.md](docs/agents.md).
+The script copies the skills into the folder the agent reads (`.agents/skills/`, `.grok/skills/`...) and adds a skills index block to the project's `AGENTS.md`, without touching the rest of the file. Running it again updates; `--uninstall` removes everything; `--list` shows the supported agents. For an agent without file access, `python scripts/build_dist.py` produces all the skills in a single Markdown file. Details, folders and limits: [docs/agents.md](docs/agents.md).
 
-## Structure
+## Repository layout
 
 ```
 keemboll-bi/
 ├── .claude-plugin/
-│   └── marketplace.json          # catalogue des plugins (marketplace « keemboll-bi »), liste générée
+│   └── marketplace.json          # plugin catalog ("keemboll-bi" marketplace), list generated
 ├── plugins/
 │   └── keemboll-powerbi/
 │       ├── .claude-plugin/
-│       │   └── plugin.json       # manifeste du plugin (version !)
-│       ├── agents/               # sous-agents : auditeur, modeleur, concepteur de rapport
+│       │   └── plugin.json       # plugin manifest (version!)
+│       ├── agents/               # subagents: analyst, modeler, report designer, tester, AI curator, ops, auditor
 │       ├── commands/
-│       │   └── keemboll-docs.md  # commande /keemboll-docs (guide)
+│       │   └── keemboll-docs.md  # /keemboll-docs command (guide)
 │       └── skills/
-│           └── <nom-du-skill>/
-│               ├── SKILL.md      # instructions + frontmatter name/description
-│               ├── references/   # détails chargés à la demande
-│               └── scripts/      # scripts Python en lecture seule (lean.py)
+│           └── <skill-name>/
+│               ├── SKILL.md      # instructions + name/description frontmatter
+│               ├── references/   # details loaded on demand
+│               └── scripts/      # read-only Python scripts (lean.py)
 ├── scripts/
-│   ├── validate.py               # contrôle de cohérence du dépôt
-│   ├── install.py                # installation des skills pour un agent donné
-│   ├── build_dist.py             # archives .zip et fichier unique dans dist/
-│   ├── generate_marketplace.py   # régénère la liste des plugins
-│   └── bump_versions.py          # incrément de version (CI)
-├── tests/                        # tests des scripts + projet PBIP d'exemple (fixture)
-├── docs/agents.md                # utilisation avec les autres agents
-├── templates/skill-template/     # squelette de skill à copier
-├── .claude/agents/               # rôles de maintenance du dépôt (rédaction, relecture, vérification, livraison)
-├── AGENTS.md                     # règles pour éditer ce dépôt, communes à tous les agents
-├── CLAUDE.md                     # importe AGENTS.md
+│   ├── validate.py               # repository consistency check
+│   ├── install.py                # installs the skills for a given agent
+│   ├── build_dist.py             # .zip archives and single file in dist/
+│   ├── generate_marketplace.py   # regenerates the plugin list
+│   └── bump_versions.py          # version bump (CI)
+├── tests/                        # script tests + sample PBIP project (fixture)
+├── docs/agents.md                # use with other agents
+├── templates/skill-template/     # skill skeleton to copy
+├── .claude/agents/               # maintenance roles (author, reviewer, DAX check, docs check, trend watch, release)
+├── AGENTS.md                     # rules for editing this repository, shared by all agents
+├── CLAUDE.md                     # imports AGENTS.md
 └── CHANGELOG.md
 ```
 
-Chaque skill n'existe qu'à un seul endroit (`plugins/<plugin>/skills/`). La liste `plugins` de `marketplace.json` est **générée automatiquement** depuis les `plugin.json` (`python scripts/generate_marketplace.py`) ; un workflow GitHub Actions (`.github/workflows/generate-marketplace.yml`), déclenché par le `push` sur `main`, la régénère et la commit si elle a changé. L'en-tête (`name`, `owner`, `metadata`) reste édité à la main. Un second workflow (`validate.yml`) lance la validation et les tests sur chaque demande de fusion et chaque branche.
+Each skill exists in one place only (`plugins/<plugin>/skills/`). The `plugins` list of `marketplace.json` is **generated** from the `plugin.json` files (`python scripts/generate_marketplace.py`); a GitHub Actions workflow (`.github/workflows/generate-marketplace.yml`), triggered by a push to `main`, regenerates and commits it when it changed. The header (`name`, `owner`, `metadata`) is edited by hand. A second workflow (`validate.yml`) runs the validation and the tests on every pull request and every branch.
 
-## Ajouter ou modifier un skill
+## Adding or changing a skill
 
-Les règles complètes sont dans [AGENTS.md](AGENTS.md).
+The full rules are in [AGENTS.md](AGENTS.md).
 
-1. Copier `templates/skill-template/` vers `plugins/keemboll-powerbi/skills/<nouveau-nom>/`.
-2. Renseigner `name` (identique au nom du dossier, en kebab-case) et `description` (quand l'utiliser — c'est ce qui déclenche le skill).
-3. Garder `SKILL.md` court (< 300 lignes) ; déplacer les détails dans `references/`. Écrire « l'agent », jamais le nom d'un produit.
-4. Présenter le skill dans `plugins/keemboll-powerbi/commands/keemboll-docs.md` (sections `skills` et `exemples`) et dans le tableau ci-dessus.
-5. **Version** : incrémentée automatiquement après le push (patch, `feat` → mineur, `!:` / `BREAKING CHANGE` → majeur) si tu ne l'as pas changée toi-même dans `plugin.json` ; `marketplace.json` est resynchronisé dans la foulée.
-6. Ajouter une entrée dans `CHANGELOG.md`.
-7. Valider puis publier :
+1. Copy `templates/skill-template/` to `plugins/keemboll-powerbi/skills/<new-name>/`.
+2. Fill in `name` (same as the folder name, kebab-case) and `description` (when to use it — this is what triggers the skill).
+3. Keep `SKILL.md` short (< 300 lines); move details into `references/`. Write "the agent", never a product name. English only.
+4. Present the skill in `plugins/keemboll-powerbi/commands/keemboll-docs.md` (sections `skills` and `examples`) and in the table above.
+5. **Version**: bumped automatically after the push (patch, `feat` → minor, `!:` / `BREAKING CHANGE` → major) if you did not change it yourself in `plugin.json`; `marketplace.json` is resynced along the way.
+6. Add an entry to `CHANGELOG.md`.
+7. Validate, then publish:
 
 ```powershell
 python scripts/validate.py
 python -m unittest discover -s tests
 git add .
-git commit -m "feat(powerbi): <résumé>"
+git commit -m "feat(powerbi): <summary>"
 git push
 ```
 
-Sans incrément de version, Claude Code ne voit pas la mise à jour.
+Without a version bump, Claude Code does not see the update.
 
-## Coexistence avec les skills Microsoft
+## Working alongside the Microsoft skills
 
-| Besoin | Skill Microsoft | Notre skill (appliqué en plus) |
+| Need | Microsoft skill | Our skill (applied on top) |
 |---|---|---|
-| Modifier un modèle sémantique | `semantic-model-authoring` | `powerbi-conventions`, `powerbi-data-modeling`, `powerbi-tmdl` |
-| Écrire des mesures | `semantic-model-authoring` | `powerbi-dax-library`, `powerbi-performance` |
-| Créer / modifier un rapport | `powerbi-report-cli` | `powerbi-mockup`, `powerbi-report-design`, `powerbi-html-visuals` |
-| Rôles de sécurité, étiquettes, endossement | `semantic-model-authoring`, `onelake-catalog-cli` | `powerbi-governance` |
-| Promotion dev → test → prod, synchronisation Git | `deployment-pipelines-authoring-cli`, `git-integration-operations-cli` | `powerbi-alm` |
-| Cadrage, tests et recette, documentation | — | `powerbi-project`, `powerbi-testing`, `powerbi-documentation` |
-| Revue / audit / nettoyage d'un projet PBIP | — | `powerbi-lean` |
-| Questions en langage naturel sur les données | `fabriciq` | — |
+| Change a semantic model | `semantic-model-authoring` | `powerbi-conventions`, `powerbi-data-modeling`, `powerbi-power-query`, `powerbi-tmdl` |
+| Write measures and functions | `semantic-model-authoring` | `powerbi-dax-library`, `powerbi-dax-udf`, `powerbi-performance` |
+| Direct Lake models on OneLake | `semantic-model-authoring` | `powerbi-direct-lake` |
+| Create / change a report | `powerbi-report-cli` | `powerbi-mockup`, `powerbi-report-design`, `powerbi-html-visuals` |
+| Security roles, labels, endorsement | `semantic-model-authoring`, `onelake-catalog-cli` | `powerbi-governance` |
+| dev → test → prod promotion, Git sync | `deployment-pipelines-authoring-cli`, `git-integration-operations-cli` | `powerbi-alm` |
+| Natural-language questions on the data | `fabriciq` | `powerbi-ai-readiness` (prepare the model so that answers are right) |
+| Scoping, migration, tests and acceptance, documentation, operations | — | `powerbi-project`, `powerbi-migration`, `powerbi-testing`, `powerbi-documentation`, `powerbi-operations` |
+| Review / audit / clean-up of a PBIP project | — | `powerbi-lean` |
 
-Les skills Microsoft gèrent la **mécanique** (API Fabric, fichiers PBIR / PBIP, MCP) ; les nôtres imposent les **règles maison**. En cas de contradiction, nos conventions priment sur les choix de style, jamais sur les contraintes techniques des API. Sans les skills Microsoft (autre agent, poste sans Azure CLI), nos skills restent utilisables : l'agent travaille sur les fichiers du projet PBIP et l'utilisateur vérifie dans Power BI Desktop.
+The Microsoft skills handle the **mechanics** (Fabric APIs, PBIR / PBIP files, MCP); ours set the **working rules**. In case of conflict, our conventions win on style choices, never on the technical constraints of the APIs. Without the Microsoft skills (another agent, a workstation without Azure CLI), our skills still work: the agent works on the PBIP project files and the user checks in Power BI Desktop.
+
+## Contributing
+
+Issues and pull requests are welcome: a rule that is wrong, a Power BI change the skills do not reflect yet, a new visual reference. Follow [AGENTS.md](AGENTS.md); run `python scripts/validate.py` and the tests before opening a pull request. Examples that were not executed against a real model are listed under "To validate" in [CHANGELOG.md](CHANGELOG.md) — confirming one of them is a good first contribution.
+
+## License
+
+Apache 2.0 — see [LICENSE](LICENSE).
