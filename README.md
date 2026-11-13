@@ -1,5 +1,9 @@
 # keemboll-bi
 
+[![Validate](https://github.com/Keemboll/keemboll-bi/actions/workflows/validate.yml/badge.svg)](https://github.com/Keemboll/keemboll-bi/actions/workflows/validate.yml) [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE) [![Part of Keemboll](https://img.shields.io/badge/part%20of-Keemboll-informational)](https://github.com/Keemboll)
+
+> `keemboll-bi` is the first project of the [Keemboll](https://github.com/Keemboll) organization, which hosts open-source BI tooling. Shared guidelines live in the [organization contributing guide](https://github.com/Keemboll/.github/blob/main/CONTRIBUTING.md).
+
 Agent skills to **run and build BI projects with Power BI and Microsoft Fabric** with a coding agent: from scoping to operations, with explicit working rules, ready-made templates and a read-only analysis script.
 
 - **For Claude Code**: a marketplace (`keemboll-bi`) with the `keemboll-powerbi` plugin — 20 skills, 7 subagents and a built-in guide (`/keemboll-docs`).
@@ -78,63 +82,6 @@ python scripts/install.py --agent codex --target "C:\path\to\my-bi-project"   # 
 
 The script copies the skills into the folder the agent reads (`.agents/skills/`, `.grok/skills/`...) and adds a skills index block to the project's `AGENTS.md`, without touching the rest of the file. Running it again updates; `--uninstall` removes everything; `--list` shows the supported agents. For an agent without file access, `python scripts/build_dist.py` produces all the skills in a single Markdown file. Details, folders and limits: [docs/agents.md](docs/agents.md).
 
-## Repository layout
-
-```
-keemboll-bi/
-├── .claude-plugin/
-│   └── marketplace.json          # plugin catalog ("keemboll-bi" marketplace), list generated
-├── plugins/
-│   └── keemboll-powerbi/
-│       ├── .claude-plugin/
-│       │   └── plugin.json       # plugin manifest (version!)
-│       ├── agents/               # subagents: analyst, modeler, report designer, tester, AI curator, ops, auditor
-│       ├── commands/
-│       │   └── keemboll-docs.md  # /keemboll-docs command (guide)
-│       └── skills/
-│           └── <skill-name>/
-│               ├── SKILL.md      # instructions + name/description frontmatter
-│               ├── references/   # details loaded on demand
-│               └── scripts/      # read-only Python scripts (lean.py)
-├── scripts/
-│   ├── validate.py               # repository consistency check
-│   ├── install.py                # installs the skills for a given agent
-│   ├── build_dist.py             # .zip archives and single file in dist/
-│   ├── generate_marketplace.py   # regenerates the plugin list
-│   └── bump_versions.py          # version bump (CI)
-├── tests/                        # script tests + sample PBIP project (fixture)
-├── docs/agents.md                # use with other agents
-├── templates/skill-template/     # skill skeleton to copy
-├── .claude/agents/               # maintenance roles (author, reviewer, DAX check, docs check, trend watch, release)
-├── AGENTS.md                     # rules for editing this repository, shared by all agents
-├── CLAUDE.md                     # imports AGENTS.md
-└── CHANGELOG.md
-```
-
-Each skill exists in one place only (`plugins/<plugin>/skills/`). The `plugins` list of `marketplace.json` is **generated** from the `plugin.json` files (`python scripts/generate_marketplace.py`); a GitHub Actions workflow (`.github/workflows/generate-marketplace.yml`), triggered by a push to `main`, regenerates and commits it when it changed. The header (`name`, `owner`, `metadata`) is edited by hand. A second workflow (`validate.yml`) runs the validation and the tests on every pull request and every branch.
-
-## Adding or changing a skill
-
-The full rules are in [AGENTS.md](AGENTS.md).
-
-1. Copy `templates/skill-template/` to `plugins/keemboll-powerbi/skills/<new-name>/`.
-2. Fill in `name` (same as the folder name, kebab-case) and `description` (when to use it — this is what triggers the skill).
-3. Keep `SKILL.md` short (< 300 lines); move details into `references/`. Write "the agent", never a product name. English only.
-4. Present the skill in `plugins/keemboll-powerbi/commands/keemboll-docs.md` (sections `skills` and `examples`) and in the table above.
-5. **Version**: bumped automatically after the push (patch, `feat` → minor, `!:` / `BREAKING CHANGE` → major) if you did not change it yourself in `plugin.json`; `marketplace.json` is resynced along the way.
-6. Add an entry to `CHANGELOG.md`.
-7. Validate, then publish:
-
-```powershell
-python scripts/validate.py
-python -m unittest discover -s tests
-git add .
-git commit -m "feat(powerbi): <summary>"
-git push
-```
-
-Without a version bump, Claude Code does not see the update.
-
 ## Working alongside the Microsoft skills
 
 | Need | Microsoft skill | Our skill (applied on top) |
@@ -153,7 +100,11 @@ The Microsoft skills handle the **mechanics** (Fabric APIs, PBIR / PBIP files, M
 
 ## Contributing
 
-Issues and pull requests are welcome: a rule that is wrong, a Power BI change the skills do not reflect yet, a new visual reference. Follow [AGENTS.md](AGENTS.md); run `python scripts/validate.py` and the tests before opening a pull request. Examples that were not executed against a real model are listed under "To validate" in [CHANGELOG.md](CHANGELOG.md) — confirming one of them is a good first contribution.
+Issues and pull requests are welcome: a rule that is wrong, a Power BI change the skills do not reflect yet, a new visual reference, a new skill. Start with [CONTRIBUTING.md](CONTRIBUTING.md) (repository layout, how to add a skill, versioning, checklist) and [AGENTS.md](AGENTS.md) (editing rules shared by all agents).
+
+Examples that were not executed against a real model are listed under "To validate" in [CHANGELOG.md](CHANGELOG.md) — confirming one of them is a good first contribution.
+
+Ideas for a **new Keemboll BI project**, beyond Power BI skills? Open a thread in the [organization discussions](https://github.com/Keemboll/.github/discussions).
 
 ## License
 
