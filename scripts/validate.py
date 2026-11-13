@@ -11,7 +11,11 @@ utf8_console()
 # Third-party skills and servers (Microsoft) that our skills may cite without shipping them.
 EXTERNAL = {"powerbi-report-cli", "powerbi-authoring", "powerbi-modeling-mcp"}
 # Markers specific to a single agent: skills must stay readable by every agent (Codex, Grok, Gemini...).
-AGENT_SPECIFIC = re.compile(r"CLAUDE_PLUGIN_ROOT|~/\.claude|\b(?:Claude|Codex|Grok|Gemini|Copilot|Cursor)\b")
+# "Copilot" alone is the Power BI feature, so only "GitHub Copilot" counts as a coding agent.
+AGENT_SPECIFIC = re.compile(r"CLAUDE_PLUGIN_ROOT|~/\.claude|\b(?:Claude|Codex|Grok|Gemini|GitHub Copilot|Cursor)\b")
+# The repository is English-only and states defaults as defaults (AGENTS.md, "Content").
+ADAPT_MARKER = re.compile(r"\bADAPTE?R?\b")
+FRENCH = re.compile(r"[àâçéèêëîïôûùœ]|\b(?:les|des|une|pour|avec|dans|est|sont)\b", re.I)
 KEBAB = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 SEMVER = re.compile(r"^\d+\.\d+\.\d+$")
 errors, warnings = [], []
@@ -138,6 +142,12 @@ def main():
                                 errors.append(f"{slabel} : broken link {ref} (in {rel})")
                         for ref in sorted(set(re.findall(r"`(powerbi-[a-z0-9-]+)`", ftext)) - known - EXTERNAL):
                             errors.append(f"{slabel} : {rel} cites an unknown skill `{ref}`")
+                        if ADAPT_MARKER.search(ftext):
+                            errors.append(f"{slabel} : {rel} contains an ADAPT marker — state the value as a default")
+                        fr = FRENCH.search(ftext)
+                        if fr:
+                            line = ftext.count("\n", 0, fr.start()) + 1
+                            errors.append(f"{slabel} : {rel}:{line} looks French (\"{fr.group(0)}\") — English only")
                         hit = AGENT_SPECIFIC.search(ftext)
                         if hit and rel == "SKILL.md":
                             warnings.append(f"{slabel} : SKILL.md names a specific agent (\"{hit.group(0)}\") — "
