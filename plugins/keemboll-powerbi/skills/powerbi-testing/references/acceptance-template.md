@@ -1,54 +1,54 @@
-# Modèle de `tests/ACCEPTANCE.md`
+# `tests/ACCEPTANCE.md` template
 
-Copier le bloc ci-dessous dans `tests/ACCEPTANCE.md`. **Aucune valeur réelle sensible** : la colonne « Résultat » contient *conforme*, *non conforme* ou *non exécuté* ; les chiffres restent hors dépôt. Les personnes sont désignées par leur **fonction**.
+Copy the block below into `tests/ACCEPTANCE.md`. **No real sensitive value**: the "Result" column contains *pass*, *fail* or *not run*; figures stay outside the repository. People are referred to by their **function**.
 
 ```markdown
-# Recette — <nom du projet>
+# Acceptance — <project name>
 
-Version testée : <branche ou commit> — Environnement : <développement / test>
-Période des données : <ex. jusqu'à fin 2026-10>
+Version tested: <branch or commit> — Environment: <development / test>
+Data period: <e.g. up to end of 2026-10>
 
-## Synthèse
+## Summary
 
-| Niveau | Cas | Conformes | Non conformes | Non exécutés |
+| Level | Cases | Pass | Fail | Not run |
 |---|---|---|---|---|
-| 1 Intégrité | 4 | 4 | 0 | 0 |
-| 2 Rapprochement | 2 | 2 | 0 | 0 |
-| 3 Mesures | 6 | 5 | 1 | 0 |
-| 4 Non-régression | 1 | 1 | 0 | 0 |
+| 1 Integrity | 4 | 4 | 0 | 0 |
+| 2 Reconciliation | 2 | 2 | 0 | 0 |
+| 3 Measures | 6 | 5 | 1 | 0 |
+| 4 Regression | 1 | 1 | 0 | 0 |
 | 5 RLS | 4 | 4 | 0 | 0 |
-| 6 Rapport | 5 | 5 | 0 | 0 |
+| 6 Report | 5 | 5 | 0 | 0 |
 
-## Cas
+## Cases
 
-| Test | Niveau | Cas | Attendu | Résultat | Exécuté par | Date | Remarque |
+| Test | Level | Case | Expected | Result | Run by | Date | Note |
 |---|---|---|---|---|---|---|---|
-| T-001 | 1 | Clés client uniques | Zéro ligne | conforme | utilisateur (DAX Studio) | AAAA-MM-JJ | |
-| T-010 | 2 | CA mensuel = système source | Égalité à 0,01 près par mois | conforme | utilisateur | AAAA-MM-JJ | Source : extraction comptable |
-| T-020 | 3 | CA HT N-1 sur la première année | Vide, sans erreur | non conforme | agent (avec accord) | AAAA-MM-JJ | Renvoie 0 → D-007 |
-| T-050 | 5 | RLS_Region, profil une région | Une seule région visible | conforme | utilisateur (Afficher comme) | AAAA-MM-JJ | |
-| T-051 | 5 | Utilisateur hors table de sécurité | Aucune ligne | conforme | utilisateur | AAAA-MM-JJ | |
+| T-001 | 1 | Unique customer keys | Zero rows | pass | user (DAX Studio) | YYYY-MM-DD | |
+| T-010 | 2 | Monthly net sales = source system | Equal within 0.01 per month | pass | user | YYYY-MM-DD | Source: accounting extract |
+| T-020 | 3 | Net Sales PY on the first year | Blank, no error | fail | agent (with agreement) | YYYY-MM-DD | Returns 0 → D-007 |
+| T-050 | 5 | RLS_Region, single-region profile | Only one region visible | pass | user (View as) | YYYY-MM-DD | |
+| T-051 | 5 | User outside the security table | No rows | pass | user | YYYY-MM-DD | |
 
-## Écarts
+## Gaps
 
-| Test | Écart constaté (sans valeur) | Cause | Suite |
+| Test | Gap observed (no value) | Cause | Follow-up |
 |---|---|---|---|
-| T-020 | Zéro au lieu de vide | `COALESCE` en trop | Corrigé — M-012 / ou dette D-007, échéance AAAA-MM-JJ |
+| T-020 | Zero instead of blank | Unneeded `COALESCE` | Fixed — C-012 / or debt D-007, due YYYY-MM-DD |
 
-## Décision
+## Decision
 
-| Élément | Valeur |
+| Item | Value |
 |---|---|
-| Recette métier menée par (fonction) | <ex. Responsable contrôle de gestion> |
-| Date | AAAA-MM-JJ |
-| Décision | <accepté / accepté avec réserves / refusé> |
-| Réserves | <D-xxx, D-yyy — ou aucune> |
-| Mise en production autorisée | <oui / non> |
+| Business acceptance led by (function) | <e.g. Head of financial control> |
+| Date | YYYY-MM-DD |
+| Decision | <accepted / accepted with reservations / rejected> |
+| Reservations | <D-xxx, D-yyy — or none> |
+| Release to production authorized | <yes / no> |
 ```
 
-Règles de tenue :
+Upkeep rules:
 
-- Une recette par version mise en production : conserver les précédentes dans l'historique Git plutôt que d'empiler les tableaux.
-- *Non exécuté* est un résultat honnête ; il bloque la décision « accepté » pour les niveaux 1, 2 et 5 — **À ADAPTER**.
-- Les identifiants `D-xxx` et `M-xxx` sont ceux de `DEBT.md` et `CHANGES.md` (`powerbi-lean`).
-- Les dates des tests RLS sont reportées dans `SECURITY_MODEL.md` (`powerbi-governance`).
+- One acceptance per version released to production: keep the previous ones in the Git history rather than stacking tables.
+- *Not run* is an honest result; by default, it blocks the "accepted" decision for levels 1, 2 and 5.
+- The `D-xxx` and `C-xxx` identifiers are those of `DEBT.md` and `CHANGES.md` (`powerbi-lean`).
+- The dates of RLS tests are carried over to `SECURITY_MODEL.md` (`powerbi-governance`).

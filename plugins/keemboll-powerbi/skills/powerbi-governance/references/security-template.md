@@ -1,71 +1,71 @@
-# Modèle de `SECURITY_MODEL.md`
+# `SECURITY_MODEL.md` template
 
-Copier le bloc ci-dessous à la racine du projet, à côté du `.pbip`. **Aucun nom de personne, aucun e-mail, aucune valeur de donnée** : des fonctions, des noms de groupes, des périmètres.
+Copy the block below to the project root, next to the `.pbip`. **No person name, no e-mail, no data value**: functions, group names, scopes.
 
 ```markdown
-# Sécurité — <nom du projet>
+# Security — <project name>
 
-Dernière mise à jour : AAAA-MM-JJ
+Last updated: YYYY-MM-DD
 
-## Fiche
+## Sheet
 
-| Élément | Valeur |
+| Item | Value |
 |---|---|
-| Propriétaire métier (fonction) | <ex. Direction commerciale> |
-| Propriétaire technique (fonction) | <ex. Équipe BI> |
-| Classification des données | <publique / interne / confidentielle / personnelle / santé> |
-| Étiquette de sensibilité | <nom de l'étiquette> |
-| Endossement | <aucun / promu / certifié> — depuis le AAAA-MM-JJ |
-| Diffusion | <application + audiences> |
-| Export des données sous-jacentes | <autorisé / désactivé> |
-| Permission Build | <groupes concernés, ou aucun> |
+| Business owner (function) | <e.g. Sales management> |
+| Technical owner (function) | <e.g. BI team> |
+| Data classification | <public / internal / confidential / personal / health> |
+| Sensitivity label | <label name> |
+| Endorsement | <none / Promoted / Certified> — since YYYY-MM-DD |
+| Distribution | <app + audiences> |
+| Export of underlying data | <allowed / disabled> |
+| Build permission | <groups concerned, or none> |
 
-## Rôles d'espace de travail
+## Workspace roles
 
-| Environnement | Admin | Membre | Contributeur | Lecteur |
+| Environment | Admin | Member | Contributor | Viewer |
 |---|---|---|---|---|
-| Développement | <groupe> | <groupe> | <groupe> | — |
-| Production | <groupe> | <groupe> | — | — |
+| Development | <group> | <group> | <group> | — |
+| Production | <group> | <group> | — | — |
 
-## Matrice rôle × périmètre
+## Role × scope matrix
 
-| Rôle | Type | Table filtrée | Périmètre vu | Groupe(s) rattaché(s) | Validé par (fonction) | Testé le | Résultat |
+| Role | Type | Filtered table | Visible scope | Attached group(s) | Validated by (function) | Tested on | Result |
 |---|---|---|---|---|---|---|---|
-| RLS_Region | RLS dynamique | Dim_Magasin | Régions de l'utilisateur selon la table de sécurité | <groupe> | <fonction> | AAAA-MM-JJ | conforme |
-| RLS_Direction | RLS statique | — | Tout | <groupe> | <fonction> | AAAA-MM-JJ | conforme |
+| RLS_Region | Dynamic RLS | Dim_Store | The user's regions according to the security table | <group> | <function> | YYYY-MM-DD | pass |
+| RLS_Management | Static RLS | — | Everything | <group> | <function> | YYYY-MM-DD | pass |
 
-Utilisateur rattaché à aucun rôle : ne voit rien — testé le AAAA-MM-JJ.
+User attached to no role: sees nothing — tested on YYYY-MM-DD.
 
-## Objets masqués (OLS)
+## Hidden objects (OLS)
 
-| Rôle | Table / colonne masquée | Raison | Visuels ou mesures concernés |
+| Role | Hidden table / column | Reason | Visuals or measures concerned |
 |---|---|---|---|
 | — | — | — | — |
 
-## Table de sécurité
+## Security table
 
-| Élément | Valeur |
+| Item | Value |
 |---|---|
-| Table | <ex. Dim_Utilisateur> |
-| Source | <référentiel d'où viennent les droits> |
-| Responsable de la mise à jour (fonction) | <fonction> |
-| Fréquence d'actualisation | <quotidienne / …> |
+| Table | <e.g. Dim_User> |
+| Source | <reference system the rights come from> |
+| Responsible for updates (function) | <function> |
+| Refresh frequency | <daily / ...> |
 
-## Données sensibles
+## Sensitive data
 
-| Colonne ou table | Nature | Mesure prise |
+| Column or table | Nature | Measure taken |
 |---|---|---|
-| <table[colonne]> | <personnelle / santé / financière> | <non chargée / pseudonymisée / OLS / agrégée> |
+| <table[column]> | <personal / health / financial> | <not loaded / pseudonymized / OLS / aggregated> |
 
-## Historique
+## History
 
-| Date | Changement | Demandé par (fonction) | Test |
+| Date | Change | Requested by (function) | Test |
 |---|---|---|---|
-| AAAA-MM-JJ | Création de RLS_Region | <fonction> | T-0xx conforme |
+| YYYY-MM-DD | Creation of RLS_Region | <function> | T-0xx pass |
 ```
 
-Règles de tenue :
+Upkeep rules:
 
-- Mettre à jour le fichier **dans le même commit** que le changement de rôle.
-- La colonne « Testé le » renvoie aux cas de `tests/ACCEPTANCE.md` (`powerbi-testing`).
-- Un écart connu et accepté (rôle non testé, donnée sensible encore chargée) va aussi dans `DEBT.md` (`powerbi-lean`).
+- Update the file **in the same commit** as the role change.
+- The "Tested on" column refers to the cases in `tests/ACCEPTANCE.md` (`powerbi-testing`).
+- A known and accepted gap (untested role, sensitive data still loaded) also goes into `DEBT.md` (`powerbi-lean`).
