@@ -53,7 +53,7 @@ CALCULATE (
 
 ## Different grains
 
-Budget by month, sales by day: link `Fact_Budget` to a month-grain dimension (or to `Dim_Date` through a `FirstDayOfMonth` column related on the date of the 1st of the month) and never show the budget at day level without an explicit allocation rule.
+Budget by month, sales by day (`[Sales Target]` on `Fact_Budget`, `[Net Sales]` on `Fact_Sales`): link `Fact_Budget` to a month-grain dimension (or to `Dim_Date` through a `FirstDayOfMonth` column related on the date of the 1st of the month) and never show the budget at day level without an explicit allocation rule.
 
 ## Header / detail
 

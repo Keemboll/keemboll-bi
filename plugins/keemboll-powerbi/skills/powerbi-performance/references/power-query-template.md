@@ -1,48 +1,54 @@
-# Modèle et Power Query — détails
+# Model and Power Query — details
 
-## Repères VertiPaq
+## VertiPaq pointers
 
-- La taille d'une colonne dépend surtout de sa **cardinalité** (nombre de valeurs distinctes), pas du nombre de lignes.
-- Signaux d'alerte dans VertiPaq Analyzer :
-  - une colonne > 10–20 % de la taille du modèle ;
-  - colonne `DateTime` avec heures/minutes/secondes sur une table de faits ;
-  - clés texte longues ou GUID ;
-  - tables cachées `LocalDateTable_…` (Date/heure automatique activée) ;
-  - relations dont la taille dépasse celle des colonnes.
+- The size of a column depends mostly on its **cardinality** (number of distinct values), not on the number of rows.
+- Warning signs in VertiPaq Analyzer:
+  - a column > 10–20 % of the model size;
+  - a `DateTime` column with hours / minutes / seconds on a fact table;
+  - long text keys or GUIDs;
+  - hidden `LocalDateTable_…` tables (Auto date/time turned on);
+  - relationships whose size exceeds that of the columns.
 
-## Réduire la cardinalité
+## Reducing cardinality
 
-| Colonne | Action |
+| Column | Action |
 |---|---|
-| Horodatage | Séparer `Date` (date) et `Heure` (arrondie au quart d'heure ou supprimée) |
-| Montant à 6 décimales | Arrondir à 2 décimales, type décimal fixe |
-| Identifiant texte | Clé de substitution entière, texte en dimension |
-| Commentaire libre | Ne pas charger, ou dans une table de détail séparée en DirectQuery |
+| Timestamp | Split into `Date` (date) and `Time` (rounded to the quarter hour, or removed) |
+| Amount with 6 decimals | Round to 2 decimals, fixed decimal type |
+| Text identifier | Integer surrogate key, text kept in the dimension |
+| Free-text comment | Do not load, or put in a separate detail table in DirectQuery |
 
 ## Query folding
 
-- Sources qui plient : SQL Server, Fabric Warehouse / SQL endpoint, Synapse, Oracle, PostgreSQL, OData partiellement.
-- Étapes qui cassent souvent le pliage : `Table.Buffer`, ajout d'index, fusion avec une autre source, certaines fonctions texte personnalisées.
-- Vérification : clic droit → *Afficher la requête native* (grisé = pas de pliage), ou indicateurs d'étapes dans Power Query Online.
+`powerbi-power-query` is authoritative for M code; this section only lists what matters for performance.
 
-## Actualisation incrémentielle
+- Sources that fold: SQL Server, Fabric Warehouse / SQL endpoint, Synapse, Oracle, PostgreSQL, OData partially.
+- Steps that often break folding: `Table.Buffer`, adding an index, merging with another source, some custom text functions.
+- Check: right-click → *View native query* (greyed out = no folding), or the step folding indicators in Power Query Online.
 
-1. Créer les paramètres `RangeStart` et `RangeEnd` (type Date/Heure, valeurs d'exemple).
-2. Filtrer la table : `each [DateCommande] >= RangeStart and [DateCommande] < RangeEnd` (inégalité stricte d'un côté pour éviter les doublons).
-3. Vérifier que le filtre **plie** vers la source.
-4. Définir la stratégie (ex. archiver 5 ans, actualiser les 10 derniers jours) — **À ADAPTER**.
+## Incremental refresh
+
+`powerbi-power-query` is authoritative for incremental refresh; summary:
+
+1. Create the `RangeStart` and `RangeEnd` parameters (Date/Time type, sample values).
+2. Filter the table: `each [OrderDate] >= RangeStart and [OrderDate] < RangeEnd` (strict inequality on one side to avoid duplicates).
+3. Check that the filter **folds** to the source.
+4. Define the policy. Default: archive 5 years, refresh the last 10 days.
 
 ## Direct Lake (Fabric)
 
-- Optimiser les tables Delta : V-Order, `OPTIMIZE`, taille de fichiers raisonnable, peu de petits fichiers.
-- Préférer **Direct Lake on OneLake** pour les nouveaux modèles : pas de repli DirectQuery, pas de dépendance au point de terminaison SQL.
-- Éviter les vues SQL non matérialisées : sur OneLake elles ne sont pas prises en charge ; sur le point de terminaison SQL elles provoquent un repli DirectQuery. Matérialiser la vue en table Delta.
-- Surveiller les garde-fous de la capacité (fichiers Parquet, groupes de lignes, lignes) : sur le point de terminaison SQL, leur dépassement provoque un repli DirectQuery (propriété `DirectLakeBehavior`) ; sur OneLake, la requête échoue (les visuels ne s'affichent pas).
-- Repli sur le point de terminaison SQL : `EVALUATE TABLETRAITS ()` donne la cause par table dans la colonne `DirectLakeFallbackInfo` (`None` = Direct Lake).
+`powerbi-direct-lake` is authoritative for Direct Lake; summary of the performance points:
+
+- Optimize the Delta tables: V-Order, `OPTIMIZE`, reasonable file size, few small files.
+- Prefer **Direct Lake on OneLake** for new models: no DirectQuery fallback, no dependency on the SQL analytics endpoint.
+- Avoid non-materialized SQL views: on OneLake they are not supported; on the SQL analytics endpoint they cause a DirectQuery fallback. Materialize the view as a Delta table.
+- Watch the capacity guardrails (Parquet files, row groups, rows): on the SQL analytics endpoint, exceeding them causes a DirectQuery fallback (`DirectLakeBehavior` property); on OneLake, the query fails (visuals do not render).
+- Fallback on the SQL analytics endpoint: `EVALUATE TABLETRAITS ()` gives the cause per table in the `DirectLakeFallbackInfo` column (`None` = Direct Lake).
 
 ## DirectQuery
 
-- Indexes / statistiques côté source, vues pré-agrégées.
-- Tables d'agrégation en Import (fonction *Gérer les agrégations*).
-- Dimensions en mode **Dual**.
-- Limiter les visuels par page et activer la réduction des requêtes.
+- Indexes / statistics on the source side, pre-aggregated views.
+- Aggregation tables in Import (*Manage aggregations* feature).
+- Dimensions in **Dual** mode.
+- Limit visuals per page and turn on query reduction.

@@ -1,121 +1,121 @@
-# DAX — anti-patterns et réécritures
+# DAX — anti-patterns and rewrites
 
-## 1. FILTER sur une table entière
+## 1. FILTER over a whole table
 
-Avant :
+Before:
 
 ```dax
-CA Web =
-CALCULATE ( [CA HT], FILTER ( Fact_Ventes, Fact_Ventes[Canal] = "Web" ) )
+Web Sales =
+CALCULATE ( [Net Sales], FILTER ( Fact_Sales, Fact_Sales[Channel] = "Web" ) )
 ```
 
-Après :
+After:
 
 ```dax
-CA Web =
-CALCULATE ( [CA HT], Fact_Ventes[Canal] = "Web" )
+Web Sales =
+CALCULATE ( [Net Sales], Fact_Sales[Channel] = "Web" )
 ```
 
-Si le filtre doit **conserver** le filtre existant sur la colonne (intersection plutôt que remplacement) :
+If the filter must **keep** the existing filter on the column (intersection rather than replacement):
 
 ```dax
-CA Web =
-CALCULATE ( [CA HT], KEEPFILTERS ( Fact_Ventes[Canal] = "Web" ) )
+Web Sales =
+CALCULATE ( [Net Sales], KEEPFILTERS ( Fact_Sales[Channel] = "Web" ) )
 ```
 
-## 2. Filtre sur une mesure : itérer la dimension, pas le fait
+## 2. Filter on a measure: iterate the dimension, not the fact
 
-Avant :
+Before:
 
 ```dax
-CA gros clients =
-CALCULATE ( [CA HT], FILTER ( Fact_Ventes, [CA HT] > 10000 ) )
+Large Customer Sales =
+CALCULATE ( [Net Sales], FILTER ( Fact_Sales, [Net Sales] > 10000 ) )
 ```
 
-Après (le seuil s'applique par client, sur la colonne de la dimension) :
+After (the threshold applies per customer, on the dimension column):
 
 ```dax
-CA gros clients =
+Large Customer Sales =
 CALCULATE (
-    [CA HT],
-    FILTER ( VALUES ( Dim_Client[CustomerCode] ), [CA HT] > 10000 )
+    [Net Sales],
+    FILTER ( VALUES ( Dim_Customer[CustomerCode] ), [Net Sales] > 10000 )
 )
 ```
 
-Si la dimension est en **SCD2**, filtrer sur la clé métier `CustomerCode` (une ligne par client), pas sur la clé de substitution `CustomerKey` (une ligne par version). **À tester.**
+If the dimension is **SCD2**, filter on the business key `CustomerCode` (one row per customer), not on the surrogate key `CustomerKey` (one row per version). **To be tested.**
 
-## 3. Expressions répétées
+## 3. Repeated expressions
 
-Avant :
+Before:
 
 ```dax
-Évol. % =
-IF ( [CA HT N-1] = 0, BLANK (), ( [CA HT] - [CA HT N-1] ) / [CA HT N-1] )
+Net Sales Change % =
+IF ( [Net Sales PY] = 0, BLANK (), ( [Net Sales] - [Net Sales PY] ) / [Net Sales PY] )
 ```
 
-Après :
+After:
 
 ```dax
-Évol. % =
-VAR _n1 = [CA HT N-1]
+Net Sales Change % =
+VAR _py = [Net Sales PY]
 RETURN
-    DIVIDE ( [CA HT] - _n1, _n1 )
+    DIVIDE ( [Net Sales] - _py, _py )
 ```
 
 ## 4. Existence
 
-Avant :
+Before:
 
 ```dax
-A acheté = IF ( COUNTROWS ( FILTER ( Fact_Ventes, Fact_Ventes[Quantite] > 0 ) ) > 0, 1 )
+Has Purchased = IF ( COUNTROWS ( FILTER ( Fact_Sales, Fact_Sales[Quantity] > 0 ) ) > 0, 1 )
 ```
 
-Après :
+After:
 
 ```dax
-A acheté =
-IF ( NOT ISEMPTY ( CALCULATETABLE ( Fact_Ventes, Fact_Ventes[Quantite] > 0 ) ), 1 )
+Has Purchased =
+IF ( NOT ISEMPTY ( CALCULATETABLE ( Fact_Sales, Fact_Sales[Quantity] > 0 ) ), 1 )
 ```
 
-## 5. Densification par des zéros
+## 5. Densification with zeros
 
-Avant :
+Before:
 
 ```dax
-CA affiché = IF ( ISBLANK ( [CA HT] ), 0, [CA HT] )
+Net Sales Displayed = IF ( ISBLANK ( [Net Sales] ), 0, [Net Sales] )
 ```
 
-Effet : chaque combinaison produit × client affiche une ligne → requêtes énormes.
+Effect: every product × customer combination shows a row → huge queries.
 
-Après : garder `[CA HT]` tel quel. Si l'affichage de 0 est demandé, limiter le 0 aux éléments **déjà présents** dans le contexte (ex. mois de la période sélectionnée) plutôt qu'à tout le produit cartésien :
+After: keep `[Net Sales]` as is. If displaying 0 is required, limit the 0 to the items **already present** in the context (e.g. months of the selected period) rather than the whole Cartesian product:
 
 ```dax
-CA affiché =
-VAR _ca = [CA HT]
+Net Sales Displayed =
+VAR _sales = [Net Sales]
 RETURN
-    IF ( ISBLANK ( _ca ) && ISINSCOPE ( Dim_Date[AnneeMois] ), 0, _ca )
+    IF ( ISBLANK ( _sales ) && ISINSCOPE ( Dim_Date[YearMonth] ), 0, _sales )
 ```
 
-Ou utiliser l'option du visuel *Afficher les éléments sans données* sur l'axe concerné uniquement.
+Or use the visual option *Show items with no data* on the relevant axis only.
 
-## 6. Itérateur sur le mauvais grain
+## 6. Iterator at the wrong grain
 
-Avant (itère chaque ligne de vente) :
+Before (iterates every sales row):
 
 ```dax
-Moyenne CA par client =
-AVERAGEX ( Fact_Ventes, [CA HT] )
+Avg Net Sales per Customer =
+AVERAGEX ( Fact_Sales, [Net Sales] )
 ```
 
-Après (itère les clients) :
+After (iterates customers):
 
 ```dax
-Moyenne CA par client =
-AVERAGEX ( VALUES ( Dim_Client[CustomerCode] ), [CA HT] )
+Avg Net Sales per Customer =
+AVERAGEX ( VALUES ( Dim_Customer[CustomerCode] ), [Net Sales] )
 ```
 
-Si la dimension est en **SCD2**, itérer sur `CustomerCode` (clé métier) : avec `CustomerKey`, un client à plusieurs versions compterait plusieurs fois. **À tester.**
+If the dimension is **SCD2**, iterate over `CustomerCode` (business key): with `CustomerKey`, a customer with several versions would count several times. **To be tested.**
 
-## 7. SWITCH pour sélectionner une mesure
+## 7. SWITCH to select a measure
 
-`SWITCH` s'arrête à la première valeur qui correspond : les branches suivantes ne sont pas évaluées (l'ordre des conditions compte). Ce n'est donc pas un problème de performance. Pour sélectionner une mesure selon un segment, un **paramètre de champs** ou un **groupe de calcul** reste préférable pour l'**ergonomie** (pas de formule à maintenir à chaque nouvel indicateur), pas pour la vitesse.
+`SWITCH` stops at the first matching value: the following branches are not evaluated (the order of conditions matters). So it is not a performance problem. To select a measure from a slicer, a **field parameter** or a **calculation group** is still preferable for **usability** (no formula to maintain for every new indicator), not for speed.
