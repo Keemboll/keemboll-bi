@@ -1,23 +1,23 @@
-# Checklist qualité et accessibilité
+# Quality and accessibility checklist
 
-## Accessibilité
+## Accessibility
 
-- [ ] Contraste texte / fond ≥ 4,5:1 (≥ 3:1 pour les grands textes et éléments graphiques).
-- [ ] Aucune information portée **uniquement** par la couleur (ajouter icône, signe, libellé).
-- [ ] **Texte alternatif** renseigné sur chaque visuel porteur d'information (peut être une mesure DAX dynamique).
-- [ ] **Ordre de tabulation** défini (Affichage → Volet de sélection → Ordre de tabulation) ; éléments décoratifs masqués de la tabulation.
-- [ ] Titres de visuels explicites ; pas de texte dans des images.
-- [ ] Taille de police ≥ 10 pt pour les étiquettes, ≥ 12 pt pour les titres.
-- [ ] Test du rapport avec le thème « contraste élevé » de Windows.
+- [ ] Text / background contrast ≥ 4.5:1 (≥ 3:1 for large text and graphical elements).
+- [ ] No information carried **only** by colour (add an icon, sign or label).
+- [ ] **Alt text** filled in on every visual that carries information (can be a dynamic DAX measure).
+- [ ] **Tab order** defined (View → Selection pane → Tab order); decorative elements hidden from tab order.
+- [ ] Explicit visual titles; no text inside images.
+- [ ] Font size ≥ 10 pt for labels, ≥ 12 pt for titles.
+- [ ] Report tested with a Windows high-contrast theme.
 
-## Qualité
+## Quality
 
-- [ ] Thème `theme-keemboll.json` appliqué, pas de couleurs codées en dur hors thème.
-- [ ] Alignement sur la grille de 8 px, marges cohérentes.
-- [ ] Unité et période visibles pour chaque chiffre.
-- [ ] Filtres actifs visibles.
-- [ ] Interactions entre visuels vérifiées.
-- [ ] Pages masquées : infobulles et extractions uniquement.
-- [ ] Analyseur de performances : aucun visuel > 2 s (voir `powerbi-performance`).
-- [ ] Mise en page mobile créée pour les pages consultées sur téléphone — **À ADAPTER**.
-- [ ] Noms de pages courts et explicites ; page d'accueil ou sommaire si > 5 pages.
+- [ ] Theme `theme-keemboll.json` applied, no hard-coded colours outside the theme.
+- [ ] Alignment on the 8 px grid, consistent margins.
+- [ ] Unit and period visible for every number.
+- [ ] Active filters visible.
+- [ ] Interactions between visuals checked (Edit interactions).
+- [ ] Hidden pages: tooltips and drillthrough only.
+- [ ] Performance analyzer: no visual > 2 s (see `powerbi-performance`).
+- [ ] Mobile layout created for pages viewed on a phone.
+- [ ] Short, explicit page names; a home or contents page if > 5 pages.

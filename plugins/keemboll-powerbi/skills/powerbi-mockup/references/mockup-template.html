@@ -1,13 +1,13 @@
 <!doctype html>
-<html lang="fr">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Maquette — [Nom de la page]</title>
+<title>Mockup — [Page name]</title>
 <!--
-  Gabarit de maquette Power BI (skill keemboll-powerbi:powerbi-mockup).
-  - Remplacer les [crochets], les valeurs d'exemple (fictives) et les étiquettes data-fields.
-  - Chaque élément visible porte data-fields="Table[Colonne] | [Mesure]" + une étiquette .fld.
-  - Jetons de design : variables CSS ci-dessous = mêmes valeurs que le thème et le fond SVG.
+  Power BI mockup template (skill keemboll-powerbi:powerbi-mockup).
+  - Replace the [brackets], the (fictitious) sample values and the data-fields labels.
+  - Every visible element carries data-fields="Table[Column] | [Measure]" + a .fld label.
+  - Design tokens: the CSS variables below = same values as the theme and the SVG background.
 -->
 <style>
   :root{
@@ -47,78 +47,78 @@
 </head>
 <body>
 <div class="canvas">
-  <nav class="rail" data-fields="navigation (boutons de page)"><span></span><span></span><span></span><span></span></nav>
+  <nav class="rail" data-fields="navigation (page buttons)"><span></span><span></span><span></span><span></span></nav>
   <div class="main">
     <header>
-      <div><h1>[Nom de la page]</h1><small data-fields="[Libellé période]">[Période : jan.–sept. 2026]</small></div>
-      <div class="switch" data-fields="Param_Comparaison[Comparaison]">
-        <button class="on">Plan</button><button>N-1</button>
+      <div><h1>[Page name]</h1><small data-fields="[Period Label]">[Period: Jan–Sep 2026]</small></div>
+      <div class="switch" data-fields="Param_Comparison[Comparison]">
+        <button class="on">Plan</button><button>PY</button>
       </div>
     </header>
 
-    <!-- Q1 + Q2 : cartes KPI (la plus importante en premier) -->
-    <div class="card" data-fields="[CA HT] | [Objectif CA] | [CA HT N-1]">
-      <div class="label">[Chiffre d'affaires]</div>
-      <div class="value">436 M€</div>
-      <div class="cmp"><span>vs objectif</span><span class="up">▲ +3,6 M€ · 101 %</span></div>
-      <div class="cmp"><span>vs N-1</span><span class="down">▼ −135 M€ · −24 %</span></div>
-      <span class="fld">[CA HT] · [Objectif CA] · [CA HT N-1]</span>
+    <!-- Q1 + Q2: KPI cards (most important first) -->
+    <div class="card" data-fields="[Net Sales] | [Sales Target] | [Net Sales PY]">
+      <div class="label">[Net Sales]</div>
+      <div class="value">€436M</div>
+      <div class="cmp"><span>vs target</span><span class="up">▲ +€3.6M · 101 %</span></div>
+      <div class="cmp"><span>vs PY</span><span class="down">▼ −€135M · −24 %</span></div>
+      <span class="fld">[Net Sales] · [Sales Target] · [Net Sales PY]</span>
     </div>
-    <div class="card" data-fields="[KPI 2]"><div class="label">[KPI 2]</div><div class="value">62</div><div class="cmp"><span>sur 200</span><span>31 %</span></div><span class="fld">[KPI 2]</span></div>
-    <div class="card" data-fields="[KPI 3]"><div class="label">[KPI 3]</div><div class="value">4</div><div class="cmp"><span>sur 6</span><span>67 %</span></div><span class="fld">[KPI 3]</span></div>
-    <div class="card" data-fields="[KPI 4]"><div class="label">[KPI 4]</div><div class="value">−2,9 M€</div><div class="cmp"><span>plus gros écart</span><span class="down">▼</span></div><span class="fld">[KPI 4]</span></div>
+    <div class="card" data-fields="[KPI 2]"><div class="label">[KPI 2]</div><div class="value">62</div><div class="cmp"><span>out of 200</span><span>31 %</span></div><span class="fld">[KPI 2]</span></div>
+    <div class="card" data-fields="[KPI 3]"><div class="label">[KPI 3]</div><div class="value">4</div><div class="cmp"><span>out of 6</span><span>67 %</span></div><span class="fld">[KPI 3]</span></div>
+    <div class="card" data-fields="[KPI 4]"><div class="label">[KPI 4]</div><div class="value">−€2.9M</div><div class="cmp"><span>largest gap</span><span class="down">▼</span></div><span class="fld">[KPI 4]</span></div>
 
     <!-- Q2 + Q3 -->
-    <div class="card span2" data-fields="Dim_Date[Mois] | [CA HT] | [CA comparaison]">
-      <h2>Sommes-nous au-dessus de la référence ? <span class="down">Non, 78 %</span></h2>
+    <div class="card span2" data-fields="Dim_Date[Month] | [Net Sales] | [Net Sales Comparison]">
+      <h2>Are we above the reference? <span class="down">No, 78 %</span></h2>
       <svg width="100%" height="150" viewBox="0 0 560 150" preserveAspectRatio="none">
         <polyline fill="none" stroke="#8A939B" stroke-dasharray="4 3" stroke-width="2" points="0,60 60,55 120,58 180,50 240,52 300,45 360,48 420,40 480,42 540,38"/>
         <polyline fill="none" stroke="#1F2933" stroke-width="2.5" points="0,70 60,66 120,80 180,75 240,90 300,95 360,105 420,120 480,112 540,125"/>
       </svg>
-      <span class="fld">Dim_Date[Mois] · [CA HT] · [CA comparaison]</span>
+      <span class="fld">Dim_Date[Month] · [Net Sales] · [Net Sales Comparison]</span>
     </div>
-    <div class="card span2" data-fields="Dim_Date[Mois] | [CA écart comparaison] | [Couleur écart]">
-      <h2>Quels mois s'écartent le plus ?</h2>
+    <div class="card span2" data-fields="Dim_Date[Month] | [Net Sales Variance vs Comparison] | [Variance Color]">
+      <h2>Which months deviate the most?</h2>
       <svg width="100%" height="150" viewBox="0 0 560 150" preserveAspectRatio="none">
         <line x1="0" y1="60" x2="560" y2="60" stroke="#E5E7EB"/>
         <g fill="#2E7D32"><rect x="20" y="35" width="36" height="25"/></g>
         <g fill="#C62828"><rect x="80" y="60" width="36" height="18"/><rect x="140" y="60" width="36" height="10"/><rect x="200" y="60" width="36" height="40"/><rect x="260" y="60" width="36" height="55"/><rect x="320" y="60" width="36" height="70"/><rect x="380" y="60" width="36" height="48"/><rect x="440" y="60" width="36" height="62"/><rect x="500" y="60" width="36" height="35"/></g>
       </svg>
-      <span class="fld">Dim_Date[Mois] · [CA écart comparaison] · [Couleur écart]</span>
+      <span class="fld">Dim_Date[Month] · [Net Sales Variance vs Comparison] · [Variance Color]</span>
     </div>
 
-    <!-- Q3 + Q4 : classements Bas / Haut -->
-    <div class="card span2" data-fields="Dim_Client[Client] | [CA HT] | [CA atteinte %] | [Rang écart] | Param_Sens[Sens]">
-      <h2>Quels [clients] sont le plus en dessous ? <span class="switch" style="float:right"><button class="on">Bas</button><button>Haut</button></span></h2>
+    <!-- Q3 + Q4: Bottom / Top rankings -->
+    <div class="card span2" data-fields="Dim_Customer[Customer] | [Net Sales] | [Net Sales Achievement %] | [Variance Rank] | Param_Direction[Direction]">
+      <h2>Which [customers] are furthest below? <span class="switch" style="float:right"><button class="on">Bottom</button><button>Top</button></span></h2>
       <table>
-        <tr><td>1</td><td>[Client A]</td><td>757 k€</td><td style="width:40%"><div class="bar"><i style="width:38%"></i><b style="left:70%"></b></div></td><td class="down">54 %</td></tr>
-        <tr><td>2</td><td>[Client B]</td><td>779 k€</td><td><div class="bar"><i style="width:42%"></i><b style="left:70%"></b></div></td><td class="down">60 %</td></tr>
-        <tr><td>3</td><td>[Client C]</td><td>725 k€</td><td><div class="bar"><i style="width:45%"></i><b style="left:70%"></b></div></td><td class="down">64 %</td></tr>
+        <tr><td>1</td><td>[Customer A]</td><td>€757k</td><td style="width:40%"><div class="bar"><i style="width:38%"></i><b style="left:70%"></b></div></td><td class="down">54 %</td></tr>
+        <tr><td>2</td><td>[Customer B]</td><td>€779k</td><td><div class="bar"><i style="width:42%"></i><b style="left:70%"></b></div></td><td class="down">60 %</td></tr>
+        <tr><td>3</td><td>[Customer C]</td><td>€725k</td><td><div class="bar"><i style="width:45%"></i><b style="left:70%"></b></div></td><td class="down">64 %</td></tr>
       </table>
-      <span class="fld">Dim_Client[Client] · [CA HT] · [CA atteinte %] · filtre [Rang écart] ≤ 5</span>
+      <span class="fld">Dim_Customer[Customer] · [Net Sales] · [Net Sales Achievement %] · filter [Variance Rank] ≤ 5</span>
     </div>
-    <div class="card span2" data-fields="Dim_Produit[Catégorie] | [CA HT] | [CA atteinte %] | [Rang écart]">
-      <h2>Quelles [catégories] sont le plus en dessous ?</h2>
+    <div class="card span2" data-fields="Dim_Product[Category] | [Net Sales] | [Net Sales Achievement %] | [Variance Rank]">
+      <h2>Which [categories] are furthest below?</h2>
       <table>
-        <tr><td>1</td><td>[Catégorie A]</td><td>37,6 M€</td><td style="width:40%"><div class="bar"><i style="width:52%"></i><b style="left:70%"></b></div></td><td class="down">74 %</td></tr>
-        <tr><td>2</td><td>[Catégorie B]</td><td>38,6 M€</td><td><div class="bar"><i style="width:55%"></i><b style="left:70%"></b></div></td><td class="down">79 %</td></tr>
+        <tr><td>1</td><td>[Category A]</td><td>€37.6M</td><td style="width:40%"><div class="bar"><i style="width:52%"></i><b style="left:70%"></b></div></td><td class="down">74 %</td></tr>
+        <tr><td>2</td><td>[Category B]</td><td>€38.6M</td><td><div class="bar"><i style="width:55%"></i><b style="left:70%"></b></div></td><td class="down">79 %</td></tr>
       </table>
-      <span class="fld">Dim_Produit[Catégorie] · [CA HT] · [CA atteinte %]</span>
+      <span class="fld">Dim_Product[Category] · [Net Sales] · [Net Sales Achievement %]</span>
     </div>
   </div>
 </div>
 
 <section class="notes">
-  <h3>Quatre questions</h3>
-  <ol><li>[Comment avons-nous performé ?]</li><li>[Est-ce bien, vs objectif / N-1 ?]</li><li>[Pourquoi ?]</li><li>[Que faire en premier ?]</li></ol>
-  <h3>Mesures manquantes</h3>
-  <ul><li><code>[Mesure]</code> — [à quoi elle sert] — DAX proposé : <code>[…]</code></li></ul>
-  <h3>Hypothèses</h3>
-  <ul><li>[Valeurs d'exemple fictives.]</li></ul>
+  <h3>Four questions</h3>
+  <ol><li>[How did we perform?]</li><li>[Is that good, vs target / PY?]</li><li>[Why?]</li><li>[What should we do first?]</li></ol>
+  <h3>Missing measures</h3>
+  <ul><li><code>[Measure]</code> — [what it is for] — proposed DAX: <code>[…]</code></li></ul>
+  <h3>Assumptions</h3>
+  <ul><li>[Fictitious sample values.]</li></ul>
 </section>
 
 <script>
-  // Simulation des interrupteurs (aucun calcul : visuel uniquement)
+  // Toggle simulation (no calculation: visual only)
   document.querySelectorAll('.switch').forEach(s => s.addEventListener('click', e => {
     if (e.target.tagName !== 'BUTTON') return;
     s.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === e.target));

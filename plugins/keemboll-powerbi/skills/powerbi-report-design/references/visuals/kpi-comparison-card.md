@@ -1,27 +1,27 @@
-# Carte KPI avec comparaison
+# KPI card with comparison
 
-> Image à ajouter : `images/carte-kpi-comparaison.png` (capture du premier rendu validé).
+> Image to add: `images/kpi-comparison-card.png` (screenshot of the first approved render).
 
-- **Quand l'utiliser** : questions 1 et 2 d'une page — « combien ? » et « est-ce bien ? ».
-- **Déclencheurs** : KPI, carte, chiffre clé, vs objectif, vs N-1.
-- **Source** : interne, inspiré des cartes « valeur + atteinte + écarts ».
+- **When to use it**: questions 1 and 2 of a page — "how much?" and "is that good?".
+- **Triggers**: KPI, card, key figure, vs target, vs PY.
+- **Source**: internal, inspired by "value + attainment + variances" cards.
 
 ## Construction
 
-- Une carte par KPI, sur une carte du fond SVG (visuel transparent).
-- Contenu, de haut en bas : libellé discret (10 pt, gris), **valeur** (28 pt), puis deux lignes « vs objectif » et « vs N-1 » avec écart en valeur et en %, coloré bon / mauvais **avec signe** (▲ / ▼).
-- Option : anneau d'atteinte % à droite, sparkline 12 mois en bas.
-- Réalisation :
-  - **native** : visuel *Carte (nouvelle)* avec valeurs de référence ;
-  - **riche** : une mesure HTML par carte dans le visuel *HTML Content* (voir `powerbi-html-visuals`, modèle « Carte KPI »), sparkline et anneau en SVG.
-- Mesures : `[CA HT]`, `[Objectif CA]`, `[CA HT N-1]`, écarts et `%` (voir `powerbi-dax-library`), éventuellement `[CA comparaison]` si un interrupteur Plan / N-1 existe.
+- One card per KPI, on a card of the SVG background (transparent visual).
+- Content, top to bottom: muted label (10 pt, grey), **value** (28 pt), then two lines "vs target" and "vs PY" with the variance in value and in %, coloured good / bad **with a sign** (▲ / ▼).
+- Option: attainment % donut on the right, 12-month sparkline at the bottom.
+- Implementation:
+  - **native**: *Card (new)* visual with reference labels;
+  - **rich**: one HTML measure per card in the *HTML Content* visual (see `powerbi-html-visuals`, "KPI card" template), sparkline and donut in SVG.
+- Measures: `[Net Sales]`, `[Sales Target]`, `[Net Sales PY]`, variances and `%` (see `powerbi-dax-library`), possibly `[Net Sales Comparison]` if a Plan / PY toggle exists.
 
-## Réglages clés
+## Key settings
 
-- Arrière-plan du visuel : désactivé ; bordure : aucune (le fond SVG porte la carte).
-- Rembourrage intérieur : 12 px.
-- Texte alternatif : mesure qui résume « CA HT 436 M€, 101 % de l'objectif, −24 % vs N-1 ».
+- Visual background: off; border: none (the SVG background carries the card).
+- Inner padding: 12 px.
+- Alt text: a measure that summarises "Net Sales €436M, 101 % of target, −24 % vs PY".
 
-## Piège
+## Pitfall
 
-Valeur et comparaisons doivent réagir aux mêmes filtres : ne pas mélanger une mesure `ALL` dans la carte sans le signaler dans le libellé.
+Value and comparisons must respond to the same filters: do not mix an `ALL` measure into the card without saying so in the label.
