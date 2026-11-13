@@ -1,17 +1,17 @@
-# `.gitignore` d'un projet PBIP
+# `.gitignore` for a PBIP project
 
-À placer à la racine du dépôt **avant le premier commit**.
+Place it at the repository root **before the first commit**.
 
 ```gitignore
-# Power BI — réglages locaux et données chargées (ne JAMAIS versionner)
+# Power BI — local settings and loaded data (NEVER version these)
 **/.pbi/localSettings.json
 **/.pbi/cache.abf
 
-# Fichiers binaires Power BI : le projet se versionne en PBIP, pas en PBIX
+# Power BI binary files: the project is versioned as PBIP, not PBIX
 *.pbix
 *.pbit
 
-# Exports et extraits de données
+# Data exports and extracts
 *.csv
 *.xlsx
 *.parquet
@@ -24,30 +24,30 @@ exports/
 *.key
 *.pfx
 
-# Python (scripts des skills)
+# Python (skill scripts)
 __pycache__/
 *.pyc
 
-# OS / éditeurs
+# OS / editors
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
 ```
 
-## Pourquoi
+## Why
 
-| Entrée | Raison |
+| Entry | Reason |
 |---|---|
-| `**/.pbi/cache.abf` | Copie locale des **données chargées** dans le modèle. La versionner revient à publier les données. |
-| `**/.pbi/localSettings.json` | Réglages propres au poste et à l'utilisateur ; source de conflits sans intérêt. |
-| `*.pbix`, `*.pbit` | Binaires : pas de diff, pas de fusion ; un `.pbix` embarque les données. |
-| `*.csv`, `*.xlsx`, `*.parquet` | Extraits de données. **À ADAPTER** : retirer la ligne pour un petit fichier de référence volontairement versionné et sans donnée personnelle (ajouter alors une exception `!chemin/fichier.csv`). |
-| Secrets | Aucun jeton, certificat ou mot de passe dans le dépôt, même privé. |
+| `**/.pbi/cache.abf` | Local copy of the **data loaded** into the model. Versioning it amounts to publishing the data. |
+| `**/.pbi/localSettings.json` | Settings specific to the workstation and the user; a pointless source of conflicts. |
+| `*.pbix`, `*.pbit` | Binaries: no diff, no merge; a `.pbix` carries the data. |
+| `*.csv`, `*.xlsx`, `*.parquet` | Data extracts, ignored by default. For a small reference file versioned on purpose and free of personal data, add an exception `!path/file.csv`. |
+| Secrets | No token, certificate or password in the repository, even a private one. |
 
-## Vérifications
+## Checks
 
-- Avant le premier commit : `git status --ignored` doit lister `cache.abf` et `localSettings.json` parmi les fichiers ignorés.
-- Si `cache.abf` ou un `.pbix` a **déjà** été commité : l'ajouter au `.gitignore` ne le retire pas de l'historique. Le signaler à l'utilisateur ; `git rm --cached` le retire des commits futurs, mais purger l'historique est une réécriture que l'agent ne fait pas de lui-même.
-- Garder **tout le reste** de `*.SemanticModel/` et `*.Report/` versionné, y compris `.platform`, `definition.pbism` et `definition.pbir`.
-- Fin de ligne : laisser Git normaliser (`* text=auto` dans `.gitattributes`) pour éviter les diffs entiers entre postes.
+- Before the first commit: `git status --ignored` must list `cache.abf` and `localSettings.json` among the ignored files.
+- If `cache.abf` or a `.pbix` has **already** been committed: adding it to `.gitignore` does not remove it from the history. Tell the user; `git rm --cached` removes it from future commits, but purging the history is a rewrite the agent does not do on its own.
+- Keep **everything else** in `*.SemanticModel/` and `*.Report/` versioned, including `.platform`, `definition.pbism` and `definition.pbir`.
+- Line endings: let Git normalise (`* text=auto` in `.gitattributes`) to avoid whole-file diffs between workstations.

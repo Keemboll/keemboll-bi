@@ -1,130 +1,138 @@
 ---
 name: powerbi-alm
-description: "Cycle de vie (ALM) d'un projet Power BI au format PBIP : structure du dépôt, .gitignore, stratégie de branches et format des commits, travail à plusieurs et conflits TMDL / PBIR, environnements dev / test / prod, paramètres de source, choix entre pipelines de déploiement Fabric et intégration Git, portes de qualité avant fusion et avant mise en production, intégration continue (lean.py sur chaque PR), versions et retour arrière. À utiliser pour organiser un dépôt de projet BI, préparer une demande de fusion ou une mise en production, mettre en place une CI, ou décider comment promouvoir un modèle ou un rapport d'un environnement à l'autre. La mécanique (API Fabric) relève des skills Microsoft. Triggers: ALM, cycle de vie, lifecycle, Git, branche, branch, commit, pull request, PR, merge, conflit, CI/CD, intégration continue, pipeline de déploiement, deployment pipeline, environnement, dev test prod, mise en production, release, livraison, tag, version, rollback, retour arrière, gitignore, PBIP."
+description: "Application lifecycle management (ALM) for a Power BI project in PBIP format: repository layout, .gitignore, branching strategy and commit format, teamwork and TMDL / PBIR merge conflicts, dev / test / prod environments, data source parameters, choosing between Fabric deployment pipelines, Git integration and fabric-cicd, quality gates before merge and before production, continuous integration (lean.py on every PR), versions and rollback. Use it to organise a BI project repository, prepare a pull request or a production release, set up CI, or decide how to promote a model or a report from one environment to the next. The mechanics (Fabric APIs) belong to the Microsoft skills. Triggers: ALM, lifecycle, Git, branch, commit, pull request, PR, merge, conflict, CI/CD, continuous integration, deployment pipeline, fabric-cicd, environment, dev test prod, production release, release, delivery, tag, version, rollback, gitignore, PBIP."
 ---
 
-# powerbi-alm — cycle de vie d'un projet Power BI
+# powerbi-alm — lifecycle of a Power BI project
 
-Ce skill fixe les **règles maison** : où sont les fichiers, comment on branche, ce qui doit être vrai avant de fusionner et avant de publier. La **mécanique** (API Fabric, pipelines de déploiement, intégration Git de l'espace de travail, publication) relève des skills Microsoft s'ils sont installés — `deployment-pipelines-authoring-cli`, `git-integration-operations-cli`, `powerbi-report-cli`, `semantic-model-authoring` — sinon du portail Fabric, par l'utilisateur.
+This skill sets the **house rules**: where files live, how to branch, what must be true before merging and before publishing. The **mechanics** (Fabric APIs, deployment pipelines, workspace Git integration, publishing) belong to the Microsoft skills when installed — `deployment-pipelines-authoring-cli`, `git-integration-operations-cli`, `powerbi-report-cli`, `semantic-model-authoring` — otherwise to the Fabric portal, operated by the user.
 
-Applique `powerbi-conventions` (validation avant modification, commit de sauvegarde, confidentialité) : ces règles ne sont pas répétées ici.
+Apply `powerbi-conventions` (validation before any change, safety commit, confidentiality): those rules are not repeated here.
 
-## Règles pour l'agent
+## Rules for the agent
 
-1. **Lecture seule sur la production.** Jamais d'écriture dans un espace de travail de production, ni de modification d'un modèle publié.
-2. **Aucune publication, aucun déploiement, aucune synchronisation d'espace de travail** sans demande explicite de l'utilisateur pour cette action précise.
-3. **Jamais de `git push` automatique, jamais de force-push, jamais de réécriture d'historique** (`rebase` d'une branche partagée, `reset --hard`, `commit --amend` d'un commit déjà poussé). L'agent prépare les commits ; l'utilisateur pousse.
-4. **Dépôts privés uniquement.** Aucun identifiant de tenant, d'espace de travail ou d'élément, aucune chaîne de connexion, aucun jeton dans le dépôt, les messages de commit ou la CI.
-5. Avant toute écriture : arbre Git propre et commit de sauvegarde (`powerbi-conventions`).
+1. **Read-only on production.** Never write to a production workspace, never modify a published model.
+2. **No publishing, no deployment, no workspace sync** without an explicit user request for that precise action.
+3. **Never an automatic `git push`, never a force-push, never a history rewrite** (`rebase` of a shared branch, `reset --hard`, `commit --amend` of a commit already pushed). The agent prepares the commits; the user pushes.
+4. **Private repositories only.** No tenant, workspace or item identifier, no connection string, no token in the repository, the commit messages or the CI.
+5. Before any write: clean Git tree and safety commit (`powerbi-conventions`).
 
-## Structure du dépôt
+## Repository layout
 
-Un dépôt (ou un dossier de premier niveau) **par produit BI** — un modèle sémantique et ses rapports. **À ADAPTER** si l'équipe préfère un dépôt unique multi-projets.
+Default: one repository (or one top-level folder) **per BI product** — one semantic model and its reports.
 
 ```
-<projet>/
-├── <Nom>.pbip
-├── <Nom>.SemanticModel/      # TMDL — voir powerbi-tmdl
-├── <Nom>.Report/             # PBIR
-├── SCOPE.md  KPI.md        # besoin et indicateurs — powerbi-project
-├── DEBT.md  CHANGES.md  # registre et journal — powerbi-lean
+<project>/
+├── <Name>.pbip
+├── <Name>.SemanticModel/     # TMDL — see powerbi-tmdl
+├── <Name>.Report/            # PBIR
+├── SCOPE.md  KPI.md          # requirements and indicators — powerbi-project
+├── DEBT.md  CHANGES.md       # debt register and change log — powerbi-lean
 ├── DATA_DICTIONARY.md  REPORT.md  RELEASE_NOTES.md  # documentation — powerbi-documentation
-├── SECURITY_MODEL.md               # rôles, sensibilité — powerbi-governance
-├── tests/                    # requêtes de contrôle, recette — powerbi-testing
-├── AGENTS.md                 # consignes pour les agents sur ce projet
+├── SECURITY_MODEL.md         # roles, sensitivity — powerbi-governance
+├── tests/                    # control queries, acceptance — powerbi-testing
+├── AGENTS.md                 # instructions for agents on this project
 └── .gitignore
 ```
 
-- Enregistrer en **PBIP** avec le modèle en **TMDL** et le rapport en **PBIR** : un `.pbix` ne se relit pas en diff et ne se versionne pas.
-- `.gitignore` type et explications : [references/gitignore-pbip.md](references/gitignore-pbip.md). À vérifier **avant le premier commit** : `cache.abf` contient les données chargées.
-- Chaque fichier racine a un skill qui fait foi ; ne pas en dupliquer le contenu ailleurs.
+- Save as **PBIP** with the model in **TMDL** and the report in **PBIR**: a `.pbix` cannot be read as a diff and cannot be versioned.
+- Standard `.gitignore` and explanations: [references/gitignore-pbip.md](references/gitignore-pbip.md). Check it **before the first commit**: `cache.abf` contains the loaded data.
+- Each root file has an authoritative skill; do not duplicate its content elsewhere.
 
-## Branches et commits — À ADAPTER
+## Branches and commits
 
-| Branche | Rôle |
+Default branching model:
+
+| Branch | Role |
 |---|---|
-| `main` | Ce qui est **relu et prêt à être promu** ; l'espace de dev y est synchronisé. La production correspond au dernier tag `vX.Y.Z`. Protégée : pas de commit direct, fusion par demande de fusion (PR). |
-| `feature/<sujet>` | Une évolution (nouvelle page, nouveau lot de mesures). |
-| `fix/<sujet>` | Une correction. |
+| `main` | What is **reviewed and ready to be promoted**; the dev workspace is synced to it. Production matches the latest `vX.Y.Z` tag. Protected: no direct commit, merge through a pull request (PR). |
+| `feature/<topic>` | One evolution (new page, new batch of measures). |
+| `fix/<topic>` | One fix. |
 
-- **Une branche = un changement cohérent**, relisible en une fois. Ne pas mélanger un renommage et une nouvelle page.
-- Branches courtes : se remettre à jour depuis `main` souvent, surtout sur le rapport (voir conflits).
-- **PR avec revue humaine** obligatoire ; l'agent peut préparer la description (objets touchés, impact sur les visuels, vérifications faites), pas approuver.
-- Commits au format conventionnel : `feat(modele): …`, `fix(rapport): …`, `docs: …`, `chore: …`. Une modification journalisée dans `CHANGES.md` utilise le format de `powerbi-lean` : `M-xxx: <résumé>`, un seul commit pour le changement et le journal.
-- Un commit ne contient pas à la fois une modification voulue et le bruit d'un simple enregistrement Desktop : relire `git diff` et écarter ce qui n'est pas intentionnel.
+- **One branch = one coherent change**, reviewable in one sitting. Do not mix a rename and a new page.
+- Short-lived branches: update from `main` often, especially on the report (see conflicts).
+- **PR with human review** is mandatory; the agent may prepare the description (objects touched, impact on visuals, checks done), not approve.
+- Conventional commit format: `feat(model): …`, `fix(report): …`, `docs: …`, `chore: …`. A change logged in `CHANGES.md` uses the `powerbi-lean` format: `C-xxx: <summary>`, a single commit for the change and its log entry.
+- A commit does not contain both an intended change and the noise of a plain Desktop save: read `git diff` and discard what is not intentional.
 
-## Travail à plusieurs
+## Working as a team
 
-- TMDL et PBIR découpent le projet en **nombreux petits fichiers** (une table par fichier, un visuel par dossier) : deux personnes qui touchent des objets différents ne se gênent pas. Répartir le travail **par table** et **par page**.
-- **Conflit TMDL** (mesure, colonne) : se résout à la main comme du code, en gardant l'indentation ; revalider ensuite (`powerbi-tmdl`).
-- **Conflit dans le JSON d'un visuel ou d'une page** : **ne jamais le résoudre à l'aveugle**. Choisir une version entière du fichier (la leur ou la nôtre), puis refaire l'autre changement dans Desktop.
-- **`lineageTag`** : identifiant propre à chaque objet. Ne jamais le copier d'un objet à l'autre ni le régénérer sur un objet existant ; en cas de conflit, garder celui de `main`.
-- Fichiers à risque (ordre des pages, `model.tmdl`, `relationships.tmdl`, thème) : une seule personne à la fois, annoncée à l'équipe.
-- Après fusion : ouvrir le `.pbip` dans Desktop et vérifier qu'il se charge avant de pousser. Synchronisation avec Desktop : `powerbi-tmdl`.
+- TMDL and PBIR split the project into **many small files** (one table per file, one visual per folder): two people touching different objects do not get in each other's way. Split the work **by table** and **by page**.
+- **TMDL conflict** (measure, column): resolved by hand like code, keeping the indentation; revalidate afterwards (`powerbi-tmdl`).
+- **Conflict in the JSON of a visual or a page**: **never resolve it blindly**. Pick one whole version of the file (theirs or ours), then redo the other change in Desktop.
+- **`lineageTag`**: identifier unique to each object. Never copy it from one object to another, never regenerate it on an existing object; on conflict, keep the one from `main`.
+- Risky files (page order, `model.tmdl`, `relationships.tmdl`, theme): one person at a time, announced to the team.
+- After a merge: open the `.pbip` in Desktop and check that it loads before pushing. Syncing with Desktop: `powerbi-tmdl`.
 
-## Environnements — À ADAPTER
+## Environments
 
-| Environnement | Espace de travail | Qui écrit | Données |
+Default setup:
+
+| Environment | Workspace | Who writes | Data |
 |---|---|---|---|
-| Dev | un par projet (ou par développeur) | développeurs, agent sur demande | échantillon ou anonymisées |
-| Test / recette | un par projet | promotion uniquement | proches de la production |
-| Prod | un par projet | promotion uniquement | réelles |
+| Dev | one per project (or per developer) | developers, the agent on request | sample or anonymised |
+| Test / acceptance | one per project | promotion only | close to production |
+| Prod | one per project | promotion only | real |
 
-- Rien de propre à un environnement **en dur** dans le modèle : serveur, base, chemin passent par des **paramètres Power Query**, dont la valeur change à la promotion (règles de déploiement ou paramétrage de l'espace cible).
-- Les valeurs réelles de ces paramètres et les identifiants d'espaces **ne sont pas dans le dépôt** ; `SECURITY_MODEL.md` décrit qui a accès à quoi (`powerbi-governance`).
-- Sécurité, étiquettes et endossement par environnement : `powerbi-governance`.
-- Actualisation : planifiée dans l'espace cible selon la fraîcheur fixée dans `SCOPE.md` (`powerbi-project`) ; un échec d'actualisation en production se traite avant toute nouvelle livraison.
+- Nothing environment-specific is **hardcoded** in the model: server, database and path go through **Power Query parameters**, whose value changes at promotion (deployment rules or settings of the target workspace).
+- The real values of those parameters and the workspace identifiers **are not in the repository**; `SECURITY_MODEL.md` describes who has access to what (`powerbi-governance`).
+- Security, labels and endorsement per environment: `powerbi-governance`.
+- Refresh: scheduled in the target workspace according to the freshness set in `SCOPE.md` (`powerbi-project`); a refresh failure in production is handled before any new release.
 
-### Deux voies de promotion
+### Three promotion routes
 
-| | Pipelines de déploiement Fabric | Intégration Git + branches |
-|---|---|---|
-| Principe | Copie le contenu d'une étape (espace) vers la suivante | Chaque espace est synchronisé avec une branche ; promouvoir = fusionner |
-| Convient si | équipe petite, promotion à la main depuis le portail, peu d'automatisation | revue par PR à chaque étape, CI, plusieurs développeurs |
-| Source de vérité | l'espace de dev (Git en amont pour le dev seulement) | le dépôt |
-| Point d'attention | ce qui est déployé peut diverger du dépôt si on modifie dans le portail | une branche par environnement à maintenir ; paramétrage par environnement à prévoir |
+| | Fabric deployment pipelines | Git integration + branches | fabric-cicd (code-first) |
+|---|---|---|---|
+| Principle | Copies the content of one stage (workspace) to the next | Each workspace is synced with a branch; promoting = merging | A CI job publishes the item definitions of the repository to the target workspace through the Fabric REST APIs |
+| Suits | small team, manual promotion from the portal, little automation | PR review at each stage, CI, several developers | a CI/CD platform already in place, a team at ease with Python and service principals |
+| Source of truth | the dev workspace (Git upstream for dev only) | the repository | the repository |
+| Watch out for | what is deployed can drift from the repository if someone edits in the portal | one branch per environment to maintain; per-environment settings to plan | a third-party dependency of the project's CI; deployment credentials and a parameter file to manage |
 
-- Les deux se combinent couramment : **Git pour le dev**, pipeline pour test → prod. C'est le choix par défaut — **À ADAPTER**.
-- Quelle que soit la voie : **aucune modification directe en test ou en prod** ; tout repart du dev.
-- Les éléments pris en charge, les règles de déploiement disponibles et les limites de l'intégration Git **évoluent** : vérifier la documentation Microsoft avant de s'engager, ne pas l'affirmer de mémoire.
+- The first two are commonly combined: **Git for dev**, pipeline for test → prod. This is the default choice.
+- fabric-cicd — what it does, house rules, short example: [references/fabric-cicd.md](references/fabric-cicd.md).
+- Whichever route: **no direct change in test or prod**; everything starts again from dev.
+- Supported items, available deployment rules and the limits of Git integration **change over time**: check the Microsoft documentation before committing to a route, do not assert from memory.
 
-## Portes de qualité
+## Quality gates
 
-| Avant de fusionner dans `main` | Avant la mise en production |
+| Before merging into `main` | Before going to production |
 |---|---|
-| Revue `powerbi-lean` (mode `review`) : verdict *prêt à commit* | Audit `powerbi-lean` complet sans constat bloquant |
-| Tests du changement passés (`powerbi-testing`) | Recette signée (`powerbi-testing`) |
-| `CHANGES.md` à jour | Sécurité et étiquette vérifiées (`powerbi-governance`) |
-| CI verte | Documentation régénérée (`powerbi-documentation`) |
-| Revue humaine approuvée | Performance vérifiée (`powerbi-performance`) |
-| | Plan de retour arrière écrit |
+| `powerbi-lean` review (`review` mode): verdict *ready to commit* | Full `powerbi-lean` audit with no blocking finding |
+| Tests of the change passed (`powerbi-testing`) | Acceptance signed off (`powerbi-testing`) |
+| `CHANGES.md` up to date | Security and label checked (`powerbi-governance`) |
+| CI green | Documentation regenerated (`powerbi-documentation`) |
+| Human review approved | Performance checked (`powerbi-performance`) |
+| | Rollback plan written |
 
-Liste détaillée à cocher : [references/release-checklist.md](references/release-checklist.md). L'agent **rapporte** l'état de chaque porte ; il ne déclare pas une porte franchie sans l'avoir vérifiée, et dit ce qu'il n'a pas pu vérifier.
+Detailed checklist: [references/release-checklist.md](references/release-checklist.md). The agent **reports** the state of each gate; it does not declare a gate passed without having checked it, and says what it could not check.
 
-## Intégration continue
+## Continuous integration
 
-Sur chaque PR, exécuter `lean.py audit` et `lean.py dette` (script du skill `powerbi-lean`, lecture seule, bibliothèque standard). Le script **renvoie 0 même s'il y a des constats** : c'est une étape de la CI qui lit la sortie `--json` et décide d'échouer. Exemples GitHub Actions et Azure DevOps, seuils et mise à disposition du script : [references/ci-examples.md](references/ci-examples.md).
+On every PR, run `lean.py audit` and `lean.py debt` (script of the `powerbi-lean` skill, read-only, standard library). The script **returns 0 even when there are findings**: a CI step reads the `--json` output and decides whether to fail. GitHub Actions and Azure DevOps examples, thresholds and how to make the script available: [references/ci-examples.md](references/ci-examples.md).
 
-- Seuil par défaut — **À ADAPTER** : échec sur un constat de **priorité 1** ou une **incohérence** entre `DEBT.md` et `CHANGES.md` ; le reste est affiché, pas bloquant.
-- La CI ne se connecte **à aucun espace de travail** et ne lit aucune donnée : elle analyse les fichiers du dépôt.
-- Complément optionnel : Best Practice Analyzer (Tabular Editor) pour les règles de modèle que `lean.py` ne couvre pas.
+- Default threshold: fail on a **priority 1** finding or an **inconsistency** between `DEBT.md` and `CHANGES.md`; the rest is displayed, not blocking.
+- The CI connects **to no workspace** and reads no data: it analyses the files of the repository.
+- Optional complement: Best Practice Analyzer (Tabular Editor) for the model rules `lean.py` does not cover.
 
-## Versions et livraison — À ADAPTER
+## Versions and releases
 
-- Une mise en production = un **tag Git annoté** `vX.Y.Z` sur le commit de `main` publié. Majeur : rupture pour les utilisateurs ou les rapports connectés (mesure renommée ou supprimée, changement de grain) ; mineur : nouvelle page, nouvelles mesures ; correctif : le reste.
-- Note de version : `powerbi-documentation`. Elle reprend les entrées `M-xxx` depuis le tag précédent.
-- **Retour arrière** : republier le contenu du tag précédent (extraire le tag dans une branche `fix/retour-vX.Y.Z`, puis promotion normale). Ne jamais réécrire `main`. Un retour arrière du modèle ne restaure pas les données : prévoir une actualisation.
-- Le plan de retour arrière est écrit **avant** la mise en production, dans la PR.
+Default versioning:
 
-## Processus — préparer une livraison
+- One production release = one **annotated Git tag** `vX.Y.Z` on the published commit of `main`. Major: breaking for users or connected reports (measure renamed or removed, change of grain); minor: new page, new measures; patch: everything else.
+- Release note: `powerbi-documentation`. It takes the `C-xxx` entries since the previous tag.
+- **Rollback**: republish the content of the previous tag (check the tag out into a `fix/rollback-vX.Y.Z` branch, then normal promotion). Never rewrite `main`. Rolling back the model does not restore the data: plan a refresh.
+- The rollback plan is written **before** the production release, in the PR.
 
-1. `git status` propre ; branche à jour depuis `main`.
-2. Parcourir les portes de qualité ; lancer `lean.py audit` et `lean.py dette`.
-3. Rendre un tableau porte / état / preuve / reste à faire, et la description de PR.
-4. **S'arrêter** : fusion, tag, push et promotion sont faits par l'utilisateur, ou par l'agent sur demande explicite, une action à la fois.
+## Process — preparing a release
 
-## Références
+1. `git status` clean; branch up to date with `main`.
+2. Go through the quality gates; run `lean.py audit` and `lean.py debt`.
+3. Return a table gate / state / evidence / left to do, and the PR description.
+4. **Stop**: merge, tag, push and promotion are done by the user, or by the agent on explicit request, one action at a time.
 
-- [references/gitignore-pbip.md](references/gitignore-pbip.md) — `.gitignore` type et ce qu'il ne faut jamais versionner.
-- [references/release-checklist.md](references/release-checklist.md) — portes de qualité détaillées et plan de retour arrière.
-- [references/ci-examples.md](references/ci-examples.md) — workflows GitHub Actions et Azure DevOps, codes de sortie de `lean.py`.
+## References
+
+- [references/gitignore-pbip.md](references/gitignore-pbip.md) — standard `.gitignore` and what must never be versioned.
+- [references/release-checklist.md](references/release-checklist.md) — detailed quality gates and rollback plan.
+- [references/ci-examples.md](references/ci-examples.md) — GitHub Actions and Azure DevOps workflows, `lean.py` exit codes.
+- [references/fabric-cicd.md](references/fabric-cicd.md) — code-first promotion with the fabric-cicd library.

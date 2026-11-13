@@ -1,32 +1,38 @@
-# Ce que vérifie `lean.py audit`
+# What `lean.py audit` checks
 
-| Priorité | Catégorie | Règle |
+The "Category" column is the label printed by the script.
+
+| Priority | Category | Rule |
 |---|---|---|
-| 1 | Doublon | Mesures dont le DAX est identique une fois commentaires et espaces retirés |
-| 1 | Modèle | Aucune table marquée comme table de dates (`dataCategory: Time`) |
-| 2 | Inutilisée | Mesure non utilisée par le rapport, ni par une mesure utilisée, ni par un rôle, un groupe de calcul, une table calculée ou une chaîne de format |
-| 2 | Inutilisée | Colonne non utilisée (rapport, DAX, relations, colonnes de tri, hiérarchies, clé de la table de dates) — tables de mesures exclues |
-| 2 | DAX | `FILTER` appliqué directement à une table du modèle |
-| 2 | Valeur en dur | `TODAY()` / `NOW()`, `IFERROR` / `ISERROR` |
-| 2 | Modèle | `summarizeBy: sum` sur une colonne au nom d'identifiant, de code ou de période |
-| 3 | Valeur en dur | `DATE(aaaa, …)` ; colonne d'une table **reliée** comparée à un nombre (≥ 10), un libellé ou une liste ; division `/` par une expression |
-| 3 | Documentation | Mesure visible sans description ; sans format (hors mesures qui renvoient du texte) |
-| 3 | Modèle | Clé étrangère visible |
-| 3 | Structure | Table sans relation (souvent normal : paramètre, table déconnectée) |
+| 1 | Duplicate | Measures whose DAX is identical once comments and whitespace are removed (case-insensitive; expressions of 12 characters or fewer are ignored) |
+| 1 | Model | No table marked as a date table (`dataCategory: Time`) |
+| 2 | Unused | Measure used neither by the report, nor by a used measure, a role, a calculation group, a calculated table or a dynamic format string |
+| 2 | Unused | Column not used (report, DAX, relationships, sort-by columns, hierarchy levels used by the report, key of the date table) — measure tables excluded |
+| 2 | DAX | `FILTER` applied directly to a table of the model |
+| 2 | Hardcoded value / risk | `TODAY()` / `NOW()` / `UTCTODAY()` / `UTCNOW()`; `IFERROR` / `ISERROR` |
+| 2 | Model | `summarizeBy: sum` on a column whose name looks like an identifier, a code or a period (`id`, `key`, `code`, `year`, `month`, `quarter`, `num`, `no`, `number`) |
+| 3 | Hardcoded value / risk | `DATE(yyyy, …)`; column of a **related** table compared (`=`, `<>`, `IN`) to a number (two digits or more), a label or a list; division `/` by an expression instead of `DIVIDE` |
+| 3 | Documentation | Visible measure without a description; without a format (measures containing a string literal are skipped, as they probably return text) |
+| 3 | Model | Visible foreign key (the "many" side column of a relationship) |
+| 3 | Structure | Table without a relationship (often expected: parameter, disconnected table) — calculation groups and measure tables excluded |
 
-## Comment « utilisé » est calculé
+A measure table is a table that holds measures and whose columns are all hidden.
 
-1. Point de départ : tous les champs référencés dans les fichiers JSON du rapport (visuels, filtres de visuel, de page et de rapport, signets, mises en forme conditionnelles), les colonnes des relations, les rôles RLS, les groupes de calcul, les tables calculées (dont les paramètres de champs) et la clé de la table de dates.
-2. Propagation : une mesure utilisée rend utilisées les mesures et colonnes de son DAX ; une colonne utilisée rend utilisée sa colonne de tri et le DAX d'une colonne calculée.
+## How "used" is computed
 
-## `lean.py catalogue`
+1. Starting point: every field referenced in the JSON files of the report (visuals, visual, page and report filters, bookmarks, conditional formatting), the columns of relationships, RLS roles, calculation groups, calculated tables (including field parameters) and the key column (`isKey`) of the date table.
+2. Propagation: a used measure makes the measures and columns of its DAX (and of its dynamic format string) used; a used column makes its sort-by column and the DAX of a calculated column used.
 
-Même lecture du modèle et même calcul d'utilisation, restitués en dictionnaire de données (tables, colonnes, mesures et leur DAX, relations, rôles, objets visibles sans description) sur la sortie standard ; rien n'est écrit sur disque. Les adresses e-mail sont masquées partout (descriptions, DAX des mesures) et le filtre d'un rôle qui en contient une n'est pas recopié. **Seules les adresses e-mail** le sont : un nom de personne ou un identifiant `DOMAINE\compte` en dur est recopié — le signaler (`powerbi-governance`). L'OLS n'est pas restituée. Le type de table est déduit des préfixes de `powerbi-conventions` (`Fact_`, `Dim_`, `_Mesures`, `Param_`, `CG_`) ; vide sinon. Usage : skill `powerbi-documentation`.
+## `lean.py catalog`
 
-## Limites
+Same reading of the model and same usage computation, rendered as a data dictionary (tables, columns, measures and their DAX, relationships, roles, visible objects without a description) on standard output; nothing is written to disk. E-mail addresses are masked everywhere (descriptions, DAX of measures) and the filter of a role that contains one is not copied. **Only e-mail addresses** are: a hardcoded person name or `DOMAIN\account` identifier is copied — flag it (`powerbi-governance`). OLS is not rendered. The table type is derived from the prefixes of `powerbi-conventions` (`Fact_`, `Dim_`, `_Measures`, `Param_`, `CG_`), or from the presence of a calculation group; empty otherwise. Usage: skill `powerbi-documentation`.
 
-- **Un seul rapport** : les rapports connectés au modèle publié, les classeurs Excel et les requêtes externes ne sont pas visibles.
-- Les références DAX non qualifiées `[X]` sont rattachées à une mesure si une mesure porte ce nom.
-- `--changed` filtre **par fichier** : tous les constats d'une table modifiée sont montrés.
-- Détection de doublons **exacte** (après normalisation) : les quasi-doublons demandent une lecture.
-- Les heuristiques « valeur en dur » et « identifiant » sont des signaux à confirmer, pas des erreurs certaines.
+## Limits
+
+- **One report only**: reports connected to the published model, Excel workbooks and external queries are not visible.
+- The DAX rules (duplicates, hardcoded values, `FILTER`, division) scan **measures** only, and each of the date / `IFERROR` / division rules reports its first match per measure.
+- Unqualified DAX references `[X]` are attached to a measure when a measure has that name.
+- A column used only as a level of a model hierarchy that the report does not use is reported as unused.
+- `--changed` filters **by file** (files changed since the last commit, plus untracked files): every finding of a changed table is shown, and model-wide findings (no date table) are dropped. Without a Git repository, the full analysis runs.
+- Duplicate detection is **exact** (after normalisation): near-duplicates need a human read.
+- The "hardcoded value" and "identifier" heuristics are signals to confirm, not certain errors.

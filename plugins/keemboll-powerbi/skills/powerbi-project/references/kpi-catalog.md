@@ -35,7 +35,7 @@ Only an `approved` KPI can be implemented. Changing the definition of an `implem
 - **Variants**: prior year, year to date, % change (same definition, derived measures)
 - **Source**: <invoicing system>, invoice lines table.
 - **Owner**: <role or team>
-- **Target / thresholds**: target = budget of the period; alert below 90% of the target — ADAPT.
+- **Target / thresholds**: target = budget of the period; alert below 90% of the target (example values: the owner provides the real ones).
 - **Favorable direction**: increase
 - **Format**: amount without decimals (see `powerbi-conventions`)
 - **Approved on**: <yyyy-mm-dd> by <role>

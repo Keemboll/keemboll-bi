@@ -1,65 +1,65 @@
-# Utiliser les skills avec un autre agent que Claude Code
+# Using the skills with an agent other than Claude Code
 
-Les skills de ce dépôt suivent le format ouvert **Agent Skills** : un dossier par skill, un `SKILL.md` avec un frontmatter `name` / `description`, des `references/` chargées à la demande. Rien dans leur contenu ne dépend d'un agent particulier ; seul l'**emplacement** où l'agent les cherche change.
+The skills of this repository follow the open **Agent Skills** format: one folder per skill, a `SKILL.md` with a `name` / `description` frontmatter, `references/` loaded on demand. Nothing in their content depends on a particular agent; only the **folder** where the agent looks for them changes.
 
 ## Installation
 
-Depuis une copie de ce dépôt, en visant le dossier du projet BI (celui qui contient le `.pbip`) :
+From a copy of this repository, targeting the BI project folder (the one that contains the `.pbip`):
 
 ```powershell
-python scripts/install.py --agent codex   --target "C:\chemin\vers\mon-projet-bi"
-python scripts/install.py --agent grok    --target "C:\chemin\vers\mon-projet-bi"
-python scripts/install.py --agent gemini  --target "C:\chemin\vers\mon-projet-bi"
-python scripts/install.py --list          # agents pris en charge et dossiers utilisés
+python scripts/install.py --agent codex   --target "C:\path\to\my-bi-project"
+python scripts/install.py --agent grok    --target "C:\path\to\my-bi-project"
+python scripts/install.py --agent gemini  --target "C:\path\to\my-bi-project"
+python scripts/install.py --list          # supported agents and folders used
 ```
 
-Le script :
+The script:
 
-1. copie les skills dans le dossier attendu par l'agent ;
-2. écrit dans `AGENTS.md` du projet un **bloc d'index** (entre deux marqueurs `keemboll-powerbi:début` / `keemboll-powerbi:fin`) qui dit quel `SKILL.md` lire avant quelle tâche — le reste du fichier n'est jamais touché ;
-3. garde un manifeste (`.keemboll-powerbi-manifest.json`) pour pouvoir mettre à jour ou retirer proprement ce qu'il a installé, et seulement cela.
+1. copies the skills into the folder the agent expects;
+2. writes into the project's `AGENTS.md` an **index block** (between two markers `keemboll-powerbi:begin` / `keemboll-powerbi:end`) that says which `SKILL.md` to read before which task — the rest of the file is never touched;
+3. keeps a manifest (`.keemboll-powerbi-manifest.json`) so that it can update or remove cleanly what it installed, and only that.
 
-Relancer la même commande met à jour. `--uninstall` retire tout. `--dry-run` montre ce qui serait fait. `--global` installe dans le dossier personnel au lieu du projet. `--skills a,b` limite l'installation à certains skills. Un dossier de skill du même nom qui ne vient pas de ce script n'est jamais écrasé sans `--force`.
+Running the same command again updates. `--uninstall` removes everything. `--dry-run` shows what would be done. `--global` installs into the home folder instead of the project. `--skills a,b` limits the installation to some skills. A skill folder of the same name that does not come from this script is never overwritten without `--force`.
 
-Les skills installés dans le projet sont à **versionner avec lui** : toute l'équipe — et la CI — utilise alors la même version des règles.
+Skills installed in the project are meant to be **versioned with it**: the whole team — and the CI — then uses the same version of the rules.
 
-## Emplacements par agent
+## Folders per agent
 
-| Agent | `--agent` | Skills dans le projet | Skills personnels | Bloc `AGENTS.md` |
+| Agent | `--agent` | Skills in the project | Personal skills | `AGENTS.md` block |
 |---|---|---|---|---|
-| Claude Code | `claude` | `.claude/skills/` (+ sous-agents dans `.claude/agents/`) | `~/.claude/skills/` | non (inutile) |
-| Codex (OpenAI) | `codex` | `.agents/skills/` | `~/.agents/skills/` | oui |
-| Gemini CLI | `gemini` | `.agents/skills/` | `~/.agents/skills/` | oui |
-| Grok Build (xAI) | `grok` | `.grok/skills/` | `~/.grok/skills/` | oui |
-| GitHub Copilot (VS Code) | `copilot` | `.github/skills/` | `~/.copilot/skills/` | oui |
-| Cursor | `cursor` | `.cursor/skills/` | `~/.cursor/skills/` | oui |
-| Autre agent | `generic` | `.agents/skills/` | `~/.agents/skills/` | oui |
+| Claude Code | `claude` | `.claude/skills/` (+ subagents in `.claude/agents/`) | `~/.claude/skills/` | no (not needed) |
+| Codex (OpenAI) | `codex` | `.agents/skills/` | `~/.agents/skills/` | yes |
+| Gemini CLI | `gemini` | `.agents/skills/` | `~/.agents/skills/` | yes |
+| Grok Build (xAI) | `grok` | `.grok/skills/` | `~/.grok/skills/` | yes |
+| GitHub Copilot (VS Code) | `copilot` | `.github/skills/` | `~/.copilot/skills/` | yes |
+| Cursor | `cursor` | `.cursor/skills/` | `~/.cursor/skills/` | yes |
+| Other agent | `generic` | `.agents/skills/` | `~/.agents/skills/` | yes |
 
-> **À VÉRIFIER** — ces emplacements ont été relevés dans la documentation des éditeurs en novembre 2026 et changent d'une version à l'autre. Celui de Cursor au niveau du projet n'a pas pu être confirmé. En cas de doute, consulter la documentation de l'agent et imposer le dossier avec `--dest <dossier>`.
+These folders come from each vendor's documentation as of November 2026 and change between versions. If an agent does not pick the skills up, check its current documentation and force the folder with `--dest <folder>`; the `AGENTS.md` index block works as a fallback in every case.
 
-Pour Claude Code, préférer la marketplace (mises à jour automatiques, commande `/keemboll-docs`, sous-agents) — voir le `README.md`. D'après la documentation de xAI, Grok Build sait aussi lire les marketplaces et plugins Claude Code tels quels.
+For Claude Code, prefer the marketplace (automatic updates, `/keemboll-docs` command, subagents) — see `README.md`. According to xAI's documentation, Grok Build can also read Claude Code marketplaces and plugins as they are.
 
-## Agent sans chargement de skills
+## Agent that does not load skills
 
-Deux solutions de repli, de la meilleure à la plus simple :
+Two fallbacks, from best to simplest:
 
-1. **L'agent lit `AGENTS.md` et les fichiers du projet** : `--agent generic` suffit. Le bloc d'index lui demande de lire le `SKILL.md` concerné avant d'agir ; c'est l'équivalent manuel du chargement automatique.
-2. **L'agent n'a pas accès aux fichiers** (conversation web, assistant dans un navigateur) : `python scripts/build_dist.py` produit `dist/keemboll-powerbi-<version>.md`, tous les skills en un seul fichier à joindre à la conversation ou à un projet. Les scripts (`lean.py`) n'y sont pas utilisables.
+1. **The agent reads `AGENTS.md` and the project files**: `--agent generic` is enough. The index block asks it to read the relevant `SKILL.md` before acting; it is the manual equivalent of automatic loading.
+2. **The agent has no file access** (web chat, browser assistant): `python scripts/build_dist.py` produces `dist/keemboll-powerbi-<version>.md`, all the skills in a single file to attach to the conversation or to a project. The scripts (`lean.py`) cannot be used there.
 
-`build_dist.py` produit aussi un `.zip` par skill et un `.zip` de l'ensemble, pour les applications qui acceptent le téléversement d'un skill.
+`build_dist.py` also produces one `.zip` per skill and one `.zip` of the whole set, for applications that accept uploading a skill.
 
-## Ce qui reste propre à Claude Code
+## What remains specific to Claude Code
 
-| Élément | Emplacement | Équivalent ailleurs |
+| Element | Location | Equivalent elsewhere |
 |---|---|---|
-| Commande `/keemboll-docs` | `plugins/keemboll-powerbi/commands/` | lire ce fichier et le `README.md` |
-| Sous-agents `powerbi-auditor`, `powerbi-modeler`, `powerbi-report-designer` | `plugins/keemboll-powerbi/agents/` | les mêmes rôles sont décrits dans le skill `powerbi-project` (table rôle → skills) ; les fiches sont de simples fichiers Markdown, lisibles comme consignes |
-| Skills Microsoft (`semantic-model-authoring`, `powerbi-report-cli`…) et serveur MCP de modélisation | marketplace `microsoft/skills-for-fabric` | nos skills les citent comme « s'ils sont installés » ; sans eux, l'agent édite les fichiers TMDL / PBIR du projet PBIP directement et l'utilisateur vérifie dans Power BI Desktop |
+| `/keemboll-docs` command | `plugins/keemboll-powerbi/commands/` | read that file and `README.md` |
+| Subagents `powerbi-analyst`, `powerbi-modeler`, `powerbi-report-designer`, `powerbi-tester`, `powerbi-ai-curator`, `powerbi-ops`, `powerbi-auditor` | `plugins/keemboll-powerbi/agents/` | the same roles are described in the `powerbi-project` skill (role → skills table); the files are plain Markdown, readable as instructions by any agent |
+| Microsoft skills (`semantic-model-authoring`, `powerbi-report-cli`...) and the modeling MCP server | marketplace `microsoft/skills-for-fabric` | our skills cite them as "when installed"; without them, the agent edits the TMDL / PBIR files of the PBIP project directly and the user checks in Power BI Desktop |
 
-## Vérifier l'installation
+## Checking the installation
 
-Dans le projet BI, demander à l'agent : « Quels skills Power BI as-tu à disposition, et lequel appliques-tu avant de renommer une mesure ? » Il doit citer `powerbi-conventions` et `powerbi-lean` (inventaire `usage` avant renommage). S'il ne les connaît pas, vérifier le dossier d'installation (`--list`) et la présence du bloc dans `AGENTS.md`.
+In the BI project, ask the agent: "Which Power BI skills do you have, and which one do you apply before renaming a measure?" It should name `powerbi-conventions` and `powerbi-lean` (`usage` inventory before a rename). If it does not know them, check the install folder (`--list`) and the block in `AGENTS.md`.
 
-## Sécurité
+## Security
 
-Quel que soit l'agent : les **métadonnées** du projet (noms, DAX, rôles) partent chez son fournisseur dès qu'il les lit. Vérifier que l'outil est autorisé pour ce projet avant de l'ouvrir — règle détaillée dans `powerbi-conventions` et `powerbi-governance`.
+Whatever the agent: the project's **metadata** (names, DAX, roles) goes to its provider as soon as it reads it. Check that the tool is allowed for this project before opening it — rule detailed in `powerbi-conventions` and `powerbi-governance`.

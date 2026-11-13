@@ -13,10 +13,10 @@ To be filled in **with** the requester, in blocks of 3 to 5 questions. Whatever 
 | Sources | Where does the data come from (system, database, file)? Who owns it? Is it reliable, complete, documented? |
 | Grain | What does one row of each source represent (an order line, a day × store...)? How far down does the reader want to drill? |
 | Freshness | By what time must the data be up to date? How often is it refreshed? How much delay is acceptable? |
-| Security | Who may see what? Personal or sensitive data? Filtering by scope (region, department)? |
+| Security | Who may see what? Personal or sensitive data? Filtering by scope (region, department)? Will the model be exposed to Copilot or data agents? |
 | Success | How will we know the report is a success? Which report or file does it replace? |
 
-The "grain" answers feed `powerbi-data-modeling`; "security" feeds `powerbi-governance`; "freshness" feeds `powerbi-alm` and `powerbi-performance`.
+The "sources" answers feed `powerbi-power-query` (and `powerbi-direct-lake` when the data is in OneLake, `powerbi-migration` when a report is replaced); "grain" feeds `powerbi-data-modeling`; "security" feeds `powerbi-governance` and, if the model is exposed to AI, `powerbi-ai-readiness`; "freshness" feeds `powerbi-operations`, `powerbi-alm` and `powerbi-performance`.
 
 ## Template
 
@@ -60,7 +60,8 @@ The "grain" answers feed `powerbi-data-modeling`; "security" feeds `powerbi-gove
 
 ## Security
 
-- Sensitivity level: <public / internal / confidential — ADAPT>.
+- Sensitivity level: <public / internal / confidential, or the organization's own labels>.
+- Exposed to Copilot or data agents: <yes / no / TO CONFIRM> (if yes: `powerbi-ai-readiness` before release).
 - Personal data: <yes / no; which>.
 - Filtering by scope: <rule in plain words> (details in `SECURITY_MODEL.md`).
 

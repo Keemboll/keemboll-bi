@@ -1,6 +1,6 @@
 ---
 name: powerbi-data-modeling
-description: "Dimensional data modeling for Power BI and Fabric: star schema design, choice of grain, fact tables and dimensions, surrogate keys, slowly changing dimensions (SCD), role-playing dimensions, many-to-many bridge tables, date table, Import / DirectQuery / Direct Lake choice. Use to design, critique or rework a semantic model, or to turn source tables into an analytical model. Triggers: data modeling, star schema, fact, dimension, grain, relationship, cardinality, SCD, many-to-many, snowflake, Kimball."
+description: "Dimensional data modeling for Power BI and Fabric: star schema design, choice of grain, fact tables and dimensions, surrogate keys, slowly changing dimensions (SCD), role-playing dimensions, many-to-many bridge tables, date table, storage mode choice (Import / DirectQuery / Direct Lake, summary only). Use to design, critique or rework a semantic model, or to turn source tables into an analytical model. Triggers: data modeling, star schema, fact, dimension, grain, relationship, cardinality, surrogate key, SCD, role-playing dimension, many-to-many, bridge table, snowflake, date table, storage mode, Kimball."
 ---
 
 # Data modeling — Power BI
@@ -25,7 +25,7 @@ Deliver the design as a **table / type / grain / key / relationships** table and
 - **Date table**: a continuous `Dim_Date` (from January 1st of the first year to December 31st of the last), one row per day, marked as the date table. See [references/dim-date.md](references/dim-date.md).
 - **Columns**: load only useful columns; split date and time; round unneeded decimals.
 - **Measures rather than calculated columns** for anything that aggregates.
-- Transform upstream (source, Lakehouse/Warehouse, Power Query) rather than in DAX.
+- Transform upstream (source, Lakehouse/Warehouse, Power Query) rather than in DAX. `powerbi-power-query` is authoritative for transformation code (M, query folding).
 
 ## Special cases
 
@@ -40,13 +40,16 @@ Deliver the design as a **table / type / grain / key / relationships** table and
 
 ## Storage mode
 
+Short summary to choose a mode; the star schema rules above apply to all of them.
+
 | Mode | When | Watch points |
 |---|---|---|
-| **Import** | Default; volumes up to a few hundred million rows | Plan the refresh; incremental refresh on large facts |
-| **Direct Lake on OneLake** (Fabric) — recommended for new models | Data already in Delta in a Fabric Lakehouse/Warehouse | Optimized Delta tables (V-Order); **no DirectQuery fallback**; composite model possible (Import tables); calculated columns in user context only (preview); no non-materialized SQL view; capacity guardrails exceeded = query error |
-| **Direct Lake on SQL analytics endpoint** (Fabric) | Same, single source, when the SQL endpoint is needed | **DirectQuery fallback** if SQL view, endpoint RLS/OLS/DDM or guardrails exceeded; no calculated columns; controlled by the `DirectLakeBehavior` property (Automatic, DirectLakeOnly, DirectQueryOnly) |
+| **Import** | Default | Plan the refresh; incremental refresh on large facts |
+| **Direct Lake** (Fabric) | Data already in Delta tables in a Fabric Lakehouse / Warehouse | Two variants (on OneLake, on SQL analytics endpoint) with different limits and fallback behavior; only Direct Lake on OneLake can be combined with Import tables; transformations done upstream in the Delta tables |
 | **DirectQuery** | Strict real time, or volumes impossible to import | Performance depends on the source; limit visuals; aggregations |
-| **Composite** | Mix (facts in DirectQuery + dimensions in Dual) | Dimensions in **Dual** mode |
+| **Composite** | Mix: facts in DirectQuery + dimensions in Dual, or Direct Lake on OneLake tables + Import tables | DirectQuery variant: dimensions in **Dual** mode |
+
+`powerbi-direct-lake` is authoritative for Direct Lake design details and limits (variants, fallback, guardrails, unsupported features): do not decide on Direct Lake from this table alone. Limits of every mode change: confirm them in the Microsoft documentation.
 
 ## Expected deliverables
 

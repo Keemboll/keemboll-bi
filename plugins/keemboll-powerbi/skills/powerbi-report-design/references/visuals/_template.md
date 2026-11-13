@@ -1,23 +1,23 @@
-# [Nom du motif]
+# [Pattern name]
 
-![[Nom du motif]](images/[nom-du-motif].png)
+![[Pattern name]](images/[pattern-name].png)
 
-- **Quand l'utiliser** : [question à laquelle le visuel répond]
-- **Déclencheurs** : [mots qu'un utilisateur emploierait]
-- **Source** : [lien ou « interne »]
+- **When to use it**: [question the visual answers]
+- **Triggers**: [words a user would use]
+- **Source**: [link or "internal"]
 
 ## Construction
 
-- Type de visuel : [ex. histogramme groupé natif]
-- Champs : axe [Dim_Date[Mois]], valeurs [[Mesure]]
-- Mesures nécessaires (motifs génériques) : [`[Mesure écart]`, `[Couleur écart]`]
+- Visual type: [e.g. native clustered column chart]
+- Fields: axis [Dim_Date[Month]], values [[Measure]]
+- Measures needed (generic patterns): [`[Variance measure]`, `[Variance Color]`]
 
-## Réglages clés (`visual.json`)
+## Key settings (`visual.json`)
 
 ```json
-{ "à compléter": "propriétés exactes copiées du visuel de référence" }
+{ "to fill in": "exact properties copied from the reference visual" }
 ```
 
-## Piège
+## Pitfall
 
-[Ce qui casse si on oublie un réglage.]
+[What breaks if a setting is forgotten.]

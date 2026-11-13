@@ -1,39 +1,39 @@
 ---
 name: powerbi-mockup
-description: "Maquette HTML d'une page de rapport Power BI construite à partir du modèle sémantique réel, avant toute construction dans Power BI : inventaire des tables, mesures et colonnes, page HTML autonome au format du canevas, chaque élément étiqueté avec le champ exact qu'il utilisera, liste des mesures manquantes, itérations rapides, puis passage au PBIP. À utiliser pour planifier ou prototyper une page, comparer des variantes de mise en page ou préparer la construction d'un rapport. Triggers: maquette, mock-up, mockup, prototype, wireframe, HTML, planifier une page, esquisse de rapport, layout, avant de construire."
+description: "HTML mockup of a Power BI report page built from the real semantic model, before anything is built in Power BI: inventory of tables, measures and columns, a self-contained HTML page at canvas size, every element labelled with the exact field it will use, list of missing measures, fast iterations, then hand-over to the PBIP. Use to plan or prototype a page, compare layout variants or prepare a report build. Triggers: mockup, mock-up, prototype, wireframe, HTML, plan a page, report sketch, layout, before building."
 ---
 
-# Maquette HTML depuis le modèle
+# HTML mockup from the model
 
-Changer une mise en page dans Power BI prend du temps ; dans une maquette HTML, une phrase suffit. On itère ici jusqu'à validation, **puis** on construit. Appliquer `powerbi-report-design` (quatre questions, jetons de design) et `powerbi-conventions` (confidentialité des métadonnées).
+Changing a layout in Power BI takes time; in an HTML mockup, one sentence is enough. Iterate here until approved, **then** build. Apply `powerbi-report-design` (four questions, design tokens) and `powerbi-conventions` (metadata confidentiality).
 
-## Processus
+## Process
 
-1. **Lire le modèle** (`*.SemanticModel/definition/` ou modèle publié via MCP) et produire l'**inventaire** : tables, mesures (avec dossier et format), colonnes clés des dimensions, table de dates. Le montrer une fois à l'utilisateur.
-2. **Quatre questions** de la page (voir `powerbi-report-design`) : les faire confirmer.
-3. **Associer** chaque question à des éléments (cartes KPI, tendance, écarts, classements) et à des **champs existants**. Si un champ manque : **ne pas l'inventer**, l'ajouter à la liste « Mesures manquantes » avec une proposition de DAX (`powerbi-dax-library`).
-4. **Générer un seul fichier HTML** autonome (CSS et JS en ligne, aucune ressource externe) à partir de [references/mockup-template.html](references/mockup-template.html) :
-   - taille exacte du canevas et jetons de design (couleurs, rayon, marges) ;
-   - **chaque élément porte une étiquette** `Table[Champ]` / `[Mesure]` (attribut `data-fields` + texte visible discret) ;
-   - titres formulés en **questions** ;
-   - valeurs d'exemple **plausibles et fictives** (jamais de vraies données copiées depuis le cache) ;
-   - interrupteurs (Plan / N-1, Haut / Bas, Mensuel / Cumul) et volet de filtres simulés si prévus ;
-   - encadré final « Mesures manquantes » et « Hypothèses ».
-5. **Enregistrer** à côté du projet : `maquettes/<page>-v1.html` ; l'utilisateur l'ouvre dans le navigateur.
-6. **Itérer** : une demande = une nouvelle version (`-v2`, `-v3`) ; conserver les étiquettes de champs. Changements typiques : ordre et taille, type de graphique (anneau → barres triées), titres-questions, couleurs (un accent, vert / rouge pour bon / mauvais), interrupteurs.
-7. **Valider** avec la [checklist](references/mockup-checklist.md), puis passer à la construction.
+1. **Read the model** (`*.SemanticModel/definition/` or the published model through MCP) and produce the **inventory**: tables, measures (with display folder and format), key dimension columns, date table. Show it to the user once.
+2. **Four questions** of the page (see `powerbi-report-design`): have them confirmed.
+3. **Map** each question to elements (KPI cards, trend, variances, rankings) and to **existing fields**. If a field is missing: **do not invent it**, add it to the "Missing measures" list with a proposed DAX (`powerbi-dax-library`).
+4. **Generate a single self-contained HTML file** (inline CSS and JS, no external resource) from [references/mockup-template.html](references/mockup-template.html):
+   - exact canvas size and design tokens (colours, radius, margins);
+   - **every element carries a label** `Table[Field]` / `[Measure]` (`data-fields` attribute + discreet visible text);
+   - titles phrased as **questions**;
+   - **plausible, fictitious** sample values (never real data copied from the cache);
+   - simulated toggles (Plan / PY, Top / Bottom, Monthly / Cumulative) and filter pane if planned;
+   - a closing box "Missing measures" and "Assumptions".
+5. **Save** next to the project: `mockups/<page>-v1.html`; the user opens it in the browser.
+6. **Iterate**: one request = one new version (`-v2`, `-v3`); keep the field labels. Typical changes: order and size, chart type (donut → sorted bars), question titles, colours (one accent, green / red for good / bad), toggles.
+7. **Approve** with the [checklist](references/mockup-checklist.md), then move on to the build.
 
-## Passage au PBIP
+## Hand-over to the PBIP
 
-Demande type à exécuter avec `powerbi-report-cli` :
+Typical request to run with `powerbi-report-cli`:
 
-> Construis la maquette `maquettes/<page>-vN.html` comme nouvelle page du projet PBIP [chemin]. Respecte la mise en page, les tailles et les couleurs. Utilise les étiquettes de champs de la maquette pour lier chaque visuel au modèle. Si un champ ou une mesure n'existe pas, liste-le au lieu de deviner. Valide les fichiers du rapport, recharge le rapport dans Power BI Desktop, fais une capture d'écran de la page et corrige ce qui ne va pas : données, visuels, alignement.
+> Build the mockup `mockups/<page>-vN.html` as a new page of the PBIP project [path]. Follow the layout, sizes and colours. Use the mockup's field labels to bind each visual to the model. If a field or measure does not exist, list it instead of guessing. Validate the report files, reload the report in Power BI Desktop, take a screenshot of the page and fix what is wrong: data, visuals, alignment.
 
-Puis `powerbi-report-design` étape 6 (vérification visuelle) et capitalisation des corrections en références.
+Then `powerbi-report-design` step 6 (visual check) and capture of the fixes as references.
 
-## Règles
+## Rules
 
-- La maquette n'utilise **que des champs qui existent** ; tout le reste est explicitement marqué manquant.
-- Une maquette = une page. Pas de framework, pas de CDN : un fichier qui s'ouvre hors ligne.
-- Données d'exemple fictives : ne jamais lire `.pbi/cache.abf` ni recopier des valeurs réelles, surtout pour des données sensibles.
-- Ne pas modifier le PBIP pendant la phase de maquette.
+- The mockup uses **only fields that exist**; everything else is explicitly marked missing.
+- One mockup = one page. No framework, no CDN: one file that opens offline.
+- Fictitious sample data: never read `.pbi/cache.abf` nor copy real values, especially for sensitive data.
+- Do not change the PBIP during the mockup phase.

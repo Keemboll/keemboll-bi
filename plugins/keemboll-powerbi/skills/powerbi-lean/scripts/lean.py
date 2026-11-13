@@ -322,7 +322,7 @@ def load_report(report_dir, model):
                 page = pages.get(rel[pi + 1], rel[pi + 1])
         if "visuals" in rel:
             vi = rel.index("visuals")
-            vtype = (j.get("visual") or {}).get("visualType", "visuel") if isinstance(j, dict) else "visuel"
+            vtype = (j.get("visual") or {}).get("visualType", "visual") if isinstance(j, dict) else "visual"
             visual = f"{vtype} {rel[vi + 1]}"
         else:
             visual = os.path.basename(f)

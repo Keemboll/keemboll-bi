@@ -1,67 +1,70 @@
 ---
 name: powerbi-tmdl
-description: "Lecture et édition de modèles sémantiques Power BI au format TMDL (Tabular Model Definition Language) dans un projet PBIP : syntaxe, indentation, tables, colonnes, mesures, relations, partitions Power Query, groupes de calcul, rôles RLS, descriptions et vérification. À utiliser dès qu'on lit, écrit, compare ou corrige des fichiers .tmdl ou un dossier *.SemanticModel/definition, ou qu'on travaille dans la vue TMDL de Power BI Desktop. Triggers: TMDL, .tmdl, PBIP, SemanticModel, definition, model.tmdl, relationships.tmdl, vue TMDL, createOrReplace, git, diff de modèle."
+description: "Reading and editing Power BI semantic models in TMDL (Tabular Model Definition Language) inside a PBIP project: syntax, indentation, tables, columns, measures, relationships, Power Query partitions, calculation groups, DAX user-defined functions, RLS roles, descriptions and verification. Use whenever .tmdl files or a *.SemanticModel/definition folder are read, written, compared or fixed, or when working in the TMDL view of Power BI Desktop. Triggers: TMDL, .tmdl, PBIP, SemanticModel, definition, model.tmdl, relationships.tmdl, functions.tmdl, TMDL view, createOrReplace, lineageTag, git, model diff."
 ---
 
-# TMDL — édition de modèles sémantiques
+# TMDL — editing semantic models
 
-Appliquer `powerbi-conventions` (nommage, descriptions, validation). Pour la publication vers Fabric/Power BI Service, déléguer à `semantic-model-authoring` (Microsoft).
+Apply `powerbi-conventions` (naming, descriptions, approval). To publish to Fabric / the Power BI service, delegate to `semantic-model-authoring` (Microsoft) when installed; otherwise publish from Power BI Desktop.
 
-## Structure d'un projet PBIP
+## Structure of a PBIP project
 
 ```
-MonRapport.pbip
-MonRapport.SemanticModel/
+SalesReport.pbip
+SalesReport.SemanticModel/
 ├── definition.pbism
 └── definition/
-    ├── database.tmdl          # niveau de compatibilité
-    ├── model.tmdl             # options du modèle, culture, ordre des tables (ref table …)
-    ├── relationships.tmdl     # toutes les relations
-    ├── expressions.tmdl       # paramètres et requêtes M partagées
-    ├── tables/<Table>.tmdl    # une table par fichier : colonnes, mesures, partitions, hiérarchies
+    ├── database.tmdl          # compatibility level
+    ├── model.tmdl             # model options, culture, table order (ref table …)
+    ├── relationships.tmdl     # all relationships
+    ├── expressions.tmdl       # parameters and shared M queries
+    ├── functions.tmdl         # DAX user-defined functions (compatibility level 1702 or higher) → see powerbi-dax-udf
+    ├── tables/<Table>.tmdl    # one table per file: columns, measures, partitions, hierarchies
     ├── roles/<Role>.tmdl      # RLS
-    └── cultures/<langue>.tmdl # traductions / synonymes Q&A
-MonRapport.Report/             # rapport (PBIR) → voir powerbi-report-cli
+    └── cultures/<language>.tmdl # translations / Q&A synonyms
+SalesReport.Report/            # report (PBIR) → see powerbi-report-cli
 ```
 
-## Règles de syntaxe essentielles
+## Essential syntax rules
 
-- **Indentation = structure.** Utiliser des **tabulations**, de façon cohérente : objet au niveau N, ses propriétés au niveau N+1, une expression multiligne au niveau N+2.
-- Déclaration : `<type> <Nom>` ; avec expression : `<type> <Nom> = <expression>`.
-- Noms avec espaces ou caractères spéciaux entre **apostrophes** : `measure 'CA HT'` ; une apostrophe dans le nom se double : `'Chiffre d''affaires'`.
-- Propriétés : `nom: valeur` ; booléen vrai = propriété seule (`isHidden`) ; faux = `isActive: false`.
-- **Descriptions** : lignes `///` juste au-dessus de l'objet.
-- Références de colonnes dans les relations : `Table.Colonne`, avec apostrophes si besoin (`Fact_Ventes.'Date commande'`).
-- `lineageTag` : **ne jamais copier** celui d'un autre objet. Pour un nouvel objet, l'omettre (Power BI Desktop le génère) ou créer un GUID neuf.
+- **Indentation = structure.** Use **tabs**, consistently: object at level N, its properties at level N+1, a multi-line expression at level N+2.
+- Declaration: `<type> <Name>`; with an expression: `<type> <Name> = <expression>`.
+- Names with spaces or special characters go between **single quotes**: `measure 'Net Sales'`; a single quote inside the name is doubled: `'Customer''s Sales'`.
+- Properties: `name: value`; boolean true = the property alone (`isHidden`); false = `isActive: false`.
+- **Descriptions**: `///` lines right above the object.
+- Column references in relationships: `Table.Column`, with single quotes if needed (`Fact_Sales.'Order Date'`).
+- `lineageTag`: **never copy** the one of another object. For a new object, omit it (Power BI Desktop generates it) or create a fresh GUID.
 
-Exemples complets : [references/syntax.md](references/syntax.md).
+Complete examples: [references/syntax.md](references/syntax.md).
 
-## Processus d'édition
+## Editing process
 
-1. **Synchronisation avec Power BI Desktop** (versions récentes de Desktop) : **enregistrer** dans Desktop avant d'écrire (l'agent lit les fichiers sur disque, pas la fenêtre). Deux mécanismes distincts :
-   - **Rechargement des changements externes** (fonction en **préversion**, Desktop d'**août 2026 ou plus récent**) : activer *Detect and reload external PBIP changes* (Options → Fonctionnalités en préversion, puis redémarrer Desktop). Après écriture, Desktop propose d'**appliquer les changements externes**. Sur une version plus ancienne ou sans cette option : **fermer Desktop** avant d'écrire.
-   - **Desktop Bridge** (rechargement programmatique et captures d'écran pour l'agent) : *Enable external tool access to Power BI Desktop through secure local APIs* dans Options → **Sécurité** → Desktop Bridge, **activé par défaut** ; la documentation le signale aussi comme préversion.
+1. **Synchronization with Power BI Desktop** (recent Desktop versions): **save** in Desktop before writing (the agent reads the files on disk, not the window). Two distinct mechanisms:
+   - **Reloading external changes** (**preview** feature, Desktop **August 2026 or later**): turn on *Detect and reload external PBIP changes* (Options → Preview features, then restart Desktop). After writing, Desktop offers to **apply the external changes**. On an older version or without this option: **close Desktop** before writing.
+   - **Desktop Bridge** (programmatic reload and screenshots for the agent): *Enable external tool access to Power BI Desktop through secure local APIs* in Options → **Security** → Desktop Bridge, **on by default**; the documentation also flags it as a preview.
 
-   Dans tous les cas, ne jamais enregistrer depuis Desktop pendant que l'agent écrit (écrasement).
-2. Vérifier que le projet est sous **Git** et que l'arbre est propre (`git status`) pour pouvoir revenir en arrière.
-3. Lire `model.tmdl`, `relationships.tmdl` et les tables concernées avant d'écrire.
-4. Proposer les modifications (diff) et **attendre la validation** pour toute suppression, renommage ou changement de relation.
-5. Écrire en respectant l'indentation existante du fichier (tabulations).
-6. Ajout de table : créer `tables/<Nom>.tmdl` et, si `model.tmdl` contient des lignes `ref table …`, y ajouter `ref table <Nom>`.
-7. **Renommage** : mettre à jour toutes les références (mesures DAX, relations, `sortByColumn`, hiérarchies, rôles, cultures, rapport PBIR). Rechercher l'ancien nom dans tout le dossier `definition/` **et** dans `*.Report/`.
-8. Appliquer les changements externes (ou rouvrir le `.pbip`) : les erreurs de syntaxe s'affichent au chargement. Corriger puis vérifier les valeurs avec une requête DAX.
-9. `git diff` pour relire, puis commit.
+   In every case, never save from Desktop while the agent is writing (overwrite).
+2. Check that the project is under **Git** and that the tree is clean (`git status`) so the change can be rolled back.
+3. Read `model.tmdl`, `relationships.tmdl` and the tables involved before writing.
+4. Propose the changes (diff) and **wait for approval** for any deletion, rename or relationship change.
+5. Write following the existing indentation of the file (tabs).
+6. Adding a table: create `tables/<Name>.tmdl` and, if `model.tmdl` contains `ref table …` lines, add `ref table <Name>` to it.
+7. **Rename**: update every reference (DAX measures, relationships, `sortByColumn`, hierarchies, roles, cultures, PBIR report). Search for the old name in the whole `definition/` folder **and** in `*.Report/`.
+8. Apply the external changes (or reopen the `.pbip`): syntax errors show up on load. Fix them, then check the values with a DAX query.
+9. `git diff` to review, then commit.
 
-## Vue TMDL de Power BI Desktop
+## TMDL view in Power BI Desktop
 
-Alternative sans fermer Desktop : onglet **Vue TMDL** → glisser un objet depuis le volet Données pour générer son script `createOrReplace`, le modifier, puis **Appliquer**. Pratique pour des modifications ciblées ; les fichiers PBIP sont mis à jour à l'enregistrement.
+TMDL view is generally available in Power BI Desktop and in preview on the web (Power BI service); check the Microsoft documentation for the current status.
 
-## Pièges fréquents
+Alternative that does not require closing Desktop: **TMDL view** tab → drag an object from the Data pane to generate its `createOrReplace` script, edit it, then **Apply**. Handy for targeted changes; the PBIP files are updated on save.
 
-| Erreur | Cause | Correction |
+## Common pitfalls
+
+| Error | Cause | Fix |
 |---|---|---|
-| Fichier refusé à l'ouverture | Mélange espaces / tabulations | Ré-indenter avec des tabulations |
-| Mesure sur une seule ligne tronquée | Expression multiligne pas assez indentée | Expression au niveau propriétés + 1 |
-| Relation ignorée | Colonnes de types différents ou nom mal cité | Vérifier `dataType` et les apostrophes |
-| Doublon de lineageTag | Copier-coller d'un objet existant | Supprimer la ligne `lineageTag` du nouvel objet |
-| Visuels cassés après renommage | Références PBIR non mises à jour | Rechercher l'ancien nom dans `*.Report/` |
+| File rejected on open | Mixed spaces / tabs | Re-indent with tabs |
+| Multi-line measure truncated to one line | Multi-line expression not indented enough | Expression at property level + 1 |
+| Relationship ignored | Columns of different types or badly quoted name | Check `dataType` and the single quotes |
+| Duplicate lineageTag | Copy-paste of an existing object | Delete the `lineageTag` line of the new object |
+| Broken visuals after a rename | PBIR references not updated | Search for the old name in `*.Report/` |

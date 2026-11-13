@@ -1,46 +1,46 @@
-# Modèle de CHANGES.md
+# CHANGES.md template
 
-Journal des modifications du projet, à la racine (à côté du `.pbip` et de `DEBT.md`), versionné avec le projet. **Plus récent en haut.** Il se remplit à mesure que la dette diminue : chaque dette soldée y a son entrée ; les évolutions hors dette (nouvelle page, nouvelle mesure) y sont aussi consignées.
+Change log of the project, at the root (next to the `.pbip` and `DEBT.md`), versioned with the project. **Newest first.** It fills up as the debt goes down: every closed debt has its entry; changes that are not debt-related (new page, new measure) are recorded too.
 
 ```markdown
-# Journal des modifications — <nom du projet>
+# Change log — <project name>
 
-## M-002 · 2026-10-20 · Fusion des mesures en doublon
-- **Dette** : D-001 (soldée)
-- **Type** : refactorisation
-- **Objets modifiés** : `Mesures[012.Attendus]` réécrite pour référencer `[011.Approvisionne]`
-- **Avant → après** : deux expressions DAX identiques → une mesure de base + une référence
-- **Impact rapport** : aucun visuel modifié (vérifié avec `lean.py usage`)
-- **Vérification** : valeurs comparées avant/après sur 3 périodes et 2 réseaux : identiques
-- **Commit** : message `M-002: …` · **Par** : <nom>
+## C-002 · 2026-10-20 · Duplicate measures merged
+- **Debt**: D-002
+- **Type**: refactoring
+- **Changed objects**: `_Measures[Net Sales LY]` rewritten to reference `[Net Sales PY]`
+- **Before → after**: two identical DAX expressions → one base measure + one reference
+- **Report impact**: no visual changed (checked with `lean.py usage`)
+- **Verification**: values compared before/after over 3 periods and 2 regions: identical
+- **Commit**: message `C-002: …` · **By**: <name>
 
-## M-001 · 2026-10-15 · Table de dates marquée
-- **Dette** : D-006 (soldée)
-- **Type** : correction
-- **Objets modifiés** : `Calendar` (dataCategory: Time, isKey sur DateValue)
-- **Avant → après** : table non marquée → table de dates officielle
-- **Impact rapport** : mesures `Cumul …` revérifiées
-- **Vérification** : totaux mensuels identiques ; cumuls identiques
-- **Commit** : message `M-001: …` · **Par** : <nom>
+## C-001 · 2026-10-15 · Date table marked
+- **Debt**: D-001
+- **Type**: fix
+- **Changed objects**: `Dim_Date` (dataCategory: Time, isKey on Date)
+- **Before → after**: table not marked → official date table
+- **Report impact**: `[Net Sales YTD]` re-checked
+- **Verification**: monthly totals identical; year-to-date values identical
+- **Commit**: message `C-001: …` · **By**: <name>
 ```
 
-## Règles
+## Rules
 
-- Identifiants **M-001, M-002…** jamais réutilisés. `python lean.py dette <projet>` donne le prochain.
-- **Dette** : un ou plusieurs `D-xxx`, ou « hors dette ». `D-xxx (partielle)` (ou `(en cours)`) pour une avancée qui ne solde pas encore la dette : elle reste alors dans « Ouvert ». Une dette citée ici doit être déplacée dans « Soldé » de `DEBT.md` avec `**Modification** : M-xxx`.
-- **Type** : correction · refactorisation · nettoyage · performance · nouvelle fonctionnalité · documentation.
-- **Vérification** : décrire ce qui a été comparé et le verdict (identique / écart expliqué). **Ne jamais recopier de valeurs réelles** (chiffres d'indicateurs, noms de patients ou d'institutions si sensibles).
-- **Commit** : le message de commit commence par l'identifiant (`M-002: fusion des doublons`) ; `git log --grep "M-002"` retrouve le commit sans avoir à recopier son hash.
-- Une modification = un commit qui contient le changement du modèle/rapport **et** les mises à jour de `DEBT.md` et `CHANGES.md`.
+- Identifiers **C-001, C-002…** are never reused. `python lean.py debt <project>` gives the next one.
+- **Debt**: one or more `D-xxx`, or `none` for a change that is not debt-related. `D-xxx (partial)` (or `(in progress)`) for progress that does not close the debt yet: it then stays under "Open". A debt cited here without that marker must be moved to "Closed" in `DEBT.md` with `**Change**: C-xxx`.
+- **Type**: fix · refactoring · cleanup · performance · new feature · documentation.
+- **Verification**: describe what was compared and the verdict (identical / difference explained). **Never copy real values** (KPI figures, names of people or organisations).
+- **Commit**: the commit message starts with the identifier (`C-002: merge duplicate measures`); `git log --grep "C-002"` finds the commit without having to copy its hash.
+- One change = one commit that contains the model/report change **and** the updates of `DEBT.md` and `CHANGES.md`.
 
-## Initialiser le journal sur un projet qui a déjà une dette
+## Initialise the change log on a project that already has debt
 
-1. **Ne rien inventer** : reconstituer uniquement à partir de `git log` / `git show` (depuis la création de `DEBT.md`) et de ce que `DEBT.md` mentionne déjà comme fait.
-2. En-tête du fichier : *« Journal démarré le AAAA-MM-JJ ; les entrées antérieures sont reconstituées depuis l'historique Git. »*
-3. Une entrée `M-xxx` par changement passé, **numérotées dans l'ordre chronologique** (M-001 = le plus ancien) mais **affichées du plus récent au plus ancien**. Pour ces entrées :
-   - **Commit** : le hash court réel (`abc1234`), puisque le commit existe ;
-   - **Vérification** : ce qui est connu, sinon « non vérifiée a posteriori » — ne pas affirmer une vérification qui n'a pas eu lieu.
-4. Dette **entièrement** corrigée par le passé → la déplacer dans « Soldé » de `DEBT.md` (`**Soldé le**` = date du commit, `**Modification** : M-xxx`). Dette **partiellement** traitée → la laisser ouverte et citer `D-xxx (partielle)`.
-5. Les changements antérieurs à la création de `DEBT.md` (commit initial, mise sous Git) : une seule entrée « hors dette » de type « documentation » suffit.
-6. Terminer par `python lean.py dette <projet>` : zéro incohérence attendue.
-7. Commit unique : `M-000: initialisation du journal des modifications` n'est pas une modification du modèle ; utiliser plutôt le message `docs: initialisation de CHANGES.md (reprise de l'historique)`.
+1. **Invent nothing**: rebuild only from `git log` / `git show` (since `DEBT.md` was created) and from what `DEBT.md` already mentions as done.
+2. File header: *"Log started on yyyy-mm-dd; earlier entries are rebuilt from the Git history."*
+3. One `C-xxx` entry per past change, **numbered in chronological order** (C-001 = the oldest) but **listed from newest to oldest**. For these entries:
+   - **Commit**: the real short hash (`abc1234`), since the commit exists;
+   - **Verification**: what is known, otherwise "not verified after the fact" — do not claim a verification that did not take place.
+4. Debt **fully** fixed in the past → move it to "Closed" in `DEBT.md` (`**Closed on**` = commit date, `**Change**: C-xxx`). Debt **partly** handled → leave it open and cite `D-xxx (partial)`.
+5. Changes made before `DEBT.md` was created (initial commit, putting the project under Git): a single `none` entry of type "documentation" is enough.
+6. Finish with `python lean.py debt <project>`: zero inconsistency expected.
+7. Single commit: initialising the log is not a change to the model, so it gets no `C-xxx` identifier; use the message `docs: initialise CHANGES.md (history backfill)`.

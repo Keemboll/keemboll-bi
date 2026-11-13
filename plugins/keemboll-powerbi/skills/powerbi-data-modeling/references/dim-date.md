@@ -37,7 +37,7 @@ RETURN
     )
 ```
 
-The bounds cover **all** the fact date columns used in the model (here `OrderDate` and `DeliveryDate`): add or remove a column in the `MIN` / `MAX` according to the dates actually related to `Dim_Date`. With `OrderDate` alone, a delivery outside that range would have no row in `Dim_Date`. To be tested. The locale in `FORMAT` (`en-US`) is **ADAPT**.
+The bounds cover **all** the fact date columns used in the model (here `OrderDate` and `DeliveryDate`): add or remove a column in the `MIN` / `MAX` according to the dates actually related to `Dim_Date`. With `OrderDate` alone, a delivery outside that range would have no row in `Dim_Date`. To be tested. The locale in `FORMAT` (`en-US`) is a default: use the language of the report.
 
 ## Power Query (M) version
 
@@ -59,8 +59,10 @@ in
     Weekday
 ```
 
-The `2020` and `+1` bounds are **ADAPT** to the real history.
+The `2020` and `+1` bounds are defaults: set them to the real history. `powerbi-power-query` is authoritative for M code rules.
 
-## Fiscal year — ADAPT
+## Fiscal year
 
 If the fiscal year does not start in January (e.g. October 1st), add `FiscalYear` and `FiscalMonthNum`, and pass the fiscal year-end date to the time intelligence functions: `DATESYTD ( Dim_Date[Date], "9/30" )` (month/day format; check according to the model's language).
+
+For a calendar that is not a shifted Gregorian one (4-4-5, 13 periods, week-based), add the period columns to `Dim_Date` and see calendar-based time intelligence in `powerbi-dax-library`.

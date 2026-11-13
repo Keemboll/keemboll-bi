@@ -50,6 +50,13 @@ Row Count =
 COUNTROWS ( Fact_Sales )
 ```
 
+Target from the budget fact (`TargetAmount` is an example column name; monthly grain, see the "Different grains" pattern of `powerbi-data-modeling`):
+
+```dax
+Sales Target =
+SUM ( Fact_Budget[TargetAmount] )
+```
+
 Stock value (semi-additive: last date of the period, not a sum):
 
 ```dax

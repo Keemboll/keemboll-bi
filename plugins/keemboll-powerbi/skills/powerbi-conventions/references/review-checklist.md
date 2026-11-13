@@ -1,6 +1,6 @@
 # Semantic model review checklist
 
-To run through before publishing or during an audit. Report each deviation with: object, rule, proposed fix.
+To run through before publishing or during an audit. Report each deviation with: object, rule, proposed fix. If the project has a `TEAM_RULES.md`, read it first: a team rule replaces the matching default below.
 
 ## Model
 
@@ -26,13 +26,14 @@ To run through before publishing or during an audit. Report each deviation with:
 - [ ] No `FILTER(<whole table>)` in `CALCULATE` when a column filter is enough.
 - [ ] No `IFERROR`.
 - [ ] Base measures reused (no duplicated logic).
+- [ ] Non-trivial measures carry the `// WHAT:` / `// HOW:` / `// NOTE:` comment header.
 - [ ] Time intelligence based on `Dim_Date` (see `powerbi-dax-library`).
 
 ## Security
 
 - [ ] RLS roles tested.
 - [ ] No secret in parameters or M expressions.
-- [ ] Sensitivity label applied.
+- [ ] Sensitivity label applied (default; see the team rules).
 
 ## Example of a compliant measure
 

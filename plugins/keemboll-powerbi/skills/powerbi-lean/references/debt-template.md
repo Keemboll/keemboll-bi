@@ -1,24 +1,27 @@
-# Modèle de DEBT.md
+# DEBT.md template
 
-À placer à la racine du projet, à côté du `.pbip`. Versionné avec le projet.
+Goes at the project root, next to the `.pbip`. Versioned with the project.
 
 ```markdown
-# Dette technique — <nom du projet>
+# Technical debt — <project name>
 
-## Ouvert
+## Open
 
-### D-001 · Valeur en dur dans [Taux de suppression]
-- **Objet** : `Mesures[Taux de suppression]`
-- **Raccourci** : identifiant d'indicateur `= 16` codé en dur.
-- **Pourquoi** : table de référence des indicateurs pas encore disponible.
-- **Correction prévue** : relier `Indicateurs` et filtrer par code.
-- **Priorité** : moyenne · **Échéance** : 2026-12-31
-- **Ajouté le** : 2026-10-13 · **Par** : <nom>
+### D-003 · Hardcoded value in [Gross Margin]
+- **Object**: `_Measures[Gross Margin]`
+- **Shortcut**: product category identifier `= 16` hardcoded.
+- **Why**: reference table of categories not available yet.
+- **Planned fix**: add the category to `Dim_Product` and filter by code.
+- **Priority**: medium · **Due**: 2026-12-31
+- **Added on**: 2026-10-13 · **By**: <name>
 
-## Soldé
+## Closed
 
-### D-000 · Exemple soldé
-- **Soldé le** : 2026-10-20 · **Modification** : M-001
+### D-002 · Duplicate measures
+- **Closed on**: 2026-10-20 · **Change**: C-002
+
+### D-001 · Date table not marked
+- **Closed on**: 2026-10-15 · **Change**: C-001
 ```
 
-Règles : un identifiant par entrée (D-001…, prochain numéro donné par `python lean.py dette <projet>`), une ligne « pourquoi » obligatoire, une échéance réaliste. Une entrée soldée renvoie toujours à son entrée de `CHANGES.md` ([modèle](changes-template.md)). Ne jamais recopier de données (valeurs patients, noms) dans ce fichier.
+Rules: one identifier per entry (D-001…, next number given by `python lean.py debt <project>`), a mandatory "why" line, a realistic due date. A closed entry always points to its entry in `CHANGES.md` ([template](changes-template.md)). Never copy data (real values, names) into this file.

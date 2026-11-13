@@ -1,95 +1,96 @@
 ---
 name: powerbi-governance
-description: "Sécurité et gouvernance d'un modèle sémantique ou d'un rapport Power BI : sécurité au niveau des lignes (RLS statique et dynamique), sécurité au niveau des objets (OLS), étiquettes de sensibilité, endossement (promu / certifié), propriété du modèle, rôles d'espace de travail, partage par application, permission Build, données personnelles ou de santé, et fiche SECURITY_MODEL.md du projet. À utiliser pour concevoir, relire ou modifier des rôles de sécurité, décider qui voit quoi, préparer une publication ou auditer les accès d'un projet. Triggers: sécurité, security, gouvernance, governance, RLS, row-level security, OLS, object-level security, rôle, role, USERPRINCIPALNAME, étiquette de sensibilité, sensitivity label, certifié, certified, endossement, endorsement, espace de travail, workspace, partage, sharing, application, app, permission Build, accès, données personnelles, RGPD, GDPR, moindre privilège."
+description: "Security and governance of a Power BI semantic model or report: row-level security (static and dynamic RLS), object-level security (OLS), sensitivity labels, endorsement (Promoted / Certified), model ownership, workspace roles, distribution through apps, Build permission, personal or health data, and the project's SECURITY_MODEL.md sheet. Use it to design, review or change security roles, decide who sees what, prepare a publication or audit the access of a project. Triggers: security, governance, RLS, row-level security, OLS, object-level security, role, USERPRINCIPALNAME, sensitivity label, certified, promoted, endorsement, workspace, workspace roles, sharing, app, audience, Build permission, access, personal data, GDPR, least privilege, security table, who sees what."
 ---
 
-# Gouvernance et sécurité Power BI
+# Power BI governance and security
 
-But : savoir **qui voit quoi**, l'écrire, le tester, et ne publier que ce qui est autorisé.
+Goal: know **who sees what**, write it down, test it, and publish only what is authorized.
 
-Ce skill fait foi pour la **conception** de la sécurité. Font foi ailleurs :
+This skill is authoritative for the **design** of security. Authoritative elsewhere:
 
-- `powerbi-conventions` : nommage des rôles (`RLS_<périmètre>`), confidentialité des métadonnées lues par un agent, processus de validation avant modification.
-- `powerbi-testing` : protocole de test des rôles (niveau 5) et procès-verbal de recette.
-- `powerbi-tmdl` : syntaxe et édition des fichiers de rôles.
-- `powerbi-alm` : environnements et déploiement ; `powerbi-project` : phases et livrables.
-- La **mécanique** (attribuer des membres à un rôle, poser une étiquette, régler les accès d'un espace de travail) relève des skills Microsoft s'ils sont installés (`semantic-model-authoring`, `onelake-catalog-cli`), sinon du portail Power BI / Fabric.
+- `powerbi-conventions`: role naming (`RLS_<scope>`), confidentiality of the metadata read by an agent, validation process before any change.
+- `powerbi-testing`: role test protocol (level 5) and acceptance record.
+- `powerbi-tmdl`: syntax and editing of role files.
+- `powerbi-alm`: environments and deployment; `powerbi-project`: phases and deliverables.
+- `powerbi-ai-readiness`: exposing a model to Copilot or data agents (RLS / OLS still apply).
+- The **mechanics** (assigning members to a role, applying a label, setting workspace access) belong to the Microsoft skills when installed (`semantic-model-authoring`, `onelake-catalog-cli`), otherwise to the Power BI / Fabric portal.
 
-## Règles
+## Rules
 
-1. **Toute création, modification ou suppression de rôle** = plan écrit → **validation explicite** de l'utilisateur → exécution → test (`powerbi-testing`) → mise à jour de `SECURITY_MODEL.md`. Jamais « au passage » d'une autre tâche.
-2. La RLS **ne protège que les lecteurs** : dans le service, les rôles Admin, Membre et Contributeur de l'espace de travail voient toutes les données du modèle. La sécurité commence donc par les rôles d'espace de travail.
-3. Filtrer les **dimensions**, jamais les faits (règle de `powerbi-conventions`) ; ici : laisser les relations propager le filtre.
-4. **Jamais d'e-mail, de nom de personne ni d'identifiant** en dur dans une expression de rôle, ni dans `SECURITY_MODEL.md` : les personnes sont rattachées à des **groupes de sécurité** dans le service, pas dans les fichiers versionnés.
-5. Un utilisateur membre de **plusieurs rôles** voit l'**union** de leurs périmètres : un rôle ne peut pas en restreindre un autre. Exception : RLS et OLS portées par des rôles différents ne se combinent pas (erreur) — voir OLS.
-6. Pas de publication sans propriétaire identifié — **À ADAPTER** ; étiquette de sensibilité : règle de `powerbi-conventions`.
-7. L'agent **n'attribue pas** de membres, ne partage pas et ne change pas d'étiquette sans demande explicite : ce sont des actions visibles par d'autres personnes.
+1. **Any role creation, change or deletion** = written plan → **explicit validation** by the user → execution → test (`powerbi-testing`) → update of `SECURITY_MODEL.md`. Never "in passing" while doing another task.
+2. RLS **only protects viewers**: in the service, the workspace roles Admin, Member and Contributor see all the data of the model. Security therefore starts with workspace roles.
+3. Filter **dimensions**, never facts (rule from `powerbi-conventions`); here: let relationships propagate the filter.
+4. **Never a hard-coded e-mail, person name or identifier** in a role expression or in `SECURITY_MODEL.md`: people are attached to **security groups** in the service, not in versioned files.
+5. A user who is a member of **several roles** sees the **union** of their scopes: a role cannot restrict another one. Exception: RLS and OLS carried by different roles do not combine (error) — see OLS.
+6. No publication without an identified owner; sensitivity label: rule from `powerbi-conventions`.
+7. The agent **does not assign** members, share or change a label without an explicit request: these actions are visible to other people.
 
-## RLS — sécurité au niveau des lignes
+## RLS — row-level security
 
-| Besoin | Approche |
+| Need | Approach |
 |---|---|
-| Quelques périmètres fixes et stables (2 à 5 régions — **À ADAPTER**) | **Statique** : un rôle par périmètre, filtre en dur sur la dimension |
-| Périmètres nombreux ou changeants, un utilisateur = un ou plusieurs périmètres | **Dynamique** : un seul rôle, table de sécurité + `USERPRINCIPALNAME()` |
-| Hiérarchie (un responsable voit son équipe) | Dynamique + fonctions `PATH` sur la dimension hiérarchique |
+| A few fixed, stable scopes (default: 2 to 5 regions) | **Static**: one role per scope, hard-coded filter on the dimension |
+| Many or changing scopes, one user = one or several scopes | **Dynamic**: a single role, security table + `USERPRINCIPALNAME()` |
+| Hierarchy (a manager sees their team) | Dynamic + `PATH` functions on the hierarchical dimension |
 
-- **Dynamique** : une table de sécurité (utilisateur × périmètre), **masquée**, alimentée depuis une source maîtrisée (annuaire, référentiel RH) — pas saisie à la main dans le modèle. Elle est elle-même filtrée par le rôle, pour qu'un utilisateur ne lise pas les droits des autres.
-- **Propagation** : le filtre suit les relations dans le sens un → plusieurs. Une relation bidirectionnelle ne propage la sécurité dans l'autre sens que si l'option *Appliquer le filtre de sécurité dans les deux directions* est cochée ; préférer filtrer directement la bonne dimension.
-- **Plusieurs-à-plusieurs** : passer par une table pont (`powerbi-data-modeling`) et vérifier par test que le filtre atteint bien les faits.
-- **Tout le monde / personne** : prévoir explicitement le cas de l'utilisateur absent de la table de sécurité (il ne doit rien voir) et, si nécessaire, un rôle « tout voir » distinct plutôt qu'une exception dans la formule.
-- **DirectQuery / Direct Lake** : la RLS du modèle s'applique, mais les règles posées côté source (entrepôt, point de terminaison SQL) ont leurs propres effets — notamment un repli possible en DirectQuery pour Direct Lake sur point de terminaison SQL. Vérifier le comportement dans la documentation Microsoft en vigueur avant de s'engager.
-- **Performance** : une expression de rôle est évaluée à chaque requête ; la garder simple (pas d'itérateur sur une grande table), voir `powerbi-performance`.
+- **Dynamic**: a security table (user × scope), **hidden**, loaded from a controlled source (directory, HR reference data) — not typed by hand into the model. It is itself filtered by the role, so that a user cannot read other users' rights.
+- **Propagation**: the filter follows relationships in the one → many direction. A bidirectional relationship only propagates security the other way when the *Apply security filter in both directions* option is checked; prefer filtering the right dimension directly.
+- **Many-to-many**: go through a bridge table (`powerbi-data-modeling`) and check by test that the filter does reach the facts.
+- **Everyone / no one**: explicitly plan for the user missing from the security table (they must see nothing) and, if needed, a separate "see everything" role rather than an exception in the formula.
+- **DirectQuery / Direct Lake**: the model's RLS applies, but rules defined on the source side (warehouse, SQL endpoint) have their own effects — in particular a possible fallback to DirectQuery for Direct Lake on SQL endpoint. Check the behavior in the current Microsoft documentation before committing to a design.
+- **Performance**: a role expression is evaluated on every query; keep it simple (no iterator over a large table), see `powerbi-performance`.
 
-Exemples TMDL et DAX, pièges détaillés : [references/rls-ols.md](references/rls-ols.md).
+TMDL and DAX examples, detailed pitfalls: [references/rls-ols.md](references/rls-ols.md).
 
-## OLS — sécurité au niveau des objets
+## OLS — object-level security
 
-Masque **une table ou une colonne entière** (salaire, coût, donnée nominative) à un rôle : pour ce rôle, l'objet n'existe pas.
+Hides **a whole table or column** (salary, cost, personally identifying data) from a role: for that role, the object does not exist.
 
-- À réserver aux colonnes réellement sensibles : un visuel ou une mesure qui dépend d'un objet masqué **tombe en erreur** pour ce rôle. Inventorier les usages avant (`powerbi-lean`, commande `usage`).
-- Se définit dans la vue TMDL de Power BI Desktop (script `createOrReplace` du rôle) ou avec un outil externe (Tabular Editor) ; la fenêtre « Gérer les rôles » ne la propose pas — à vérifier sur la version en cours.
-- Combiner RLS et OLS dans **le même rôle** : un utilisateur membre d'un rôle portant la RLS et d'un autre portant l'OLS reçoit une **erreur à l'exécution des requêtes** (restriction documentée par Microsoft).
-- Masquer une colonne (`isHidden`) **n'est pas** de la sécurité : elle reste interrogeable.
-- Solution souvent plus simple : ne pas charger la colonne sensible, ou la placer dans un modèle séparé à accès restreint.
+- Keep it for truly sensitive columns: a visual or measure that depends on a hidden object **fails with an error** for that role. Inventory the usages first (`powerbi-lean`, `usage` subcommand).
+- Defined in the TMDL view of Power BI Desktop (`createOrReplace` script of the role) or with an external tool (Tabular Editor); the "Manage roles" window does not offer it — check on the current version.
+- Combine RLS and OLS in **the same role**: a user who is a member of one role carrying RLS and another carrying OLS gets an **error when queries run** (restriction documented by Microsoft).
+- Hiding a column (`isHidden`) **is not** security: it can still be queried.
+- Often simpler: do not load the sensitive column, or put it in a separate model with restricted access.
 
-## Accès, partage et endossement
+## Access, sharing and endorsement
 
-| Sujet | Règle par défaut — **À ADAPTER** |
+| Topic | Default rule |
 |---|---|
-| Rôles d'espace de travail | **Moindre privilège** : Admin = 2 propriétaires au plus ; Membre / Contributeur = équipe BI seulement ; les consommateurs ne sont **pas** ajoutés à l'espace de travail |
-| Diffusion | Par **application** (audiences), pas par partage direct de rapports ni accès Lecteur à l'espace de travail |
-| Groupes | Accès donnés à des **groupes de sécurité**, jamais à des personnes une par une |
-| Permission **Build** | Accordée seulement à ceux qui doivent créer leurs propres rapports ou analyser dans Excel sur le modèle ; elle donne accès à tout le modèle (dans la limite de la RLS / OLS) |
-| Propriété | Chaque modèle a un **propriétaire métier** et un **propriétaire technique** nommés dans `SECURITY_MODEL.md` par leur fonction ; pas de modèle rattaché à un compte personnel qui peut disparaître |
-| Endossement | **Promu** : jugé fiable par son propriétaire. **Certifié** : validé selon le processus de l'organisation, par les personnes habilitées par l'administrateur. Ne certifier qu'après recette signée (`powerbi-testing`) |
-| Étiquette de sensibilité | Posée sur le modèle et le rapport avant publication ; elle suit le contenu (héritage en aval, exports) selon la configuration du tenant |
-| Export des données | Décider par rapport si l'export des données sous-jacentes est permis ; le désactiver pour les données sensibles |
+| Workspace roles | **Least privilege**: Admin = 2 owners at most; Member / Contributor = BI team only; consumers are **not** added to the workspace |
+| Distribution | Through an **app** (audiences), not through direct report sharing or Viewer access to the workspace |
+| Groups | Access is granted to **security groups**, never to people one by one |
+| **Build** permission | Granted only to those who must create their own reports or analyze the model in Excel; it gives access to the whole model (within the limits of RLS / OLS) |
+| Ownership | Each model has a **business owner** and a **technical owner** named in `SECURITY_MODEL.md` by their function; no model tied to a personal account that may disappear |
+| Endorsement | **Promoted**: considered reliable by its owner. **Certified**: validated through the organization's process, by the people authorized by the administrator. Certify only after a signed acceptance (`powerbi-testing`) |
+| Sensitivity label | Applied to the model and the report before publication; it follows the content (downstream inheritance, exports) depending on the tenant configuration |
+| Data export | Decide per report whether exporting the underlying data is allowed; disable it for sensitive data |
 
-## Données personnelles et de santé
+## Personal and health data
 
-- **Minimiser** : ne charger que les colonnes nécessaires aux questions du rapport. Pas de nom, téléphone, adresse ou identifiant national « au cas où ».
-- Préférer des **agrégats** ou des identifiants pseudonymisés ; attention aux petits effectifs qui permettent de ré-identifier (seuil d'affichage — **À ADAPTER**).
-- Signaler à l'utilisateur toute donnée nominative trouvée dans le modèle, **sans la recopier** dans la réponse, `DEBT.md` ou `SECURITY_MODEL.md`.
-- Confidentialité de ce que l'agent lit lui-même : voir `powerbi-conventions` (confidentialité des métadonnées).
+- **Minimize**: load only the columns needed to answer the report's questions. No name, phone number, address or national identifier "just in case".
+- Prefer **aggregates** or pseudonymized identifiers; watch out for small counts that allow re-identification (agree on a minimum display threshold).
+- Report to the user any personally identifying data found in the model, **without copying it** into the answer, `DEBT.md` or `SECURITY_MODEL.md`.
+- Confidentiality of what the agent itself reads: see `powerbi-conventions` (metadata confidentiality).
 
-## Livrable : `SECURITY_MODEL.md`
+## Deliverable: `SECURITY_MODEL.md`
 
-À la racine du projet, à côté du `.pbip`, versionné : matrice rôle × périmètre, groupes rattachés (par nom de groupe), propriétaires (par fonction), étiquette, endossement, date et résultat du dernier test. **Aucun nom de personne, aucun e-mail, aucune valeur de donnée.** Modèle : [references/security-template.md](references/security-template.md).
+At the project root, next to the `.pbip`, versioned: role × scope matrix, attached groups (by group name), owners (by function), label, endorsement, date and result of the last test. **No person name, no e-mail, no data value.** Template: [references/security-template.md](references/security-template.md).
 
-## Processus
+## Process
 
-1. **Inventorier** : rôles existants (dossier `definition/roles/` du modèle), tables de sécurité, relations bidirectionnelles, colonnes sensibles, `SECURITY_MODEL.md` s'il existe.
-2. **Recueillir le besoin** : qui (profils, pas personnes) doit voir quoi ; qui valide ; quelles données sont sensibles.
-3. **Proposer un plan** : rôles créés / modifiés / supprimés, expressions DAX, impact sur les visuels (OLS), tests prévus.
-4. **Attendre la validation explicite.**
-5. **Exécuter** (`powerbi-tmdl` pour les fichiers), sur une branche de développement (`powerbi-alm`).
-6. **Tester** chaque rôle selon `powerbi-testing` ; si aucun moteur n'est disponible, fournir les requêtes et le dire.
-7. **Mettre à jour `SECURITY_MODEL.md`** et résumer : rôle / action / périmètre / test.
+1. **Inventory**: existing roles (the model's `definition/roles/` folder), security tables, bidirectional relationships, sensitive columns, `SECURITY_MODEL.md` if it exists.
+2. **Gather the need**: who (profiles, not people) must see what; who validates; which data is sensitive.
+3. **Propose a plan**: roles created / changed / deleted, DAX expressions, impact on visuals (OLS), planned tests.
+4. **Wait for explicit validation.**
+5. **Execute** (`powerbi-tmdl` for the files), on a development branch (`powerbi-alm`).
+6. **Test** each role as described in `powerbi-testing`; if no engine is available, provide the queries and say so.
+7. **Update `SECURITY_MODEL.md`** and summarize: role / action / scope / test.
 
-## Avant publication — contrôle rapide
+## Before publication — quick check
 
-- [ ] Chaque rôle est testé, y compris l'utilisateur sans droit.
-- [ ] Aucun e-mail ni nom en dur dans les rôles, paramètres ou expressions M.
-- [ ] Les consommateurs passent par l'application, pas par l'espace de travail.
-- [ ] Étiquette de sensibilité et propriétaires renseignés.
-- [ ] `SECURITY_MODEL.md` à jour.
+- [ ] Every role is tested, including the user with no rights.
+- [ ] No hard-coded e-mail or name in roles, parameters or M expressions.
+- [ ] Consumers go through the app, not through the workspace.
+- [ ] Sensitivity label and owners are filled in.
+- [ ] `SECURITY_MODEL.md` is up to date.

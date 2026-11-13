@@ -1,98 +1,98 @@
-# RLS et OLS — exemples et pièges
+# RLS and OLS — examples and pitfalls
 
-Modèle d'exemple : `Fact_Ventes` → `Dim_Magasin[Region]`, table de sécurité `Dim_Utilisateur[Email]`, `Dim_Utilisateur[Region]` (masquée). Noms de tables et préfixes : voir `powerbi-conventions`. Les adresses sont fictives (`@example.com`).
+Example model: `Fact_Sales` → `Dim_Store[Region]`, security table `Dim_User[Email]`, `Dim_User[Region]` (hidden). Table names and prefixes: see `powerbi-conventions`. Addresses are fictitious (`@example.com`).
 
-> Ces exemples n'ont pas été exécutés ici (aucun moteur disponible) : les tester selon `powerbi-testing` avant usage.
+> These examples were not executed here (no engine available): test them as described in `powerbi-testing` before use.
 
-## RLS statique
+## Static RLS
 
-Un rôle par périmètre. Simple, mais à multiplier dès que les périmètres changent.
+One role per scope. Simple, but roles multiply as soon as scopes change.
 
 ```tmdl
-role RLS_RegionNord
+role RLS_RegionNorth
 	modelPermission: read
 
-	tablePermission Dim_Magasin = Dim_Magasin[Region] = "Nord"
+	tablePermission Dim_Store = Dim_Store[Region] = "North"
 ```
 
-## RLS dynamique — un périmètre par utilisateur
+## Dynamic RLS — one scope per user
 
 ```tmdl
 role RLS_Region
 	modelPermission: read
 
-	tablePermission Dim_Magasin = Dim_Magasin[Region] = LOOKUPVALUE ( Dim_Utilisateur[Region], Dim_Utilisateur[Email], USERPRINCIPALNAME () )
+	tablePermission Dim_Store = Dim_Store[Region] = LOOKUPVALUE ( Dim_User[Region], Dim_User[Email], USERPRINCIPALNAME () )
 
-	tablePermission Dim_Utilisateur = Dim_Utilisateur[Email] = USERPRINCIPALNAME ()
+	tablePermission Dim_User = Dim_User[Email] = USERPRINCIPALNAME ()
 ```
 
-- `LOOKUPVALUE` renvoie une erreur si l'utilisateur a **plusieurs** lignes : n'utiliser cette forme que si la table de sécurité a une ligne par utilisateur.
-- Utilisateur absent de la table : `LOOKUPVALUE` renvoie BLANK, aucune région ne correspond, il ne voit rien — c'est le comportement voulu.
+- `LOOKUPVALUE` returns an error if the user has **several** rows: only use this form when the security table has one row per user.
+- User missing from the table: `LOOKUPVALUE` returns BLANK, no region matches, they see nothing — this is the intended behavior.
 
-## RLS dynamique — plusieurs périmètres par utilisateur
+## Dynamic RLS — several scopes per user
 
-Expression du filtre posé sur `Dim_Magasin` :
+Expression of the filter set on `Dim_Store`:
 
 ```dax
-Dim_Magasin[Region]
+Dim_Store[Region]
     IN CALCULATETABLE (
-        VALUES ( Dim_Utilisateur[Region] ),
-        Dim_Utilisateur[Email] = USERPRINCIPALNAME ()
+        VALUES ( Dim_User[Region] ),
+        Dim_User[Email] = USERPRINCIPALNAME ()
     )
 ```
 
-`Dim_Utilisateur` reste **déconnectée** du reste du modèle (pas de relation) : le filtre passe par l'expression, pas par une relation.
+`Dim_User` stays **disconnected** from the rest of the model (no relationship): the filter goes through the expression, not through a relationship.
 
-## Hiérarchie (un responsable voit son équipe)
+## Hierarchy (a manager sees their team)
 
-Avec une dimension `Dim_Employe` portant `EmployeKey`, `ResponsableKey` et `Email`, et une colonne calculée de chemin :
+With a `Dim_Employee` dimension carrying `EmployeeKey`, `ManagerKey` and `Email`, and a calculated path column:
 
 ```dax
-Chemin = PATH ( Dim_Employe[EmployeKey], Dim_Employe[ResponsableKey] )
+Path = PATH ( Dim_Employee[EmployeeKey], Dim_Employee[ManagerKey] )
 ```
 
-Filtre du rôle sur `Dim_Employe` :
+Role filter on `Dim_Employee`:
 
 ```dax
 PATHCONTAINS (
-    Dim_Employe[Chemin],
-    LOOKUPVALUE ( Dim_Employe[EmployeKey], Dim_Employe[Email], USERPRINCIPALNAME () )
+    Dim_Employee[Path],
+    LOOKUPVALUE ( Dim_Employee[EmployeeKey], Dim_Employee[Email], USERPRINCIPALNAME () )
 )
 ```
 
-## `USERPRINCIPALNAME()` ou `USERNAME()`
+## `USERPRINCIPALNAME()` or `USERNAME()`
 
-Préférer `USERPRINCIPALNAME()` : il renvoie l'UPN (`prenom.nom@example.com`) dans le service comme dans Desktop, alors que `USERNAME()` renvoie `DOMAINE\utilisateur` dans Desktop. La comparaison de chaînes DAX est insensible à la casse, mais l'UPN peut différer de l'adresse e-mail : alimenter la table de sécurité avec l'**UPN**.
+Prefer `USERPRINCIPALNAME()`: it returns the UPN (`first.last@example.com`) in the service as well as in Desktop, whereas `USERNAME()` returns `DOMAIN\user` in Desktop. DAX string comparison is case-insensitive, but the UPN may differ from the e-mail address: load the security table with the **UPN**.
 
 ## OLS
 
-Extrait : ces `tablePermission` s'**ajoutent** à celles du rôle `RLS_Region` ci-dessus (RLS et OLS dans le même rôle), elles ne le remplacent pas.
+Excerpt: these `tablePermission` entries are **added** to those of the `RLS_Region` role above (RLS and OLS in the same role); they do not replace it.
 
 ```tmdl
 role RLS_Region
 	modelPermission: read
 
-	tablePermission Fact_Ventes
-		columnPermission 'Cout unitaire' = none
+	tablePermission Fact_Sales
+		columnPermission UnitCost = none
 
-	tablePermission Dim_Salaire
+	tablePermission Dim_Salary
 		metadataPermission: none
 ```
 
-- `columnPermission … = none` masque une colonne (forme abrégée ; la forme longue place `metadataPermission: none` sous `columnPermission <colonne>`) ; `metadataPermission: none` sous `tablePermission` masque la table entière. Non exécuté ici : vérifier en exportant un rôle existant (vue TMDL de Desktop) ; la syntaxe TMDL fait foi dans `powerbi-tmdl` et la documentation Microsoft.
-- Pour ce rôle, toute mesure qui référence l'objet masqué échoue, ainsi que les visuels qui l'utilisent : prévoir des mesures et des pages séparées, ou une page conditionnée.
-- Une relation qui s'appuie sur une colonne masquée continue de fonctionner tant que sa table n'est pas masquée. En revanche, masquer une **table** située au milieu d'une chaîne de relations (A → B → C, B masquée) est refusé à la conception.
+- `columnPermission ... = none` hides a column (short form; the long form places `metadataPermission: none` under `columnPermission <column>`); `metadataPermission: none` under `tablePermission` hides the whole table. Not executed here: check by exporting an existing role (TMDL view in Desktop); the TMDL syntax is authoritative in `powerbi-tmdl` and the Microsoft documentation.
+- For this role, any measure that references the hidden object fails, as do the visuals that use it: plan separate measures and pages, or a conditional page.
+- A relationship that relies on a hidden column keeps working as long as its table is not hidden. However, hiding a **table** located in the middle of a relationship chain (A → B → C, B hidden) is rejected at design time.
 
-## Pièges fréquents
+## Common pitfalls
 
-| Piège | Conséquence | Parade |
+| Pitfall | Consequence | Remedy |
 |---|---|---|
-| Filtre posé sur la table de faits | Lent (évalué sur la plus grande table) ; les dimensions restent entièrement visibles (noms de clients, de magasins dans les segments) | Filtrer la dimension |
-| Relation bidirectionnelle sans option de sécurité | Le filtre de rôle ne remonte pas | Filtrer la bonne dimension, ou cocher l'option en connaissance de cause |
-| Utilisateur dans deux rôles | Il voit l'union des deux périmètres | Un seul rôle dynamique |
-| Test fait par un Admin / Membre / Contributeur dans le service | La RLS ne s'applique pas à lui : test faussement rassurant | Tester « en tant que » rôle, ou avec un compte Lecteur |
-| Mesure avec `ALL ( Dim_Magasin )` | Ne contourne **pas** la RLS (le filtre de sécurité reste), mais les totaux « tous magasins » deviennent « tous **mes** magasins » | Le dire dans la description de la mesure |
-| Table de sécurité visible et non filtrée | Chacun lit les droits de tous | La masquer **et** la filtrer par le rôle |
-| E-mails en dur dans l'expression | Données personnelles dans Git, maintenance impossible | Table de sécurité + groupes |
-| Rôle créé mais sans membres dans le service | Les lecteurs non rattachés à un rôle ne voient rien dès qu'un rôle existe | Rattacher des groupes ; le noter dans `SECURITY_MODEL.md` |
-| Modèle composite / DirectQuery vers un autre modèle | Règles de la source et du modèle se cumulent de façon non évidente | Vérifier la documentation Microsoft et tester |
+| Filter set on the fact table | Slow (evaluated on the largest table); dimensions stay fully visible (customer and store names in slicers) | Filter the dimension |
+| Bidirectional relationship without the security option | The role filter does not travel back | Filter the right dimension, or check the option knowingly |
+| User in two roles | They see the union of both scopes | A single dynamic role |
+| Test run by an Admin / Member / Contributor in the service | RLS does not apply to them: falsely reassuring test | Test "as" the role, or with a Viewer account |
+| Measure with `ALL ( Dim_Store )` | Does **not** bypass RLS (the security filter stays), but "all stores" totals become "all **my** stores" | Say so in the measure description |
+| Security table visible and unfiltered | Everyone reads everybody's rights | Hide it **and** filter it with the role |
+| Hard-coded e-mails in the expression | Personal data in Git, impossible to maintain | Security table + groups |
+| Role created but without members in the service | Viewers not attached to a role see nothing as soon as a role exists | Attach groups; record it in `SECURITY_MODEL.md` |
+| Composite model / DirectQuery to another model | Rules of the source and of the model stack in non-obvious ways | Check the Microsoft documentation and test |

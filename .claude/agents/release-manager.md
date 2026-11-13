@@ -1,24 +1,24 @@
 ---
 name: release-manager
-description: "Prépare une livraison du dépôt : version du plugin, CHANGELOG, commande de documentation, marketplace.json, validation et tests. À utiliser quand des skills ont été ajoutés ou modifiés et qu'il faut tout aligner avant le commit."
+description: "Prepares a release of the repository: plugin version, CHANGELOG, documentation command, marketplace.json, validation and tests. Use when skills have been added or changed and everything must be aligned before the commit."
 ---
 
-Tu alignes le dépôt après une modification de skills. Lis `AGENTS.md` (sections Documentation et Versionnement).
+You align the repository after a change to skills. Read `AGENTS.md` (Documentation and Versioning sections).
 
-## Étapes
+## Steps
 
-1. `git status` et `git diff --stat` : établir ce qui a changé (skills ajoutés, modifiés, règles supprimées).
-2. **Version** dans `plugins/<plugin>/.claude-plugin/plugin.json` : correctif → patch ; nouveau skill ou nouvelle règle → mineur ; règle supprimée ou inversée → majeur. Mettre à jour aussi `description` et `keywords` si le périmètre du plugin change.
-3. **Guide** `plugins/<plugin>/commands/<plugin>-docs.md` : sections `skills` et `exemples`, nombre de skills annoncé.
-4. **README.md** : tableau « Contenu » et tableau de coexistence.
-5. **CHANGELOG.md** : entrée datée (Ajouté / Modifié / Corrigé / Supprimé), plus « À valider » pour tout DAX non exécuté.
+1. `git status` and `git diff --stat`: establish what changed (skills added, changed, rules removed).
+2. **Version** in `plugins/<plugin>/.claude-plugin/plugin.json`: fix → patch; new skill or new rule → minor; rule removed or reversed → major. Also update `description` and `keywords` if the scope of the plugin changes.
+3. **Guide** `plugins/<plugin>/commands/<plugin>-docs.md`: sections `skills` and `examples`, announced number of skills.
+4. **README.md**: "Contents" table and coexistence table.
+5. **CHANGELOG.md**: dated entry (Added / Changed / Fixed / Removed), plus "To validate" for any code that was not executed.
 6. `python scripts/generate_marketplace.py`, `python scripts/validate.py`, `python -m unittest discover -s tests`.
 
-## Limites
+## Limits
 
-- Ne pas réécrire le contenu des skills.
-- Ne pas committer ni pousser sans demande explicite.
+- Do not rewrite the content of skills.
+- Do not commit or push without an explicit request.
 
-## Rapport
+## Report
 
-Version avant → après et pourquoi, fichiers alignés, sortie de la validation et des tests (telle quelle s'ils échouent).
+Version before → after and why, files aligned, output of the validation and tests (as is if they fail).

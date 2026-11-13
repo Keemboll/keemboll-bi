@@ -1,22 +1,22 @@
-# Fonds de page SVG
+# SVG page backgrounds
 
-Un bon fond porte les **cartes, bordures et la bande latérale** : les visuels posés dessus restent simples (fond et bordure transparents). Le fond est une image SVG à la taille exacte du canevas.
+A good background carries the **cards, borders and side rail**: the visuals placed on top stay simple (transparent background and border). The background is an SVG image at the exact canvas size.
 
-## Processus
+## Process
 
-1. Partir de la **maquette HTML validée** (`powerbi-mockup`) ou d'une capture d'un rapport de référence.
-2. Lire les positions et tailles des visuels de la page (`*.Report/definition/pages/<page>/visuals/*/visual.json` → `position`).
-3. Générer un SVG à la taille du canevas, avec une carte par zone, en respectant les **jetons de design** (rayon, bordure, marges, couleurs).
-4. Enregistrer le fichier dans le projet (ex. `*.Report/StaticResources/RegisteredResources/fond-<page>.svg` via `powerbi-report-cli`) et le définir comme **arrière-plan de la page**, ajustement *Ajuster*, transparence 0 %.
-5. Rendre les visuels transparents (arrière-plan désactivé, pas de bordure) et vérifier l'alignement par capture d'écran.
+1. Start from the **approved HTML mockup** (`powerbi-mockup`) or a screenshot of a reference report.
+2. Read the positions and sizes of the page's visuals (`*.Report/definition/pages/<page>/visuals/*/visual.json` → `position`).
+3. Generate an SVG at the canvas size, with one card per area, following the **design tokens** (radius, border, margins, colours).
+4. Save the file in the project (e.g. `*.Report/StaticResources/RegisteredResources/background-<page>.svg` through `powerbi-report-cli`) and set it as the **page background**, image fit *Fit*, transparency 0 %.
+5. Make the visuals transparent (background off, no border) and check alignment with a screenshot.
 
-## Gabarit (1280 × 720, bande latérale 60 px, 4 KPI + 2 + 2)
+## Template (1280 × 720, 60 px side rail, 4 KPIs + 2 + 2)
 
 ```svg
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
   <rect width="1280" height="720" fill="#F5F6F8"/>
   <rect width="60" height="720" fill="#1F4E79"/>
-  <!-- Ligne KPI : y=80, h=130 ; largeur utile 1280-60-2*20 = 1180 ; 4 cartes, 3 espaces de 16 -->
+  <!-- KPI row: y=80, h=130; usable width 1280-60-2*20 = 1180; 4 cards, 3 gaps of 16 -->
   <g fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1">
     <rect x="80"  y="80" width="283" height="130" rx="12"/>
     <rect x="379" y="80" width="283" height="130" rx="12"/>
@@ -30,11 +30,11 @@ Un bon fond porte les **cartes, bordures et la bande latérale** : les visuels p
 </svg>
 ```
 
-Règles de calcul : largeur d'une carte = (largeur utile − (n − 1) × espace) / n ; garder les mêmes coordonnées que les visuels (le visuel occupe la carte avec une marge intérieure de 8 à 12 px).
+Calculation rules: card width = (usable width − (n − 1) × gap) / n; keep the same coordinates as the visuals (the visual fills the card with 8 to 12 px of inner padding).
 
-## Points d'attention
+## Watch points
 
-- Les positions dans le SVG et dans les `visual.json` doivent être **identiques** : toute modification de mise en page impose de régénérer le fond.
-- Pas de texte dans le fond (non accessible, non traduisible) : les titres restent dans les visuels ou des zones de texte.
-- Garder le SVG simple (quelques kilo-octets).
-- Alternative graphique : concevoir le fond dans Figma (certains agents disposent d'un connecteur Figma) puis l'exporter en SVG.
+- Positions in the SVG and in the `visual.json` files must be **identical**: any layout change means regenerating the background.
+- No text in the background (not accessible, not translatable): titles stay in visuals or text boxes.
+- Keep the SVG simple (a few kilobytes).
+- Graphic alternative: design the background in Figma (some agents have a Figma connector) and export it as SVG.

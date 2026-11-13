@@ -1,56 +1,74 @@
-# Instructions pour les agents qui éditent ce dépôt
+# Instructions for agents editing this repository
 
-Ce fichier fait foi pour **tous** les agents (Claude Code, Codex, Grok, Gemini, Copilot, Cursor…). `CLAUDE.md` ne fait que l'importer.
+This file is authoritative for **all** agents (Claude Code, Codex, Grok, Gemini, Copilot, Cursor...). `CLAUDE.md` only imports it.
 
-Ce dépôt (`keemboll-bi`) contient des skills pour la gestion et le développement de projets BI avec Power BI / Fabric. Il complète `microsoft/skills-for-fabric`, qui n'est jamais modifié ici. Les skills suivent le format ouvert **Agent Skills** (un dossier, un `SKILL.md`) : ils sont publiés comme marketplace Claude Code et s'installent chez les autres agents avec `scripts/install.py`.
+This repository (`keemboll-bi`) contains skills for running and developing BI projects with Power BI / Fabric. It complements `microsoft/skills-for-fabric`, which is never modified here. Skills follow the open **Agent Skills** format (a folder, a `SKILL.md`): they are published as a Claude Code marketplace and installed for other agents with `scripts/install.py`.
 
-## Règles de structure
+## Structure rules
 
-- Un skill = un dossier `plugins/<plugin>/skills/<nom>/` contenant `SKILL.md` (+ `references/` et `scripts/` optionnels).
-- Frontmatter obligatoire : `name` (= nom du dossier, kebab-case, ≤ 64 caractères) et `description` (≤ 1024 caractères, dit **quand** utiliser le skill, mots-clés FR + EN).
-- `SKILL.md` < 300 lignes. Les détails vont dans `references/*.md`, cités par chemin relatif depuis `SKILL.md`.
-- Un skill ne référence **jamais** un fichier hors de son plugin : seul le dossier du plugin est copié à l'installation.
-- Pas de doublon de contenu entre skills : renvoyer vers le skill qui fait foi (ex. « appliquer `powerbi-conventions` »).
-- Un sous-agent = un fichier `plugins/<plugin>/agents/<nom>.md` (frontmatter `name` = nom du fichier, `description`). Il désigne les skills à appliquer et ne recopie pas leurs règles.
+- One skill = one folder `plugins/<plugin>/skills/<name>/` containing `SKILL.md` (+ optional `references/` and `scripts/`).
+- Mandatory frontmatter: `name` (= folder name, kebab-case, ≤ 64 characters) and `description` (≤ 1024 characters, says **when** to use the skill, ends with `Triggers: ...` keywords).
+- `SKILL.md` < 300 lines. Details go into `references/*.md`, cited by relative path from `SKILL.md`.
+- A skill **never** references a file outside its plugin: only the plugin folder is copied at install time.
+- No duplicated content between skills: point to the authoritative skill (e.g. "apply `powerbi-conventions`").
+- One subagent = one file `plugins/<plugin>/agents/<name>.md` (frontmatter `name` = file name, `description`). It names the skills to apply and does not copy their rules.
 
-## Portabilité entre agents
+## Portability across agents
 
-- Dans un skill, écrire « l'agent » : jamais le nom d'un produit, jamais de variable ou de chemin propre à un agent (`validate.py` le signale).
-- Un skill ne suppose aucun outil particulier : citer les skills Microsoft ou un serveur MCP comme « s'ils sont installés », et dire quoi faire sinon.
-- Les scripts fournis avec un skill sont en Python (bibliothèque standard) et se lancent par leur chemin relatif au dossier du skill.
-- Ce qui est propre à un agent vit hors des skills : `commands/` et `agents/` du plugin, `.claude/`, `scripts/install.py`, `docs/agents.md`.
+- In a skill, write "the agent": never a product name, never a variable or path specific to one agent (`validate.py` flags it).
+- A skill assumes no particular tool: cite the Microsoft skills or an MCP server as "when installed", and say what to do otherwise.
+- Scripts shipped with a skill are Python (standard library) and are run by their path relative to the skill folder.
+- Anything agent-specific lives outside the skills: the plugin's `commands/` and `agents/`, `.claude/`, `scripts/install.py`, `docs/agents.md`.
 
 ## Documentation
 
-- Tout skill ajouté, renommé ou modifié dans son usage doit être reflété dans `plugins/<plugin>/commands/<plugin>-docs.md` (sections `skills` et `exemples`). `validate.py` refuse un skill absent du guide.
-- Un agent pris en charge en plus ou en moins : mettre à jour `scripts/install.py` (table `AGENTS`) et `docs/agents.md`.
+- Any skill added, renamed or changed in its usage must be reflected in `plugins/<plugin>/commands/<plugin>-docs.md` (sections `skills` and `examples`). `validate.py` rejects a skill missing from the guide.
+- An agent supported in addition or no longer: update `scripts/install.py` (`AGENTS` table) and `docs/agents.md`.
 
-## Versionnement
+## Versioning
 
-- Toute modification d'un skill ⇒ incrémenter `version` (SemVer) dans `plugins/<plugin>/.claude-plugin/plugin.json`, puis `python scripts/generate_marketplace.py` pour resynchroniser `.claude-plugin/marketplace.json` (sinon le workflow GitHub le fait après le push).
-  - correctif / reformulation : patch (1.0.0 → 1.0.1)
-  - nouveau skill ou nouvelle règle : mineur (1.0.1 → 1.1.0)
-  - règle supprimée ou inversée : majeur (1.1.0 → 2.0.0)
-- Ajouter une entrée datée dans `CHANGELOG.md`.
-- Lancer `python scripts/validate.py` et `python -m unittest discover -s tests` avant chaque commit.
-- Langages du dépôt : **Python** (scripts, bibliothèque standard uniquement, 3.8+) et **Markdown**. Pas de Node, pas de dépendance externe.
+- Any skill change ⇒ bump `version` (SemVer) in `plugins/<plugin>/.claude-plugin/plugin.json`, then `python scripts/generate_marketplace.py` to resync `.claude-plugin/marketplace.json` (otherwise the GitHub workflow does it after the push).
+  - fix / rewording: patch (1.0.0 → 1.0.1)
+  - new skill or new rule: minor (1.0.1 → 1.1.0)
+  - rule removed or reversed: major (1.1.0 → 2.0.0)
+- Add a dated entry to `CHANGELOG.md`.
+- Run `python scripts/validate.py` and `python -m unittest discover -s tests` before every commit.
+- Repository languages: **Python** (scripts, standard library only, 3.8+) and **Markdown**. No Node, no external dependency.
 
-## Contenu
+## Content
 
-- Langue : français ; noms d'objets techniques et code (DAX, TMDL, M, JSON) en anglais ou selon les conventions définies dans `powerbi-conventions`.
-- Marquer **« À ADAPTER »** toute valeur par défaut qui n'est pas encore une règle validée par l'équipe.
-- Ne jamais inclure d'identifiants de tenant, d'espaces de travail, de jetons ou de données clients.
-- Le DAX et le TMDL donnés en exemple doivent être syntaxiquement valides. Un exemple qui n'a pas été exécuté est listé dans la section « À valider » du `CHANGELOG.md`.
+- Language: **English everywhere** — prose, code comments, object names in examples, file names.
+- **No "ADAPT" markers.** A skill states a rule, or states a value as a *default* ("Default: 8 visuals per page"). A project overrides any default in its `TEAM_RULES.md` (mechanism owned by `powerbi-conventions`); skills do not repeat that mechanism, and `validate.py` rejects the marker.
+- Never include tenant or workspace identifiers, tokens, real e-mails or customer data.
+- Only state about Power BI / Fabric what is certain. For anything that moves (preview features, limits, UI labels), say so and point to the Microsoft documentation instead of asserting from memory.
+- Example DAX and TMDL must be syntactically valid. An example that has not been executed is listed in the "To validate" section of `CHANGELOG.md`.
 
-## Rôles de maintenance
+### Shared example model and vocabulary
 
-Quatre fiches de rôle dans `.claude/agents/` — chargées comme sous-agents par Claude Code, lisibles comme simples consignes par tout autre agent :
+All examples use the same model and the same names, so that skills read as one body of work:
 
-| Rôle | Fichier | Quand |
+| Kind | Names |
+|---|---|
+| Tables | `Fact_Sales`, `Fact_Budget`, `Dim_Customer`, `Dim_Product`, `Dim_Date`, `Dim_Store`, `_Measures`, `Param_*`, `CG_*` |
+| Keys / columns | `CustomerKey`, `CustomerCode` (business key, stable across SCD2 versions), `ProductKey`, `Dim_Date[Date]`, `Fact_Sales[OrderDate]`, `Fact_Sales[DeliveryDate]`, `Fact_Sales[NetAmount]`, `Fact_Sales[Quantity]` |
+| Measures | `[Net Sales]`, `[Net Sales PY]`, `[Net Sales YTD]`, `[Net Sales Change %]`, `[Gross Margin]`, `[Gross Margin %]`, `[Customer Count]`, `[Sales Target]` |
+| Roles | `RLS_<scope>` (`RLS_Region`) |
+| Project files | `SCOPE.md`, `KPI.md`, `TEAM_RULES.md`, `DATA_DICTIONARY.md`, `REPORT.md`, `RELEASE_NOTES.md`, `HANDOVER.md`, `SECURITY_MODEL.md`, `DEBT.md`, `CHANGES.md`, `RUNBOOK.md`, `MIGRATION.md`, `AI_INSTRUCTIONS.md`, `tests/ACCEPTANCE.md`, `tests/AI_QUESTIONS.md`, `incidents/I-001.md`, `mockups/<page>-v1.html` |
+| Identifiers | `K-001` (KPI), `D-001` (debt), `C-001` (change), `T-001` (test), `I-001` (incident), `A-001` (migrated asset), `Q-01` (AI question), `VA-01` (verified answer) |
+| `lean.py` subcommands | `audit`, `usage`, `debt`, `catalog` |
+| Measure comment header | `// WHAT:` / `// HOW:` / `// NOTE:` |
+
+## Maintenance roles
+
+Role sheets in `.claude/agents/` — loaded as subagents by Claude Code, readable as plain instructions by any other agent:
+
+| Role | File | When |
 |---|---|---|
-| Rédaction d'un skill | `.claude/agents/skill-author.md` | écrire un skill à partir d'un cahier des charges |
-| Relecture | `.claude/agents/skill-reviewer.md` | avis indépendant avant commit (lecture seule) |
-| Vérification du code d'exemple | `.claude/agents/dax-verifier.md` | après ajout ou modification de DAX / TMDL / M |
-| Livraison | `.claude/agents/release-manager.md` | version, changelog, guide, marketplace, validation |
+| Writing a skill | `.claude/agents/skill-author.md` | write or change a skill from a precise brief |
+| Review | `.claude/agents/skill-reviewer.md` | independent opinion before commit (read-only) |
+| Example code check | `.claude/agents/dax-verifier.md` | after adding or changing DAX / TMDL / M |
+| Fact check | `.claude/agents/docs-verifier.md` | check Power BI / Fabric claims against the Microsoft documentation (read-only) |
+| Watch | `.claude/agents/trend-scout.md` | list what changed in Power BI / Fabric and which skills it affects (read-only) |
+| Release | `.claude/agents/release-manager.md` | version, changelog, guide, marketplace, validation |
 
-L'auteur d'un skill n'est pas son relecteur.
+The author of a skill is not its reviewer.

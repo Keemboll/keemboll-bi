@@ -1,20 +1,20 @@
-# Références visuelles
+# Visual references
 
-La boucle de références est ce qui rend les rapports « à nous » : l'agent connaît les bases, pas nos motifs. Chaque référence = **un motif précis** (une carte KPI, un graphique d'écart, un classement), **ses réglages exacts** et **une image** du résultat.
+The reference loop is what makes reports "ours": the agent knows the basics, not our patterns. Each reference = **one precise pattern** (a KPI card, a variance chart, a ranking), **its exact settings** and **an image** of the result.
 
-## Ajouter une référence
+## Adding a reference
 
-1. Trouver un visuel qui plaît (rapport interne, challenge communautaire, vidéo, Dribbble / Figma). Noter la **source** et vérifier qu'on peut s'en inspirer.
-2. Si le fichier est disponible : l'enregistrer en **PBIP** dans un dossier `references/` hors du projet, puis demander à l'agent :
-   > Ouvre le projet PBIP dans [dossier]. Trouve le visuel de la page « [page] » qui montre [description]. Explique comment il est construit : type, champs et mesures, mise en forme (couleurs, polices, bordures, marges), astuces (mise en forme conditionnelle, éléments masqués, superposition). Indique quels fichiers et quelles propriétés JSON contrôlent chaque partie.
-3. Créer `visuals/<nom-du-motif>.md` à partir de [_template.md](_template.md) : quand l'utiliser, réglages du `visual.json` utiles, mesures en motifs génériques, piège éventuel.
-4. Ajouter **l'image** dans `visuals/images/<nom-du-motif>.png` et la lier juste sous le titre. Sans image, les références deviennent floues.
-5. Ajouter une ligne au catalogue ci-dessous, augmenter la version du plugin, commit.
+1. Find a visual you like (internal report, community challenge, video, Dribbble / Figma). Note the **source** and check that you may draw on it.
+2. If the file is available: save it as **PBIP** in a `references/` folder outside the project, then ask the agent:
+   > Open the PBIP project in [folder]. Find the visual on page "[page]" that shows [description]. Explain how it is built: type, fields and measures, formatting (colours, fonts, borders, padding), tricks (conditional formatting, hidden elements, layering). Say which files and which JSON properties control each part.
+3. Create `visuals/<pattern-name>.md` from [_template.md](_template.md): when to use it, the useful `visual.json` settings, measures as generic patterns, any pitfall.
+4. Add **the image** in `visuals/images/<pattern-name>.png` and link it right under the title. Without images, references become vague.
+5. Add a row to the catalogue below, bump the plugin version, commit.
 
-Une référence courte et exacte vaut mieux qu'une longue : ne garder que ce qui reproduit le motif.
+A short, exact reference beats a long one: keep only what reproduces the pattern.
 
 ## Catalogue
 
-| Motif | Quand l'utiliser | Fichier |
+| Pattern | When to use it | File |
 |---|---|---|
-| Carte KPI avec comparaison | Chiffre principal + écart à l'objectif et à N-1 | [kpi-comparison-card.md](kpi-comparison-card.md) |
+| KPI card with comparison | Headline number + variance to target and to PY | [kpi-comparison-card.md](kpi-comparison-card.md) |

@@ -1,51 +1,51 @@
 ---
 name: powerbi-html-visuals
-description: "Création de visuels HTML et SVG dans les rapports Power BI à partir de mesures DAX : mini-graphiques (sparklines), barres de progression, indicateurs KPI, badges, bullet charts dans les tables et matrices (catégorie Image URL), et cartes HTML via le visuel personnalisé HTML Content. À utiliser quand un visuel natif ne suffit pas et qu'on veut générer du SVG ou du HTML en DAX, ou pour corriger un visuel SVG/HTML qui ne s'affiche pas. Triggers: HTML, SVG, sparkline, image URL, data URI, barre de progression, progress bar, KPI card, badge, HTML Content, visuel personnalisé, custom visual, infographie."
+description: "Building HTML and SVG visuals in Power BI reports from DAX measures: sparklines, progress bars, KPI indicators, badges, bullet charts in tables and matrices (Image URL data category), and HTML cards through the HTML Content custom visual. Use when a native visual is not enough and SVG or HTML must be generated in DAX, or to fix an SVG/HTML visual that does not render. Triggers: HTML, SVG, sparkline, image URL, data URI, progress bar, KPI card, badge, HTML Content, custom visual, infographic, bullet chart."
 ---
 
-# Visuels HTML / SVG en DAX
+# HTML / SVG visuals in DAX
 
-Appliquer `powerbi-report-design` (couleurs du thème, accessibilité) et `powerbi-conventions` (nommage : préfixe `SVG ` ou `HTML ` pour ces mesures, dossier d'affichage `80 Visuels`). Surveiller le coût avec `powerbi-performance`.
+Apply `powerbi-report-design` (theme colours, accessibility) and `powerbi-conventions` (naming: `SVG ` or `HTML ` prefix for these measures, display folder `80 Visuals`). Watch the cost with `powerbi-performance`.
 
-## Deux techniques
+## Two techniques
 
-| Technique | Rendu dans | Prérequis | Usage |
+| Technique | Renders in | Prerequisite | Use |
 |---|---|---|---|
-| **SVG en data URI** | Table, matrice, autres visuels acceptant une URL d'image dynamique | Mesure en catégorie **URL d'image** | Sparklines, barres, pastilles, flèches dans des lignes de tableau |
-| **HTML** | Visuel personnalisé *HTML Content* (AppSource) | Visuels personnalisés autorisés par l'administrateur — **À ADAPTER** | Cartes KPI riches, blocs de texte mis en forme, listes |
+| **SVG as data URI** | Table, matrix, other visuals that accept a dynamic image URL | Measure with the **Image URL** data category | Sparklines, bars, dots, arrows in table rows |
+| **HTML** | *HTML Content* custom visual (AppSource) | Custom visuals allowed by the tenant administrator (check the tenant setting) | Rich KPI cards, formatted text blocks, lists |
 
-Préférer d'abord les **visuels natifs** (mise en forme conditionnelle, icônes, barres de données, sparklines natives de table/matrice). Ne passer au SVG/HTML que si le natif ne permet pas le rendu voulu.
+Prefer **native visuals** first (conditional formatting, icons, data bars, native table/matrix sparklines). Only move to SVG/HTML when the native option cannot produce the intended render.
 
-## Règles SVG
+## SVG rules
 
-1. La mesure renvoie : `"data:image/svg+xml;utf8," & <svg …>`.
-2. Définir la **catégorie de données = URL d'image** (Outils de mesure → Catégorie de données ; en TMDL : `dataCategory: ImageUrl`).
-3. Utiliser des **apostrophes** pour les attributs SVG (`width='120'`) : les guillemets doivent être doublés en DAX.
-4. Encoder `#` en **`%23`** dans les couleurs (`fill='%231F4E79'`) — sinon l'image est tronquée. Les autres caractères spéciaux (`%`, `<` dans du texte) doivent aussi être encodés ou évités.
-5. Toujours `xmlns='http://www.w3.org/2000/svg'` et un `viewBox`.
-6. Nombres formatés avec un **point décimal** : `FORMAT ( x, "0.0", "en-US" )` (un modèle en français produirait `12,5` → SVG invalide).
-7. Taille d'image dans la table : Mise en forme → *Taille de l'image* (hauteur/largeur) cohérente avec le `viewBox`.
-8. Couleurs issues de [theme-keemboll.json](../powerbi-report-design/references/theme-keemboll.json) ; jamais de couleur seule pour porter le sens.
-9. Garder le SVG court (quelques centaines de caractères) : il est recalculé pour chaque cellule.
+1. The measure returns: `"data:image/svg+xml;utf8," & <svg …>`.
+2. Set the **data category = Image URL** (Measure tools → Data category; in TMDL: `dataCategory: ImageUrl`).
+3. Use **single quotes** for SVG attributes (`width='120'`): double quotes must be doubled in DAX.
+4. Encode `#` as **`%23`** in colours (`fill='%231F4E79'`) — otherwise the image is truncated. Other special characters (`%`, `<` in text) must also be encoded or avoided.
+5. Always `xmlns='http://www.w3.org/2000/svg'` and a `viewBox`.
+6. Numbers formatted with a **decimal point**: `FORMAT ( x, "0.0", "en-US" )` (a model with a comma-decimal locale would produce `12,5` → invalid SVG).
+7. Image size in the table: Format → *Image size* (height/width) consistent with the `viewBox`.
+8. Colours from [theme-keemboll.json](../powerbi-report-design/references/theme-keemboll.json); never colour alone to carry meaning.
+9. Keep the SVG short (a few hundred characters): it is recomputed for every cell.
 
-Modèles prêts à adapter : [references/svg-templates.md](references/svg-templates.md).
+Ready-to-adapt templates: [references/svg-templates.md](references/svg-templates.md).
 
-## Règles HTML (visuel HTML Content)
+## HTML rules (HTML Content visual)
 
-- Le visuel interprète du HTML + CSS en ligne ; **pas de JavaScript**.
-- Construire le HTML dans une mesure (ou une colonne) et le placer dans le champ *Values*.
-- **Échapper** les textes provenant des données (`&` → `&amp;`, `<` → `&lt;`, `>` → `&gt;`) avec `SUBSTITUTE` avant de les insérer.
-- Styles en ligne, police et couleurs du thème ; largeur en `%` pour s'adapter au visuel.
-- Prévoir un **texte alternatif** sur le visuel, le contenu HTML n'étant pas lu de façon fiable par les lecteurs d'écran.
+- The visual renders HTML + inline CSS; **no JavaScript**.
+- Build the HTML in a measure (or a column) and put it in the *Values* field.
+- **Escape** text coming from the data (`&` → `&amp;`, `<` → `&lt;`, `>` → `&gt;`) with `SUBSTITUTE` before inserting it.
+- Inline styles, theme font and colours; width in `%` to fit the visual.
+- Provide **alt text** on the visual, since screen readers do not read the HTML content reliably.
 
-Modèles : [references/html-templates.md](references/html-templates.md).
+Templates: [references/html-templates.md](references/html-templates.md).
 
-## Dépannage
+## Troubleshooting
 
-| Symptôme | Cause probable |
+| Symptom | Likely cause |
 |---|---|
-| L'URL s'affiche en texte | Catégorie de données ≠ URL d'image |
-| Image vide ou cassée | `#` non encodé, guillemets mal doublés, virgule décimale, `xmlns` absent |
-| Image minuscule / rognée | Taille d'image de la table ≠ `viewBox` |
-| Page lente | SVG long × beaucoup de lignes ; limiter les lignes ou simplifier |
-| HTML brut affiché | Visuel natif utilisé au lieu de HTML Content |
+| The URL shows as text | Data category ≠ Image URL |
+| Empty or broken image | `#` not encoded, quotes badly doubled, decimal comma, missing `xmlns` |
+| Tiny / clipped image | Table image size ≠ `viewBox` |
+| Slow page | Long SVG × many rows; limit rows or simplify |
+| Raw HTML displayed | Native visual used instead of HTML Content |
