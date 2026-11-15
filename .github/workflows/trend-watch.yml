@@ -4,7 +4,7 @@ name: Trend watch
 #   1. scripts/watch_collect.py   fetches the feeds in watch/sources.json (deterministic, no LLM)
 #   2. trend-scout (Claude)       maps the collected items to the skills; it has no network and no shell
 #   3. scripts/watch_issue.py     enforces the primary-source rule, drops repeats, renders the issue
-# Requires the repository secret ANTHROPIC_API_KEY. Run it by hand first: Actions > Trend watch > Run workflow.
+# Requires the repository secret CLAUDE_CODE_OAUTH_TOKEN. Run it by hand first: Actions > Trend watch > Run workflow.
 on:
   schedule:
     - cron: "17 6 3 * *"   # the 3rd of each month, 06:17 UTC
@@ -72,7 +72,7 @@ jobs:
         if: steps.gate.outputs.items != '0'
         uses: anthropics/claude-code-action@v1
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ github.token }}
           claude_args: |
             --max-turns 12
