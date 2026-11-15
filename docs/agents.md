@@ -37,7 +37,7 @@ Skills installed in the project are meant to be **versioned with it**: the whole
 
 These folders come from each vendor's documentation as of November 2026 and change between versions. If an agent does not pick the skills up, check its current documentation and force the folder with `--dest <folder>`; the `AGENTS.md` index block works as a fallback in every case.
 
-For Claude Code, prefer the marketplace (automatic updates, `/keemboll-docs` command, subagents) — see `README.md`. According to xAI's documentation, Grok Build can also read Claude Code marketplaces and plugins as they are.
+For Claude Code, prefer the marketplace (automatic updates, `/keemboll-bi-docs` command, subagents) — see `README.md`. According to xAI's documentation, Grok Build can also read Claude Code marketplaces and plugins as they are.
 
 ## Agent that does not load skills
 
@@ -52,7 +52,7 @@ Two fallbacks, from best to simplest:
 
 | Element | Location | Equivalent elsewhere |
 |---|---|---|
-| `/keemboll-docs` command | `plugins/keemboll-powerbi/commands/` | read that file and `README.md` |
+| `/keemboll-bi-docs` command | `plugins/keemboll-powerbi/commands/` | read that file and `README.md` |
 | Subagents `powerbi-analyst`, `powerbi-modeler`, `powerbi-report-designer`, `powerbi-tester`, `powerbi-ai-curator`, `powerbi-ops`, `powerbi-auditor` | `plugins/keemboll-powerbi/agents/` | the same roles are described in the `powerbi-project` skill (role → skills table); the files are plain Markdown, readable as instructions by any agent |
 | Microsoft skills (`semantic-model-authoring`, `powerbi-report-cli`...) and the modeling MCP server | marketplace `microsoft/skills-for-fabric` | our skills cite them as "when installed"; without them, the agent edits the TMDL / PBIR files of the PBIP project directly and the user checks in Power BI Desktop |
 

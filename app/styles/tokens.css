@@ -1,0 +1,29 @@
+/* Cascade order: later layers win, so components never fight base styles. */
+@layer tokens, base, layout, components;
+
+@layer tokens {
+  :root {
+    color-scheme: dark;
+    --accent: #fafafa;
+    --accent-ink: #0a0a0a;
+    --radius: 10px;
+    --max: 1080px;
+    --font: "Geist", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --ease: cubic-bezier(.2, .7, .2, 1);
+
+    --bg: #0a0a0a;
+    --surface: #111;
+    --line: #262626;
+    --text: #fafafa;
+    --muted: #a1a1a1;
+    --code: #0a0a0a;
+  }
+  /* Dark by default, whatever the OS says; the toggle switches to light via data-theme. */
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --accent: #0a0a0a; --accent-ink: #fff;
+    --bg: #fff; --surface: #fafafa; --line: #e5e5e5;
+    --text: #0a0a0a; --muted: #737373; --code: #fafafa;
+  }
+}
