@@ -2,10 +2,10 @@
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — versioning: [SemVer](https://semver.org/).
 
-## [2.0.1] — 2026-11-13
+## [Unreleased]
 
-### Changed
-- The guide command is now **`/keemboll-bi-docs`** (was `/keemboll-docs`), matching the marketplace name. File renamed to `commands/keemboll-bi-docs.md`; README, `docs/agents.md` and `CONTRIBUTING.md` updated.
+### Added
+- Monthly trend watch (`.github/workflows/trend-watch.yml`): `scripts/watch_collect.py` collects the Power BI and Fabric blog feeds (`watch/sources.json`), `trend-scout` gets a batch mode (no network, no shell), `scripts/watch_issue.py` enforces the primary-source rule, drops rows already reported and opens a `trend-watch` issue. The workflow never changes the repository.
 
 ## [2.0.0] — 2026-11-13
 

@@ -68,7 +68,7 @@ Role sheets in `.claude/agents/` — loaded as subagents by Claude Code, readabl
 | Review | `.claude/agents/skill-reviewer.md` | independent opinion before commit (read-only) |
 | Example code check | `.claude/agents/dax-verifier.md` | after adding or changing DAX / TMDL / M |
 | Fact check | `.claude/agents/docs-verifier.md` | check Power BI / Fabric claims against the Microsoft documentation (read-only) |
-| Watch | `.claude/agents/trend-scout.md` | list what changed in Power BI / Fabric and which skills it affects (read-only) |
+| Watch | `.claude/agents/trend-scout.md` | list what changed in Power BI / Fabric and which skills it affects (read-only; also runs monthly in `.github/workflows/trend-watch.yml`, which only opens an issue) |
 | Release | `.claude/agents/release-manager.md` | version, changelog, guide, marketplace, validation |
 
 The author of a skill is not its reviewer.

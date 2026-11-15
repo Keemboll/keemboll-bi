@@ -1,0 +1,29 @@
+{
+  "_comment": "Sources read by scripts/watch_collect.py. Add a feed here when an announcement slipped through. 'urls' are tried in order until one answers. Only items whose link matches a primary entry (host, optionally with a path prefix: the community forum also hosts user posts, so only its official Updates blogs are listed) can be reported with a confirmed status.",
+  "primary_domains": [
+    "learn.microsoft.com",
+    "powerbi.microsoft.com/en-us/blog/",
+    "blog.fabric.microsoft.com/en-us/blog/",
+    "community.fabric.microsoft.com/t5/Fabric-Updates-Blog/",
+    "community.fabric.microsoft.com/t5/Power-BI-Updates-Blog/"
+  ],
+  "sources": [
+    {
+      "name": "Power BI blog",
+      "kind": "feed",
+      "urls": [
+        "https://powerbi.microsoft.com/en-us/blog/feed/",
+        "https://powerbi.microsoft.com/en-nz/blog/feed/"
+      ]
+    },
+    {
+      "name": "Microsoft Fabric blog",
+      "kind": "feed",
+      "urls": [
+        "https://blog.fabric.microsoft.com/en-us/blog/feed/",
+        "https://blog.fabric.microsoft.com/en-nz/blog/feed/"
+      ]
+    }
+  ],
+  "max_items": 60
+}

@@ -69,7 +69,7 @@ keemboll-bi/
 └── CHANGELOG.md
 ```
 
-Each skill exists in one place only (`plugins/<plugin>/skills/`). The `plugins` list of `marketplace.json` is **generated** from the `plugin.json` files (`python scripts/generate_marketplace.py`); a GitHub Actions workflow (`.github/workflows/generate-marketplace.yml`), triggered by a push to `main`, regenerates and commits it when it changed. The header (`name`, `owner`, `metadata`) is edited by hand. A second workflow (`validate.yml`) runs the validation and the tests on every pull request and every branch.
+Each skill exists in one place only (`plugins/<plugin>/skills/`). The `plugins` list of `marketplace.json` is **generated** from the `plugin.json` files (`python scripts/generate_marketplace.py`); a GitHub Actions workflow (`.github/workflows/generate-marketplace.yml`), triggered by a push to `main`, regenerates and commits it when it changed. The header (`name`, `owner`, `metadata`) is edited by hand. A second workflow (`validate.yml`) runs the validation and the tests on every pull request and every branch. A third, `trend-watch.yml`, runs monthly: `scripts/watch_collect.py` reads the feeds listed in `watch/sources.json`, the `trend-scout` agent (no network, no shell) maps the new items to the skills, and `scripts/watch_issue.py` opens one `trend-watch` issue. It never modifies the repository; add a feed to `watch/sources.json` when an announcement slipped through.
 
 ## Adding or changing a skill
 
