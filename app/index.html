@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Keemboll BI — Your BI conventions, followed by every agent</title>
+<meta name="description" content="Open-source Agent Skills and subagents for Power BI and Microsoft Fabric: modeling, DAX, TMDL, governance, ALM. From scoping to operations, with your team's rules.">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:title" content="Keemboll BI — Your BI conventions, followed by every agent">
+<meta property="og:description" content="Open-source Agent Skills and subagents for Power BI and Microsoft Fabric. 20 skills from scoping to operations; your TEAM_RULES.md overrides every default.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="styles/fonts.css">
+<link rel="stylesheet" href="styles/tokens.css">
+<link rel="stylesheet" href="styles/base.css">
+<link rel="stylesheet" href="styles/layout.css">
+<link rel="stylesheet" href="styles/components.css">
+<script src="scripts/theme.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Keemboll BI home">
+      <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true" fill="currentColor"><g stroke="currentColor" stroke-width="2"><path d="M16 16 7 8M16 16l9-8M16 16 7 24M16 16l9 8"/></g><circle cx="16" cy="16" r="4.5"/><circle cx="7" cy="8" r="2.5"/><circle cx="25" cy="8" r="2.5"/><circle cx="7" cy="24" r="2.5"/><circle cx="25" cy="24" r="2.5"/></svg>
+      Keemboll BI
+    </a>
+    <nav aria-label="Main">
+      <a href="#audiences">Who it's for</a>
+      <a href="#skills">Skills</a>
+      <a href="#install" class="keep">Install</a>
+      <!-- <a href="#proof">Proof</a> -->
+      <a href="https://github.com/Keemboll/keemboll-bi" class="keep">GitHub</a>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle theme">☾</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+    <div class="hero" id="top">
+      <div>
+        <div class="eyebrow">Open source · Power BI · Microsoft Fabric</div>
+        <h1>Your BI conventions, <em>followed by every agent.</em></h1>
+        <p class="lead">Keemboll BI gives your coding agent the working rules of a BI team, from scoping to operations. Sensible defaults out of the box, and one <code>TEAM_RULES.md</code> that overrides every one of them.</p>
+        <div class="cta">
+          <a class="btn primary" href="#install">Install in two commands</a>
+          <a class="btn" href="https://github.com/Keemboll/keemboll-bi">View on GitHub</a>
+        </div>
+      </div>
+      <svg viewBox="0 0 320 300" role="img" aria-label="A star schema: one central fact node linked to six dimension nodes">
+        <g stroke="var(--accent)" stroke-width="2.5" opacity=".75">
+          <path d="M160 150 160 40M160 150 62 92M160 150 258 92M160 150 62 208M160 150 258 208M160 150 160 260"/>
+        </g>
+        <circle cx="160" cy="150" r="30" fill="var(--accent)"/>
+        <g fill="var(--surface)" stroke="var(--accent)" stroke-width="2.5">
+          <circle cx="160" cy="40" r="16"/><circle cx="62" cy="92" r="16"/><circle cx="258" cy="92" r="16"/>
+          <circle cx="62" cy="208" r="16"/><circle cx="258" cy="208" r="16"/><circle cx="160" cy="260" r="16"/>
+        </g>
+        <text x="160" y="155" text-anchor="middle" font-size="13" font-weight="700" fill="var(--accent-ink)" font-family="Geist,system-ui,sans-serif">FACT</text>
+      </svg>
+    </div>
+  </div>
+
+  <section id="audiences" class="reveal">
+    <div class="wrap">
+      <div class="eyebrow">Who it's for</div>
+      <h2>Built for BI teams, adopted one developer at a time.</h2>
+      <p class="lead">Without a framework, an agent writes DAX and models that work today and break tomorrow: inconsistent names, duplicated measures, forgotten security. Keemboll gives it the rules, and your team gets to write them once.</p>
+      <div class="grid three">
+        <div class="card main">
+          <span class="tag">Teams</span>
+          <h3>Write your conventions once</h3>
+          <p>Put them in <code>TEAM_RULES.md</code>. Every agent and every new colleague applies the same naming, modeling, testing and delivery rules.</p>
+        </div>
+        <div class="card">
+          <span class="tag">Developers</span>
+          <h3>Start alone, in minutes</h3>
+          <p>Install the plugin and your agent stops improvising names, star schemas and standard measures. No setup beyond two commands.</p>
+        </div>
+        <div class="card">
+          <span class="tag">Consultants</span>
+          <h3>Take over a project with a method</h3>
+          <p>Migration, a read-only audit, documentation and handover, reusable on every client project.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="skills" class="reveal">
+    <div class="wrap">
+      <div class="eyebrow">What it does</div>
+      <h2>20 skills, from scoping to operations.</h2>
+      <p class="lead">Plus 7 subagents for Claude Code and a built-in guide, <code>/keemboll-bi-docs</code>. Skills follow the open Agent Skills format.</p>
+      <input class="search" id="skill-search" type="search" placeholder="Filter skills… (dax, security, tmdl)" aria-label="Filter skills" autocomplete="off">
+      <div class="stages">
+        <div class="stage"><h3>Run</h3><ul><li><code>powerbi-project</code></li><li><code>powerbi-migration</code></li></ul></div>
+        <div class="stage"><h3>Design the model</h3><ul><li><code>powerbi-conventions</code></li><li><code>powerbi-data-modeling</code></li><li><code>powerbi-power-query</code></li><li><code>powerbi-direct-lake</code></li><li><code>powerbi-tmdl</code></li></ul></div>
+        <div class="stage"><h3>Calculate</h3><ul><li><code>powerbi-dax-library</code></li><li><code>powerbi-dax-udf</code></li><li><code>powerbi-performance</code></li></ul></div>
+        <div class="stage"><h3>Build the report</h3><ul><li><code>powerbi-mockup</code></li><li><code>powerbi-report-design</code></li><li><code>powerbi-html-visuals</code></li></ul></div>
+        <div class="stage"><h3>Secure and open to AI</h3><ul><li><code>powerbi-governance</code></li><li><code>powerbi-ai-readiness</code></li></ul></div>
+        <div class="stage"><h3>Verify</h3><ul><li><code>powerbi-testing</code></li><li><code>powerbi-lean</code></li></ul></div>
+        <div class="stage"><h3>Deliver</h3><ul><li><code>powerbi-alm</code></li><li><code>powerbi-documentation</code></li></ul></div>
+        <div class="stage"><h3>Run in production</h3><ul><li><code>powerbi-operations</code></li></ul></div>
+      </div>
+      <p class="empty" id="skill-empty" hidden>No skill matches this filter.</p>
+      <p style="margin-top:18px;color:var(--muted)">Keemboll works alongside Microsoft's own skills: they handle the mechanics (Fabric APIs, PBIP files); Keemboll sets the working rules on top.</p>
+    </div>
+  </section>
+
+  <section id="install" class="reveal">
+    <div class="wrap">
+      <div class="eyebrow">Install</div>
+      <h2>Two commands for Claude Code.</h2>
+      <p>You need Claude Code, Git and Python 3.8+.</p>
+      <div class="codeblock"><pre><code>claude plugin marketplace add keemboll/keemboll-bi
+claude plugin install keemboll-powerbi@keemboll-bi</code></pre></div>
+      <h3 style="margin-top:26px">Codex, Gemini, GitHub Copilot, Cursor and others</h3>
+      <p>Clone the repository and let the script copy the skills where your agent reads them.</p>
+      <div class="codeblock"><pre><code>git clone https://github.com/Keemboll/keemboll-bi
+cd keemboll-bi
+python scripts/install.py --agent codex --target /path/to/my-bi-project</code></pre></div>
+      <p>Supported targets include <code>grok</code>, <code>gemini</code>, <code>copilot</code>, <code>cursor</code> and <code>generic</code>. Details in <a href="https://github.com/Keemboll/keemboll-bi/blob/main/docs/agents.md">docs/agents.md</a>.</p>
+    </div>
+  </section>
+
+  <!-- Proof: re-enable once the videos and excerpts are ready.
+  <section id="proof" class="reveal">
+    <div class="wrap">
+      <div class="eyebrow">Proof</div>
+      <h2>What is shown, and what is still to show.</h2>
+      <div class="proof">
+        <p><strong>A 3-minute walkthrough is in progress.</strong> It will show an agent working with and without a <code>TEAM_RULES.md</code> on a sample PBIP project, and the read-only audit run by <code>powerbi-lean</code>.</p>
+        <p style="margin-bottom:0"><strong>Where we stand today.</strong> Examples of DAX, TMDL and M have been reviewed, but not all have been executed against a real model. The list is public, under "To validate" in the <a href="https://github.com/Keemboll/keemboll-bi/blob/main/CHANGELOG.md">changelog</a>. Confirming one is a good first contribution.</p>
+      </div>
+    </div>
+  </section>
+  -->
+
+  <section id="community" class="reveal">
+    <div class="wrap">
+      <div class="eyebrow">Community</div>
+      <h2>Part of Keemboll, open-source tooling for BI.</h2>
+      <p class="lead">Keemboll hosts practical, well-documented BI projects. Ideas, questions and contributions are welcome.</p>
+      <div class="cta">
+        <a class="btn" href="https://github.com/orgs/Keemboll/discussions">Join the discussions</a>
+        <a class="btn" href="https://github.com/Keemboll/keemboll-bi/blob/main/CONTRIBUTING.md">Contribute</a>
+        <a class="btn" href="https://github.com/Keemboll/keemboll-bi/releases">Releases</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="links">
+      <a href="https://github.com/Keemboll">Keemboll on GitHub</a>
+      <a href="https://github.com/Keemboll/keemboll-bi">keemboll-bi</a>
+      <a href="https://github.com/Keemboll/.github/blob/main/SECURITY.md">Security policy</a>
+      <a href="https://github.com/Keemboll/keemboll-bi/blob/main/LICENSE">Apache-2.0</a>
+    </div>
+    <p>Keemboll is an independent open-source project. It is not affiliated with, endorsed by or sponsored by Microsoft or any agent vendor. Power BI and Microsoft Fabric are trademarks of Microsoft Corporation; other product names belong to their owners.</p>
+    <p>Maintained by <a href="https://geovanylaguerre.net">Geovany Laguerre</a>.</p>
+  </div>
+</footer>
+
+<script type="module" src="scripts/nav.js"></script>
+<script type="module" src="scripts/copy.js"></script>
+<script type="module" src="scripts/skills.js"></script>
+</body>
+</html>

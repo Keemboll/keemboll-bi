@@ -13,7 +13,7 @@ Two documents govern how this repository is edited — read them before your fir
 - **Add or improve a skill**, a reference, a template or a subagent.
 - **Validate an example**: items under "To validate" in the changelog were not executed against a real model — confirming one (or correcting it) is a good first contribution.
 - **Report what happened on your project**: a skill that triggered wrongly, a rule that did not hold, a missing case.
-- **Improve the docs**: `README.md`, `docs/agents.md`, the `/keemboll-docs` guide.
+- **Improve the docs**: `README.md`, `docs/agents.md`, the `/keemboll-bi-docs` guide.
 
 For anything larger than a small fix, open an issue first so we agree on the approach.
 
@@ -48,7 +48,7 @@ keemboll-bi/
 │       │   └── plugin.json       # plugin manifest (version!)
 │       ├── agents/               # subagents: analyst, modeler, report designer, tester, AI curator, ops, auditor
 │       ├── commands/
-│       │   └── keemboll-docs.md  # /keemboll-docs command (guide)
+│       │   └── keemboll-bi-docs.md  # /keemboll-bi-docs command (guide)
 │       └── skills/
 │           └── <skill-name>/
 │               ├── SKILL.md      # instructions + name/description frontmatter
@@ -78,7 +78,7 @@ The full rules are in [AGENTS.md](AGENTS.md).
 1. Copy `templates/skill-template/` to `plugins/keemboll-powerbi/skills/<new-name>/`.
 2. Fill in `name` (same as the folder name, kebab-case) and `description` (when to use it — this is what triggers the skill).
 3. Keep `SKILL.md` short (< 300 lines); move details into `references/`. Write "the agent", never a product name. English only.
-4. Present the skill in `plugins/keemboll-powerbi/commands/keemboll-docs.md` (sections `skills` and `examples`) and in the table above.
+4. Present the skill in `plugins/keemboll-powerbi/commands/keemboll-bi-docs.md` (sections `skills` and `examples`) and in the table above.
 5. **Version**: bumped automatically after the push (patch, `feat` → minor, `!:` / `BREAKING CHANGE` → major) if you did not change it yourself in `plugin.json`; `marketplace.json` is resynced along the way.
 6. Add an entry to `CHANGELOG.md`.
 7. Validate, then publish:
@@ -108,7 +108,7 @@ On top of the [organization quality bar](https://github.com/Keemboll/.github/blo
 
 - [ ] `python scripts/validate.py` and `python -m unittest discover -s tests` pass
 - [ ] The change is focused and explained in the PR description
-- [ ] New or renamed skill: reflected in `commands/keemboll-docs.md` and in the README table
+- [ ] New or renamed skill: reflected in `commands/keemboll-bi-docs.md` and in the README table
 - [ ] `CHANGELOG.md` has a dated entry; unexecuted examples are listed under "To validate"
 - [ ] Version handled: bumped in `plugin.json`, or left to the automatic bump (commit prefix)
 - [ ] `marketplace.json` untouched by hand (the plugin list is generated)

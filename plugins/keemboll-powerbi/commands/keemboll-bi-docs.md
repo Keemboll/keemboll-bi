@@ -5,7 +5,7 @@ argument-hint: "[installation | skills | examples | project | agents | lean | de
 
 Show the user the guide below, **without running or changing anything**. Answer in the user's language.
 
-- If `$ARGUMENTS` is empty: show the "Overview" section, then the table of contents and how to open a section (`/keemboll-docs <section>`).
+- If `$ARGUMENTS` is empty: show the "Overview" section, then the table of contents and how to open a section (`/keemboll-bi-docs <section>`).
 - If `$ARGUMENTS` matches a section (or is close to one): show only that section, in full.
 - If `$ARGUMENTS` is a question ("how do I audit a model?"): answer from this guide and name the section concerned.
 - Always end with a line "Installed version:" followed by the result of `claude plugin list` for `keemboll-powerbi` if you can read it; otherwise omit that line.
