@@ -5,13 +5,24 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — versioning:
 ## [Unreleased]
 
 ### Added
+- `powerbi-migration` (`mapping-cognos-bo.md`): IBM Cognos Analytics (Framework Manager, determinants, data modules, Report Studio filters and `for` clauses, security) and SAP BusinessObjects (universe, contexts, Web Intelligence context operators, merged dimensions, security profiles); parity traps CB-01 to CB-06. Plugin 2.5.0.
+- `powerbi-migration` (`mapping-microstrategy.md`): MicroStrategy (Strategy) schema and application objects, level (dimensionality) metrics, transformations, consolidations, Intelligent Cubes, security filters, inventory; parity traps MS-01 to MS-06. Plugin 2.5.0.
+- `powerbi-migration` (`mapping-obiee.md`): Oracle OBIEE / Oracle Analytics Server repository (physical, business model and presentation layers, logical table sources, level-based measures, time series functions, variables and initialization blocks), security, inventory; parity traps OB-01 to OB-06. Plugin 2.5.0.
+- `powerbi-migration` (`mapping-looker.md`): Looker (LookML) views, explores, derived tables and PDTs, symmetric aggregates and fanout, access filters and access grants, inventory; parity traps LK-01 to LK-06. Plugin 2.5.0.
 - `powerbi-migration` (`mapping-excel-ssrs.md`): Excel formula mapping, paginated report concepts, Looker concepts, SSAS / AAS MDX and operations, inventory per source. Plugin 2.3.0.
 - `powerbi-migration` (`excel-parity-tests.md`): catalogue of Excel-specific parity traps (X-01 to X-13) and procedure. Plugin 2.4.0.
 - `powerbi-migration` (`mapping-tableau.md`): table calculations, function mapping, visual mapping, Tableau inventory sources. Plugin 2.2.0.
 - `powerbi-migration` (`mapping-qlik.md`): set analysis operators, `Total` and `Alt()`; load script constructs; visual mapping; Qlik inventory sources. Plugin 2.1.0.
 - Monthly trend watch (`.github/workflows/trend-watch.yml`): `scripts/watch_collect.py` collects the Power BI and Fabric blog feeds (`watch/sources.json`), `trend-scout` gets a batch mode (no network, no shell), `scripts/watch_issue.py` enforces the primary-source rule, drops rows already reported and opens a `trend-watch` issue. The workflow never changes the repository.
 
+### Changed
+- `powerbi-migration`: the Looker section moves from `mapping-excel-ssrs.md` to its own `mapping-looker.md` and is extended; `mapping-excel-ssrs.md` keeps a pointer.
+
 ### To validate
+- `powerbi-migration` (`mapping-cognos-bo.md`): the `ALLEXCEPT` pattern for a Cognos `total ( ... for ... )`, the four Web Intelligence context-operator patterns (`In`, `ForEach`, `ForAll`, `Where`), and the claims taken from IBM and SAP pages that were not re-checked against the vendor documentation (Query Studio and Analysis Studio removal in 12.0.0, BI 4.3 end of mainstream maintenance on 31 December 2026, Desktop Intelligence unavailable in 4.x).
+- `powerbi-migration` (`mapping-microstrategy.md`): the `REMOVEFILTERS` contribution-metric pattern and the level-metric table (target, grouping, filtering to `CALCULATE` modifiers); the legacy project setting on level-metric filtering of attributes absent from the report.
+- `powerbi-migration` (`mapping-obiee.md`): the `ALLEXCEPT` level-based measure pattern; the mapping of `FILTER ( ... USING ... )`, `AGO` / `TODATE` / `PERIODROLLING` and `EVALUATE`; the usage-tracking and repository-documentation steps (named from memory of the Oracle documentation, not re-checked); the OBIEE 12c support dates, which differ between sources.
+- `powerbi-migration` (`mapping-looker.md`): the `DISTINCTCOUNT` pattern for a dimension-side count and the claim about filter direction in the fanout section; the Looker System Activity model names are not named on purpose.
 - `powerbi-migration` (`mapping-excel-ssrs.md`): the `CALCULATE` / `SUMX` equivalents of the Excel formula table (not executed), plus the `SUMX` / `RELATED` `SUMPRODUCT` pattern.
 - `powerbi-migration` (`mapping-tableau.md`): the percent-of-total `ALLSELECTED` pattern and the function equivalents table (null versus blank behaviour, `DATEDIFF` argument order).
 - `powerbi-migration` (`mapping-qlik.md`): the `UNION` / `EXCEPT` / `TREATAS` / `KEEPFILTERS` / `ALLEXCEPT` / `COALESCE` patterns of the set-analysis table (not executed): with a `Date` slicer, a `Year` slicer and `Year` on the axis; `ALLSELECTED` versus `REMOVEFILTERS` with a product slicer; whether `ALLEXCEPT ( Fact_Sales, ... )` clears `Dim_Product` and `Dim_Customer` (shared with `mapping-tableau.md`); `COALESCE` with zero and text.

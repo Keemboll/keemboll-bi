@@ -59,7 +59,7 @@ Reports must be saved in **PBIP** format (Power BI Desktop → File → Save as 
 | Skill | Loads when you... |
 |---|---|
 | `powerbi-project` | start or take over a project, scope a need, define KPIs, ask for the next step or whether a deliverable is done |
-| `powerbi-migration` | move a PBIX to PBIP, or reports from Tableau, Qlik, Excel / Power Pivot, SSRS or another tool to Power BI |
+| `powerbi-migration` | move a PBIX to PBIP, or reports from Tableau, Qlik, Cognos, BusinessObjects, MicroStrategy, OBIEE, Looker, Excel / Power Pivot, SSRS or another tool to Power BI |
 | `powerbi-governance` | design or review RLS / OLS roles, decide who sees what, prepare a publication (sensitivity, endorsement, access) |
 | `powerbi-testing` | want to check a model or a measure, prove a change broke nothing, test security, run an acceptance session |
 | `powerbi-alm` | organize the repository, branches, environments, a release, continuous integration or a fabric-cicd deployment |

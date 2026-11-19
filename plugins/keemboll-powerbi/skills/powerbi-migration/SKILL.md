@@ -1,15 +1,15 @@
 ---
 name: powerbi-migration
-description: "Migrate existing BI assets into a governed Power BI project: format migrations inside Power BI (PBIX to PBIP, model.bim / TMSL to TMDL, legacy report format to PBIR, splitting duplicated PBIX files into one shared model and thin reports), migrations from other tools (Excel and Power Pivot, Tableau, Qlik, SSRS / paginated, Looker, SSAS / AAS tabular) and platform moves announced by Microsoft. A method, not a converter: inventory, rationalise, map, rebuild, prove parity, cut over, retire, with exit criteria, concept mapping tables and the MIGRATION.md template. Load it when the starting point is not a clean PBIP project or comes from another tool, when planning a replatforming, a parallel run or a decommission. Triggers: migration, migrate, convert, PBIX to PBIP, PBIR, TMDL conversion, Tableau, Qlik, QlikView, Qlik Sense, Excel, Power Pivot, SSRS, paginated, Looker, SSAS, AAS, legacy report, replatform, parity, parallel run, cut-over, decommission, LOD, set analysis, thin report, shared model."
+description: "Migrate existing BI assets into a governed Power BI project: format migrations inside Power BI (PBIX to PBIP, model.bim / TMSL to TMDL, legacy report format to PBIR, thin reports over one shared model), migrations from other tools (Excel and Power Pivot, Tableau, Qlik, Cognos, BusinessObjects, MicroStrategy, OBIEE, Looker, SSRS / paginated, SSAS / AAS) and platform moves announced by Microsoft. A method, not a converter: inventory, rationalise, map, rebuild, prove parity, cut over, retire, with concept mapping tables and the MIGRATION.md template. Load it when the starting point is not a clean PBIP project or comes from another tool, or planning a replatforming, a parallel run or a decommission. Triggers: migration, migrate, convert, PBIX to PBIP, PBIR, TMDL conversion, Tableau, Qlik, Cognos, BusinessObjects, Web Intelligence, MicroStrategy, OBIEE, RPD, Excel, Power Pivot, SSRS, paginated, Looker, LookML, SSAS, AAS, replatform, parity, parallel run, cut-over, decommission, LOD, set analysis, shared model."
 ---
 
 # powerbi-migration — move existing BI assets into a governed project
 
-This skill is a **method**, not a converter. No tool turns a Tableau workbook, a Qlik app or an Excel model into a faithful Power BI report: the agent translates **intent, not syntax**, and proves equality with tests. Each step points to the skill that is authoritative for the work; this skill only says what to migrate, in which order, and when a step is finished.
+This skill is a **method**, not a converter. No tool turns a Tableau workbook, a Qlik app, a Cognos report or an Excel model into a faithful Power BI report: the agent translates **intent, not syntax**, and proves equality with tests. Each step points to the skill that is authoritative for the work; this skill only says what to migrate, in which order, and when a step is finished.
 
 ## When to use it / not
 
-- Use it: a `.pbix` to bring under version control; a project still in `model.bim` or the legacy report format; several PBIX files that each carry a copy of the same model; reports in Excel / Power Pivot, Tableau, Qlik, SSRS, Looker or SSAS / AAS to rebuild in Power BI; a platform move announced by Microsoft (see [Platform moves](#platform-moves)).
+- Use it: a `.pbix` to bring under version control; a project still in `model.bim` or the legacy report format; several PBIX files that each carry a copy of the same model; reports in Excel / Power Pivot, Tableau, Qlik, Cognos, BusinessObjects, MicroStrategy, OBIEE / Oracle Analytics, SSRS, Looker or SSAS / AAS to rebuild in Power BI; a platform move announced by Microsoft (see [Platform moves](#platform-moves)).
 - Not for: taking over a PBIP project with no format change → `powerbi-project` (*Taking over an existing project*); cleaning a model → `powerbi-lean`; changing storage mode Import → Direct Lake → `powerbi-direct-lake`.
 
 ## Rules for the agent
@@ -54,7 +54,11 @@ Notes:
 |---|---|---|
 | Tableau | [references/mapping-tableau.md](references/mapping-tableau.md) | LOD expressions and filter order do not translate one to one |
 | Qlik (QlikView, Qlik Sense) | [references/mapping-qlik.md](references/mapping-qlik.md) | Associative model: selections no longer propagate everywhere |
-| Excel / Power Pivot, SSRS / paginated, Looker, SSAS / AAS | [references/mapping-excel-ssrs.md](references/mapping-excel-ssrs.md) | Manual inputs with no owner; forcing print reports into interactive pages |
+| IBM Cognos Analytics, SAP BusinessObjects | [references/mapping-cognos-bo.md](references/mapping-cognos-bo.md) | Business rules hidden in the semantic layer (determinants, universe contexts) and in report-level `for` / context formulas |
+| MicroStrategy (Strategy) | [references/mapping-microstrategy.md](references/mapping-microstrategy.md) | Level (dimensionality) metrics and report-level default aggregation |
+| Oracle OBIEE / Oracle Analytics Server (RPD) | [references/mapping-obiee.md](references/mapping-obiee.md) | Aggregate navigation and session-variable security that live in the repository |
+| Looker (LookML) | [references/mapping-looker.md](references/mapping-looker.md) | Symmetric aggregates hide fanout that Power BI will not correct for you |
+| Excel / Power Pivot, SSRS / paginated, SSAS / AAS | [references/mapping-excel-ssrs.md](references/mapping-excel-ssrs.md) | Manual inputs with no owner; forcing print reports into interactive pages |
 
 Every DAX "equivalent" in these references is a **pattern to test, not a guaranteed equivalent**: it is accepted only once a parity test passes.
 
@@ -81,6 +85,10 @@ Microsoft announces retirements and default-format changes that owners must plan
 - [references/pbix-to-pbip.md](references/pbix-to-pbip.md) — format conversions and thin-report split.
 - [references/mapping-tableau.md](references/mapping-tableau.md) — Tableau → Power BI concepts.
 - [references/mapping-qlik.md](references/mapping-qlik.md) — Qlik → Power BI concepts.
-- [references/mapping-excel-ssrs.md](references/mapping-excel-ssrs.md) — Excel / Power Pivot, SSRS, Looker, SSAS / AAS.
+- [references/mapping-cognos-bo.md](references/mapping-cognos-bo.md) — IBM Cognos Analytics and SAP BusinessObjects → Power BI.
+- [references/mapping-microstrategy.md](references/mapping-microstrategy.md) — MicroStrategy (Strategy) → Power BI.
+- [references/mapping-obiee.md](references/mapping-obiee.md) — Oracle OBIEE / Oracle Analytics Server → Power BI.
+- [references/mapping-looker.md](references/mapping-looker.md) — Looker (LookML) → Power BI.
+- [references/mapping-excel-ssrs.md](references/mapping-excel-ssrs.md) — Excel / Power Pivot, SSRS, SSAS / AAS.
 - [references/excel-parity-tests.md](references/excel-parity-tests.md) — Excel-specific parity test cases and procedure.
 - [references/parity-and-cutover.md](references/parity-and-cutover.md) — parity test plan, parallel run, communication, rollback, retirement.

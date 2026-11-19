@@ -36,7 +36,7 @@ For each kept asset, in `tests/` and referenced from `MIGRATION.md`:
 | Cut-over date | Old asset becomes read-only / redirected; date of removal | Users |
 | Retirement | Old asset removed; archive location for audit requests (by function) | Users, owner, IT |
 
-Explain interaction differences (e.g. Qlik selections, Tableau actions) in the first message: they are the main source of "it is wrong" reports.
+Explain interaction differences (e.g. Qlik selections, Tableau actions, Cognos prompt pages, MicroStrategy level metrics) in the first message: they are the main source of "it is wrong" reports.
 
 ## Redirect and rollback
 
