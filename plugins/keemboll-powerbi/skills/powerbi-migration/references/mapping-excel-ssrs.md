@@ -1,4 +1,4 @@
-# Excel / Power Pivot, SSRS / paginated, Looker, SSAS / AAS → Power BI
+# Excel / Power Pivot, SSRS / paginated, SSAS / AAS → Power BI
 
 ## Excel and Power Pivot
 
@@ -72,34 +72,7 @@ Decision rule:
 
 ## Looker
 
-No Microsoft migration tool. Map by concept and test:
-
-| Looker | Power BI |
-|---|---|
-| LookML views, explores | Tables and relationships of a semantic model |
-| Dimensions | Columns (Power Query or calculated) |
-| Measures | Measures |
-| Derived tables | Power Query, upstream views or tables |
-| Access filters, user attributes | RLS |
-| Looks, dashboards | Report pages |
-
-LookML joins define the grain per explore; in Power BI the grain is fixed by the model: decide it explicitly (`powerbi-data-modeling`).
-
-### Looker concepts in more detail
-
-| Looker | Power BI | Notes |
-|---|---|---|
-| `dimension_group` (timeframes) | Columns of `Dim_Date` | Only if the shared calendar table has the same attributes. |
-| `relationship: many_to_one` in an explore join | Relationship cardinality and filter direction | Check the grain: see above. |
-| Persistent derived tables (PDT) | Upstream tables, dataflows or Power Query | Heavy logic belongs upstream. |
-| Parameters, templated filters (Liquid) | `Param_*` tables read with `SELECTEDVALUE` | Dynamic SQL has no equivalent: rebuild the intent. With several values selected, `SELECTEDVALUE` returns its default (or blank): decide the multi-select behaviour. |
-| Table calculations | Visual calculations or measures | `powerbi-dax-library`; check the current Microsoft documentation for the status of visual calculations. |
-| `access_filter` with user attributes | RLS roles (`RLS_<scope>`) | Test "sees exactly" and "sees nothing" (`powerbi-testing`). |
-| `sql_always_where` (fixed for everyone), `always_filter` (visible, changeable) | A filter in the source query or view; a default slicer or filter | Not RLS. |
-| Schedules, alerts | Subscriptions, data alerts | |
-
-- Looker Studio is a different product: confirm which one the source is.
-- **Inventory**: Looker's System Activity Explores (History, Content Usage; retention is limited) can give content usage; check the Looker documentation for the current model names. List per Look or dashboard: explores, filters, schedules, and access rules (as rules, not user lists).
+Looker (LookML) has its own reference: [mapping-looker.md](mapping-looker.md). Looker Studio is a different product; confirm which one the source is.
 
 ## SSAS / AAS tabular
 

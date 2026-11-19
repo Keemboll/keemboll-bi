@@ -5,7 +5,7 @@ One file at the project root, next to the `.pbip`, versioned with it. It tracks 
 ```markdown
 # Migration — <programme name>
 
-**Source platform**: <Tableau | Qlik Sense | Excel / Power Pivot | SSRS | PBIX | ...>
+**Source platform**: <Tableau | Qlik Sense | Cognos | BusinessObjects | MicroStrategy | OBIEE | Looker | Excel / Power Pivot | SSRS | PBIX | ...>
 **Target**: <Name>.SemanticModel + reports (PBIP)
 **Business owner**: <function, e.g. Head of Sales Controlling>
 **Source archive**: <archive location described by function, e.g. "BI team archive share, folder Migration/2026">

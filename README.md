@@ -20,7 +20,7 @@ The `keemboll-powerbi` plugin covers the whole life of a project:
 | Stage | Skill | Role |
 |---|---|---|
 | **Run** | `powerbi-project` | Phases of a BI project, `SCOPE.md` brief, `KPI.md` catalog, roles, definition of done |
-| | `powerbi-migration` | PBIX → PBIP, Tableau / Qlik / Excel / SSRS → Power BI: inventory, mapping, parity, cut-over |
+| | `powerbi-migration` | PBIX → PBIP, Tableau / Qlik / Cognos / BusinessObjects / MicroStrategy / OBIEE / Looker / Excel / SSRS → Power BI: inventory, mapping, parity, cut-over |
 | **Design the model** | `powerbi-conventions` | Naming, model organization, baseline DAX rules, approval process, `TEAM_RULES.md` |
 | | `powerbi-data-modeling` | Dimensional modeling: star schema, grain, keys, SCD, role-playing dimensions, bridge tables |
 | | `powerbi-power-query` | M code: staging, parameters, query folding, typing, incremental refresh |
