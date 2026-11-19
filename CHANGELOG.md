@@ -16,6 +16,12 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — versioning:
 - `powerbi-migration` (`mapping-tableau.md`): the percent-of-total `ALLSELECTED` pattern and the function equivalents table (null versus blank behaviour, `DATEDIFF` argument order).
 - `powerbi-migration` (`mapping-qlik.md`): the `UNION` / `EXCEPT` / `TREATAS` / `KEEPFILTERS` / `ALLEXCEPT` / `COALESCE` patterns of the set-analysis table (not executed): with a `Date` slicer, a `Year` slicer and `Year` on the axis; `ALLSELECTED` versus `REMOVEFILTERS` with a product slicer; whether `ALLEXCEPT ( Fact_Sales, ... )` clears `Dim_Product` and `Dim_Customer` (shared with `mapping-tableau.md`); `COALESCE` with zero and text.
 
+## [2.0.1] — 2026-11-13
+
+### Changed
+- The guide command is now **`/keemboll-bi-docs`** (was `/keemboll-docs`), matching the marketplace name. File renamed to `commands/keemboll-bi-docs.md`; README, `docs/agents.md` and `CONTRIBUTING.md` updated.
+
+
 ## [2.0.0] — 2026-11-13
 
 The repository becomes an English-only, community-ready toolkit, and the plugin grows from 14 to 20 skills to cover the current Power BI / Fabric landscape: AI readiness, DAX user-defined functions, Power Query, Direct Lake, operations and migration.

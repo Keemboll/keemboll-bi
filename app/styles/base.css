@@ -1,0 +1,20 @@
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 17px/1.65 var(--font); -webkit-font-smoothing: antialiased; }
+  a { color: var(--text); text-underline-offset: 3px; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+  h1, h2, h3 { line-height: 1.2; letter-spacing: -.015em; margin: 0; text-wrap: balance; }
+  h2 { font-size: clamp(1.6rem, 3vw, 2.1rem); margin-bottom: 10px; }
+  h3 { font-size: 1.1rem; }
+  p { margin: 0 0 14px; text-wrap: pretty; }
+  code, pre { font-family: var(--mono); }
+  code { background: var(--surface); border: 1px solid var(--line); padding: .08em .4em; border-radius: 6px; font-size: .88em; }
+  pre { background: var(--code); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; overflow: auto; font-size: .9rem; line-height: 1.6; margin: 0; }
+  pre code { background: none; border: 0; padding: 0; font-size: inherit; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+}

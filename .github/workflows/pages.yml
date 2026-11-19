@@ -1,0 +1,53 @@
+name: pages
+
+# Checks the static site in /app on every pull request, and publishes it to
+# GitHub Pages (https://keemboll.github.io/keemboll-bi/) on push to main.
+# One-time setup: Settings -> Pages -> Source: "GitHub Actions".
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "app/**"
+      - "scripts/check_site.py"
+      - ".github/workflows/pages.yml"
+  pull_request:
+    paths:
+      - "app/**"
+      - "scripts/check_site.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/check_site.py
+      - name: JavaScript syntax
+        run: for f in app/scripts/*.js; do node --check "$f"; done
+
+  deploy:
+    needs: check
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: app
+      - id: deployment
+        uses: actions/deploy-pages@v4
