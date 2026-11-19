@@ -64,3 +64,4 @@ Mapping / Parity / Cut-over: `—` / `to do` / `in progress` / `done` (`passed`,
 - **Embedded logic**: count and name the calculations, filters, parameters, scripts and macros; their content goes to section 3, not here.
 - **Security**: describe the rule ("each manager sees their region"), never the list of users.
 - An asset with no owner cannot be `keep`: find an owner or propose `retire`.
+- Qlik sources: where to find usage and what to list per app is in the *Inventory* section of [mapping-qlik.md](mapping-qlik.md).
