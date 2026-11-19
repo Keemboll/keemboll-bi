@@ -40,7 +40,7 @@ Notes:
 
 - **Step 3** — the business definition of each kept calculation goes to `KPI.md` (`powerbi-project`), status `implemented` but **to be confirmed**: an old formula is not an approved definition.
 - **Step 4** — rebuild pages for Power BI's interaction model (cross-filtering, drillthrough, tooltips) rather than pixel-copying the source; mock up first with `powerbi-mockup` when the layout changes.
-- **Step 5** — the expected value comes from the **source system or the old report**, never from the new measure. Default tolerance and parallel run: [references/parity-and-cutover.md](references/parity-and-cutover.md).
+- **Step 5** — the expected value comes from the **source system or the old report**, never from the new measure. Default tolerance and parallel run: [references/parity-and-cutover.md](references/parity-and-cutover.md). Excel sources: [references/excel-parity-tests.md](references/excel-parity-tests.md).
 - **Step 6** — default parallel run: **two reporting cycles** (e.g. two month-end closes). The old asset is frozen (read-only) from the first day of the parallel run.
 
 ## Format migrations inside Power BI
@@ -82,4 +82,5 @@ Microsoft announces retirements and default-format changes that owners must plan
 - [references/mapping-tableau.md](references/mapping-tableau.md) — Tableau → Power BI concepts.
 - [references/mapping-qlik.md](references/mapping-qlik.md) — Qlik → Power BI concepts.
 - [references/mapping-excel-ssrs.md](references/mapping-excel-ssrs.md) — Excel / Power Pivot, SSRS, Looker, SSAS / AAS.
+- [references/excel-parity-tests.md](references/excel-parity-tests.md) — Excel-specific parity test cases and procedure.
 - [references/parity-and-cutover.md](references/parity-and-cutover.md) — parity test plan, parallel run, communication, rollback, retirement.
