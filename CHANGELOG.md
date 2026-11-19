@@ -6,6 +6,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — versioning:
 
 ### Added
 - `powerbi-migration` (`mapping-excel-ssrs.md`): Excel formula mapping, paginated report concepts, Looker concepts, SSAS / AAS MDX and operations, inventory per source. Plugin 2.3.0.
+- `powerbi-migration` (`excel-parity-tests.md`): catalogue of Excel-specific parity traps (X-01 to X-13) and procedure. Plugin 2.4.0.
 - `powerbi-migration` (`mapping-tableau.md`): table calculations, function mapping, visual mapping, Tableau inventory sources. Plugin 2.2.0.
 - `powerbi-migration` (`mapping-qlik.md`): set analysis operators, `Total` and `Alt()`; load script constructs; visual mapping; Qlik inventory sources. Plugin 2.1.0.
 - Monthly trend watch (`.github/workflows/trend-watch.yml`): `scripts/watch_collect.py` collects the Power BI and Fabric blog feeds (`watch/sources.json`), `trend-scout` gets a batch mode (no network, no shell), `scripts/watch_issue.py` enforces the primary-source rule, drops rows already reported and opens a `trend-watch` issue. The workflow never changes the repository.

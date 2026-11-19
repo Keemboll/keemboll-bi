@@ -35,7 +35,7 @@ Each mapping is a pattern to test (parity per cell block, not per workbook). Wri
 ### Excel inventory and parity
 
 - **Inventory**: external links, hidden sheets and columns, macros, data connections and their refresh, manual inputs and who types them, copies of the same workbook with small differences. Usage comes from the file store or, for a published model, the tenant audit log, not from memory.
-- **Parity**: reconcile by blocks (a total per sheet area, then per key), and keep the manual-input values out of the repository (rule 4 of `SKILL.md`).
+- **Parity**: the Excel test cases and procedure are in [excel-parity-tests.md](excel-parity-tests.md). Keep the manual-input values out of the repository (rule 4 of `SKILL.md`).
 
 ## SSRS / paginated reports
 
