@@ -20,7 +20,7 @@ The `keemboll-powerbi` plugin covers the whole life of a project:
 | Stage | Skill | Role |
 |---|---|---|
 | **Run** | `powerbi-project` | Phases of a BI project, `SCOPE.md` brief, `KPI.md` catalog, roles, definition of done |
-| | `powerbi-migration` | PBIX → PBIP, Tableau / Qlik / Cognos / BusinessObjects / MicroStrategy / OBIEE / Looker / Excel / SSRS → Power BI: inventory, mapping, parity, cut-over |
+| | `powerbi-migration` | PBIX → PBIP, Tableau / Qlik / Cognos / BusinessObjects / MicroStrategy / OBIEE / Looker / Excel / SSRS / SSAS → Power BI: inventory, mapping, parity tests, cut-over |
 | **Design the model** | `powerbi-conventions` | Naming, model organization, baseline DAX rules, approval process, `TEAM_RULES.md` |
 | | `powerbi-data-modeling` | Dimensional modeling: star schema, grain, keys, SCD, role-playing dimensions, bridge tables |
 | | `powerbi-power-query` | M code: staging, parameters, query folding, typing, incremental refresh |
@@ -101,6 +101,8 @@ The Microsoft skills handle the **mechanics** (Fabric APIs, PBIR / PBIP files, M
 ## Contributing
 
 Issues and pull requests are welcome: a rule that is wrong, a Power BI change the skills do not reflect yet, a new visual reference, a new skill. Start with [CONTRIBUTING.md](CONTRIBUTING.md) (repository layout, how to add a skill, versioning, checklist) and [AGENTS.md](AGENTS.md) (editing rules shared by all agents).
+
+A monthly workflow (`trend-watch.yml`) reads the Power BI and Fabric blog feeds and opens one `trend-watch` issue listing what may affect the skills; it never changes the repository.
 
 Examples that were not executed against a real model are listed under "To validate" in [CHANGELOG.md](CHANGELOG.md) — confirming one of them is a good first contribution.
 
