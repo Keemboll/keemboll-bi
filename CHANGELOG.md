@@ -5,10 +5,12 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) — versioning:
 ## [Unreleased]
 
 ### Added
+- `powerbi-migration` (`mapping-tableau.md`): table calculations, function mapping, visual mapping, Tableau inventory sources. Plugin 2.2.0.
 - `powerbi-migration` (`mapping-qlik.md`): set analysis operators, `Total` and `Alt()`; load script constructs; visual mapping; Qlik inventory sources. Plugin 2.1.0.
 - Monthly trend watch (`.github/workflows/trend-watch.yml`): `scripts/watch_collect.py` collects the Power BI and Fabric blog feeds (`watch/sources.json`), `trend-scout` gets a batch mode (no network, no shell), `scripts/watch_issue.py` enforces the primary-source rule, drops rows already reported and opens a `trend-watch` issue. The workflow never changes the repository.
 
 ### To validate
+- `powerbi-migration` (`mapping-tableau.md`): the percent-of-total `ALLSELECTED` pattern and the function equivalents table (null versus blank behaviour, `DATEDIFF` argument order).
 - `powerbi-migration` (`mapping-qlik.md`): the `UNION` / `EXCEPT` / `TREATAS` / `KEEPFILTERS` / `ALLEXCEPT` / `COALESCE` patterns of the set-analysis table (not executed): with a `Date` slicer, a `Year` slicer and `Year` on the axis; `ALLSELECTED` versus `REMOVEFILTERS` with a product slicer; whether `ALLEXCEPT ( Fact_Sales, ... )` clears `Dim_Product` and `Dim_Customer` (shared with `mapping-tableau.md`); `COALESCE` with zero and text.
 
 ## [2.0.0] — 2026-11-13
